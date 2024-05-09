@@ -18,7 +18,6 @@ class ImagesListViewController: UIViewController {
         tableView.delegate = self
         tableView.dataSource = self
         tableView.separatorStyle = .none
-        tableView.contentInset = UIEdgeInsets(top: 12, left: 0, bottom: 12, right: 0)
         tableView.register(ImagesListCell.self, forCellReuseIdentifier: ImagesListCell.reuseIdentifier)
     }
     
@@ -29,8 +28,11 @@ class ImagesListViewController: UIViewController {
     private func configCell(for cell: ImagesListCell, with indexPath: IndexPath) {
         cell.backgroundColor = .ypBlack
         cell.selectionStyle = .none
-        cell.image.image = UIImage(named: String(images[indexPath.row]))
-        cell.customTextLabel.text = "Text"
+        
+        DispatchQueue.main.async {
+            cell.image.image = UIImage(named: String(self.images[indexPath.row]))
+            cell.customTextLabel.text = "Text"
+        }
     }
 }
 

@@ -9,8 +9,7 @@ import UIKit
 
 final class ImagesListCell: UITableViewCell {
     static let reuseIdentifier = "ImagesListCell"
-    private let customContentView = UIView()
-    private let gradientLayer = CAGradientLayer()
+    let customContentView = UIView()
     private let likeButton = UIButton(type: .custom)
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -41,6 +40,15 @@ final class ImagesListCell: UITableViewCell {
     
     override func layoutSubviews() {
         super.layoutSubviews()
+        custGradientLayer()
+    }
+    
+    func custGradientLayer() {
+        let gradient = CAGradientLayer()
+        gradient.frame = image.bounds
+        gradient.colors = [UIColor.clear.cgColor, UIColor.white.cgColor, UIColor.white.cgColor, UIColor.clear.cgColor]
+        gradient.locations = [0 as NSNumber, 0 as NSNumber, 0.9 as NSNumber, 1 as NSNumber]
+        image.layer.mask = gradient
     }
     
     func configureSubviews() {
@@ -48,16 +56,6 @@ final class ImagesListCell: UITableViewCell {
         customContentView.backgroundColor = .ypBlack
         customContentView.layer.cornerRadius = 16
         customContentView.clipsToBounds = true
-        
-        let gradientHeight = 30.0
-        let cornerRadius = customContentView.layer.cornerRadius
-        let bottomPadding = 8.0
-        gradientLayer.frame = CGRect(
-            x: 0,
-            y: customContentView.frame.height - gradientHeight - bottomPadding - cornerRadius,
-            width: customContentView.bounds.width,
-            height: gradientHeight
-        )
         
         likeButton.setImage(UIImage(named: "like"), for: .normal)
         likeButton.addTarget(self, action: #selector(likeButtonPressed), for: .touchUpInside)
@@ -74,6 +72,7 @@ final class ImagesListCell: UITableViewCell {
             image.leadingAnchor.constraint(equalTo: customContentView.leadingAnchor),
             image.trailingAnchor.constraint(equalTo: customContentView.trailingAnchor),
             
+            customTextLabel.heightAnchor.constraint(equalToConstant: 20),
             customTextLabel.bottomAnchor.constraint(equalTo: customContentView.bottomAnchor, constant: -16),
             customTextLabel.leadingAnchor.constraint(equalTo: customContentView.leadingAnchor, constant: 16),
             customTextLabel.trailingAnchor.constraint(equalTo: customContentView.trailingAnchor, constant: -16),
