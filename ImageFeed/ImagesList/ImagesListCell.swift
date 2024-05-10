@@ -10,7 +10,7 @@ import UIKit
 final class ImagesListCell: UITableViewCell {
     static let reuseIdentifier = "ImagesListCell"
     private let customContentView = UIView()
-    private let likeButton = UIButton(type: .custom)
+    let likeButton = UIButton(type: .custom)
 
     let image: UIImageView = {
         let imageView = UIImageView()
@@ -51,10 +51,10 @@ final class ImagesListCell: UITableViewCell {
         customContentView.clipsToBounds = true
         
         if let heartImage = UIImage(systemName: "heart.fill") {
-            let resizedHeartImage = heartImage.resizableImage(withCapInsets: .zero)
+            let resizedHeartImage = heartImage.resizableImage(withCapInsets: .zero, resizingMode: .tile)
             
             likeButton.setImage(resizedHeartImage, for: .normal)
-            likeButton.tintColor = .gray
+            //likeButton.tintColor = .ypWhite.withAlphaComponent(0.5)
             likeButton.addTarget(self, action: #selector(likeButtonPressed), for: .touchUpInside)
             likeButton.translatesAutoresizingMaskIntoConstraints = false
         }
@@ -65,6 +65,11 @@ final class ImagesListCell: UITableViewCell {
         contentView.addSubview(customContentView)
 
         NSLayoutConstraint.activate([
+            customContentView.topAnchor.constraint(equalTo: topAnchor),
+            customContentView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
+            customContentView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
+            customContentView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -8),
+            
             image.topAnchor.constraint(equalTo: customContentView.topAnchor),
             image.bottomAnchor.constraint(equalTo: customContentView.bottomAnchor),
             image.leadingAnchor.constraint(equalTo: customContentView.leadingAnchor),
@@ -75,20 +80,15 @@ final class ImagesListCell: UITableViewCell {
             customTextLabel.leadingAnchor.constraint(equalTo: customContentView.leadingAnchor, constant: 8),
             customTextLabel.trailingAnchor.constraint(equalTo: customContentView.trailingAnchor),
             
-            customContentView.topAnchor.constraint(equalTo: topAnchor),
-            customContentView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
-            customContentView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
-            customContentView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -16),
-            
             likeButton.topAnchor.constraint(equalTo: customContentView.topAnchor),
             likeButton.trailingAnchor.constraint(equalTo: customContentView.trailingAnchor),
             likeButton.widthAnchor.constraint(equalToConstant: 42),
-            likeButton.heightAnchor.constraint(equalToConstant: 42),
+            likeButton.heightAnchor.constraint(equalToConstant: 42)
         ])
         addGradientView()
     }
     
     @objc func likeButtonPressed() {
-        likeButton.tintColor = likeButton.tintColor == .red ? .gray : .red
+        //likeButton.tintColor = likeButton.tintColor == .ypRed ? .ypWhite.withAlphaComponent(0.5) : .ypRed
     }
 }
