@@ -24,7 +24,7 @@ final class ImagesListCell: UITableViewCell {
         let label = UILabel()
         label.numberOfLines = 0
         label.font = UIFont.systemFont(ofSize: 13, weight: .regular)
-        label.textColor = .white
+        label.textColor = .ypWhite
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -34,12 +34,14 @@ final class ImagesListCell: UITableViewCell {
         configureSubviews()
     }
     
-    private func custGradientLayer() {
-        let gradient = CAGradientLayer()
-        gradient.frame = image.bounds
-        gradient.colors = [UIColor.clear.cgColor, UIColor.white.cgColor, UIColor.white.cgColor, UIColor.clear.cgColor]
-        gradient.locations = [0 as NSNumber, 0 as NSNumber, 0.9 as NSNumber, 1 as NSNumber]
-        image.layer.mask = gradient
+    private func addGradientView() {
+        let gradientView = UIView(frame: CGRect(x: 0.0, y: customContentView.frame.height - 30.0, width: image.bounds.width, height: 30.0))
+        let gradientLayer = CAGradientLayer()
+        gradientLayer.frame = gradientView.bounds
+        gradientLayer.colors = [UIColor.clear.cgColor, UIColor.ypBlack.withAlphaComponent(0.2).cgColor]
+        gradientLayer.locations = [0.0, 1.0]
+        gradientView.layer.addSublayer(gradientLayer)
+        customContentView.addSubview(gradientView)
     }
     
     private func configureSubviews() {
@@ -48,10 +50,14 @@ final class ImagesListCell: UITableViewCell {
         customContentView.layer.cornerRadius = 16
         customContentView.clipsToBounds = true
         
-        likeButton.setImage(UIImage(systemName: "heart.fill"), for: .normal)
-        likeButton.tintColor = .gray
-        likeButton.addTarget(self, action: #selector(likeButtonPressed), for: .touchUpInside)
-        likeButton.translatesAutoresizingMaskIntoConstraints = false
+        if let heartImage = UIImage(systemName: "heart.fill") {
+            let resizedHeartImage = heartImage.resizableImage(withCapInsets: .zero)
+            
+            likeButton.setImage(resizedHeartImage, for: .normal)
+            likeButton.tintColor = .gray
+            likeButton.addTarget(self, action: #selector(likeButtonPressed), for: .touchUpInside)
+            likeButton.translatesAutoresizingMaskIntoConstraints = false
+        }
         
         customContentView.addSubview(image)
         customContentView.addSubview(likeButton)
@@ -64,10 +70,10 @@ final class ImagesListCell: UITableViewCell {
             image.leadingAnchor.constraint(equalTo: customContentView.leadingAnchor),
             image.trailingAnchor.constraint(equalTo: customContentView.trailingAnchor),
             
-            customTextLabel.heightAnchor.constraint(equalToConstant: 20),
-            customTextLabel.bottomAnchor.constraint(equalTo: customContentView.bottomAnchor, constant: -16),
-            customTextLabel.leadingAnchor.constraint(equalTo: customContentView.leadingAnchor, constant: 16),
-            customTextLabel.trailingAnchor.constraint(equalTo: customContentView.trailingAnchor, constant: -16),
+            customTextLabel.heightAnchor.constraint(equalToConstant: 18),
+            customTextLabel.bottomAnchor.constraint(equalTo: customContentView.bottomAnchor, constant: -8),
+            customTextLabel.leadingAnchor.constraint(equalTo: customContentView.leadingAnchor, constant: 8),
+            customTextLabel.trailingAnchor.constraint(equalTo: customContentView.trailingAnchor),
             
             customContentView.topAnchor.constraint(equalTo: topAnchor),
             customContentView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
@@ -76,10 +82,10 @@ final class ImagesListCell: UITableViewCell {
             
             likeButton.topAnchor.constraint(equalTo: customContentView.topAnchor),
             likeButton.trailingAnchor.constraint(equalTo: customContentView.trailingAnchor),
-            likeButton.widthAnchor.constraint(equalToConstant: 44),
-            likeButton.heightAnchor.constraint(equalToConstant: 44),
+            likeButton.widthAnchor.constraint(equalToConstant: 42),
+            likeButton.heightAnchor.constraint(equalToConstant: 42),
         ])
-        custGradientLayer()
+        addGradientView()
     }
     
     @objc func likeButtonPressed() {
