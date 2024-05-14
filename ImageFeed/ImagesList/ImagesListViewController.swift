@@ -28,14 +28,14 @@ class ImagesListViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.addSubview(tableView)
-        add(tableView: tableView)
+        configureTableView()
     }
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
     }
     
-    private func add(tableView: UITableView) {
+    private func configureTableView() {
         tableView.delegate = self
         tableView.dataSource = self
         tableView.separatorStyle = .none
@@ -54,11 +54,15 @@ class ImagesListViewController: UIViewController {
         cell.backgroundColor = .ypBlack
         cell.selectionStyle = .none
         
+        let imageName = photosName[indexPath.row]
+        let image = UIImage(named: imageName)
+        let dateText = dateFormatter.string(from: Date())
+        let isLiked = indexPath.row % 2 == 0
+        let tintColor = isLiked ? UIColor.white.withAlphaComponent(0.5) : UIColor.red
+        
         DispatchQueue.main.async {
-            cell.image.image = UIImage(named: self.photosName[indexPath.row])
-            cell.customTextLabel.text = self.dateFormatter.string(from: Date())
+            cell.configure(withImage: image, text: dateText, isLiked: isLiked, tintColor: tintColor)
         }
-        cell.likeButton.tintColor = indexPath.row % 2 == 0 ? .ypWhite.withAlphaComponent(0.5) : .ypRed
     }
 }
 
