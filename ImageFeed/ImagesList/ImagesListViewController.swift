@@ -50,7 +50,7 @@ class ImagesListViewController: UIViewController {
         ])
     }
     
-    private func configCell(for cell: ImagesListCell, with indexPath: IndexPath) {
+    private func configCell(_ cell: ImagesListCell, for indexPath: IndexPath) {
         cell.backgroundColor = .ypBlack
         cell.selectionStyle = .none
         
@@ -60,9 +60,7 @@ class ImagesListViewController: UIViewController {
         let isLiked = indexPath.row % 2 == 0
         let tintColor = isLiked ? UIColor.white.withAlphaComponent(0.5) : UIColor.red
         
-        DispatchQueue.main.async {
-            cell.configure(withImage: image, text: dateText, isLiked: isLiked, tintColor: tintColor)
-        }
+        cell.configure(withImage: image, text: dateText, isLiked: isLiked, tintColor: tintColor)
     }
 }
 
@@ -73,7 +71,7 @@ extension ImagesListViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: ImagesListCell.reuseIdentifier, for: indexPath) as! ImagesListCell
-        configCell(for: cell, with: indexPath)
+        configCell(cell, for: indexPath)
         return cell
     }
     

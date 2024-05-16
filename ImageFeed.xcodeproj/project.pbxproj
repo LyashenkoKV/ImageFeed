@@ -14,6 +14,7 @@
 		247966092BE8C58100E53C29 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 247966082BE8C58100E53C29 /* Assets.xcassets */; };
 		2479660C2BE8C58100E53C29 /* Base in Resources */ = {isa = PBXBuildFile; fileRef = 2479660B2BE8C58100E53C29 /* Base */; };
 		247966342BEA3B9500E53C29 /* ImagesListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 247966332BEA3B9500E53C29 /* ImagesListCell.swift */; };
+		24C496E62BF5F46400109D90 /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24C496E52BF5F46400109D90 /* ProfileViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +27,7 @@
 		2479660B2BE8C58100E53C29 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		2479660D2BE8C58100E53C29 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		247966332BEA3B9500E53C29 /* ImagesListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagesListCell.swift; sourceTree = "<group>"; };
+		24C496E52BF5F46400109D90 /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -74,6 +76,7 @@
 			children = (
 				247966032BE8C58000E53C29 /* ImagesListViewController.swift */,
 				247966332BEA3B9500E53C29 /* ImagesListCell.swift */,
+				24C496E52BF5F46400109D90 /* ProfileViewController.swift */,
 			);
 			path = ImagesList;
 			sourceTree = "<group>";
@@ -151,6 +154,7 @@
 			files = (
 				247966042BE8C58000E53C29 /* ImagesListViewController.swift in Sources */,
 				247966342BEA3B9500E53C29 /* ImagesListCell.swift in Sources */,
+				24C496E62BF5F46400109D90 /* ProfileViewController.swift in Sources */,
 				247966002BE8C58000E53C29 /* AppDelegate.swift in Sources */,
 				247966022BE8C58000E53C29 /* SceneDelegate.swift in Sources */,
 			);
