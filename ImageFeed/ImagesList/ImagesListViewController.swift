@@ -28,6 +28,7 @@ class ImagesListViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.addSubview(tableView)
+        view.backgroundColor = .ypBlack
         configureTableView()
     }
     

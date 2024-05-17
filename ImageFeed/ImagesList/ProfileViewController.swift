@@ -9,8 +9,6 @@ import UIKit
 
 final class ProfileViewController: UIViewController {
     
-    private let verticalStackView = UIStackView()
-    private let horizontalStackView = UIStackView()
     private let profileImage = UIImageView()
     private let exitButton = UIButton()
     private let nameLabel = UILabel()
@@ -20,58 +18,72 @@ final class ProfileViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .ypBlack
-        configureSubviews()
-        addSubviews()
-        addConstraints()
+        setupUI()
+        setupConstraints()
     }
     
-    private func addSubviews() {
-        view.addSubview(verticalStackView)
-        verticalStackView.addArrangedSubview(horizontalStackView)
-        horizontalStackView.addArrangedSubview(profileImage)
-        horizontalStackView.addArrangedSubview(exitButton)
-        verticalStackView.addArrangedSubview(nameLabel)
-        verticalStackView.addArrangedSubview(mailLabel)
-        verticalStackView.addArrangedSubview(descriptionLabel)
+    private func setupUI() {
+        configureProfileImage()
+        configureExitButton()
+        configureNameLabel()
+        configureMailLabel()
+        configureDescriptionLabel()
+        setupStackViews()
     }
     
-    private func configureSubviews() {
-        verticalStackView.axis = .vertical
-        verticalStackView.spacing = 10
-        
-        horizontalStackView.axis = .horizontal
-        horizontalStackView.alignment = .center
-        horizontalStackView.spacing = 10
-        horizontalStackView.distribution = .equalSpacing
-        
+    private func configureProfileImage() {
         profileImage.contentMode = .scaleAspectFit
         profileImage.image = UIImage(named: "Photo")
         profileImage.layer.cornerRadius = 35
         profileImage.clipsToBounds = true
-        
-        exitButton.setImage(UIImage(named: "Exit"), for: .normal)
+    }
+    
+    private func configureExitButton() {
+        exitButton.setImage(UIImage(systemName: "xmark.circle"), for: .normal)
         exitButton.tintColor = .ypWhite.withAlphaComponent(0.5)
         exitButton.addTarget(self, action: #selector(exitButtonPressed), for: .touchUpInside)
+    }
 
+    private func configureNameLabel() {
         nameLabel.textColor = .ypWhite
         nameLabel.font = UIFont.boldSystemFont(ofSize: 23)
         nameLabel.text = "Екатерина Новикова"
-        
+    }
+    
+    private func configureMailLabel() {
         mailLabel.textColor = .ypGray
         mailLabel.font = UIFont.systemFont(ofSize: 13)
         mailLabel.text = "@ekaterina_nov"
-        
+    }
+    
+    private func configureDescriptionLabel() {
         descriptionLabel.textColor = .ypWhite
         descriptionLabel.font = UIFont.systemFont(ofSize: 13)
         descriptionLabel.numberOfLines = 0
         descriptionLabel.text = "Hello, world!"
     }
     
-    private func addConstraints() {
+    private func setupStackViews() {
+        let horizontalStackView = UIStackView(arrangedSubviews: [profileImage, exitButton])
+        horizontalStackView.axis = .horizontal
+        horizontalStackView.alignment = .center
+        horizontalStackView.spacing = 10
+        horizontalStackView.distribution = .equalSpacing
+
+        let verticalStackView = UIStackView(arrangedSubviews: [horizontalStackView, nameLabel, mailLabel, descriptionLabel])
+        verticalStackView.axis = .vertical
+        verticalStackView.spacing = 10
+
+        view.addSubview(verticalStackView)
+        
         verticalStackView.translatesAutoresizingMaskIntoConstraints = false
         horizontalStackView.translatesAutoresizingMaskIntoConstraints = false
         profileImage.translatesAutoresizingMaskIntoConstraints = false
         exitButton.translatesAutoresizingMaskIntoConstraints = false
+    }
+    
+    private func setupConstraints() {
+        guard let verticalStackView = view.subviews.first(where: { $0 is UIStackView }) else { return }
         
         NSLayoutConstraint.activate([
             verticalStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
@@ -87,6 +99,5 @@ final class ProfileViewController: UIViewController {
     }
     
     @objc func exitButtonPressed() {
-        
     }
 }
