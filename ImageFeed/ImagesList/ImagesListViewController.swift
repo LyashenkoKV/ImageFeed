@@ -29,6 +29,12 @@ class ImagesListViewController: UIViewController {
         super.viewDidLoad()
         view.addSubview(tableView)
         view.backgroundColor = .ypBlack
+        
+        if let tabBarItem = self.tabBarItem {
+            let imageInset = UIEdgeInsets(top: 13, left: 0, bottom: -13, right: 0)
+            tabBarItem.imageInsets = imageInset
+        }
+        
         configureTableView()
     }
     

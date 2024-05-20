@@ -19,13 +19,20 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         let tabBarController = UITabBarController()
         
-        imagesListViewController.tabBarItem = UITabBarItem(title: "Images", image: UIImage(systemName: "square.stack.fill"), tag: 0)
-        profileViewController.tabBarItem = UITabBarItem(title: "Profile", image: UIImage(systemName: "person.crop.circle.fill"), tag: 1)
+        let imagesNavigationController = UINavigationController(rootViewController: imagesListViewController)
+        let profileNavigationController = UINavigationController(rootViewController: profileViewController)
         
-        tabBarController.viewControllers = [imagesListViewController, profileViewController]
+        imagesListViewController.tabBarItem = UITabBarItem(title: nil, image: UIImage(systemName: "square.stack.fill"), tag: 0)
+        profileViewController.tabBarItem = UITabBarItem(title: nil, image: UIImage(systemName: "person.crop.circle.fill"), tag: 1)
+        
+        tabBarController.viewControllers = [imagesNavigationController, profileNavigationController]
         
         UITabBar.appearance().barTintColor = .ypBlack
         UITabBar.appearance().tintColor = .ypWhite
+        
+        UINavigationBar.appearance().barTintColor = .ypBlack
+        UINavigationBar.appearance().tintColor = .ypWhite
+        UINavigationBar.appearance().titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.ypWhite]
         
         let window = UIWindow(windowScene: windowScene)
         self.window = window
