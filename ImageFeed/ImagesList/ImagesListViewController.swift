@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ImagesListViewController: UIViewController {
+final class ImagesListViewController: UIViewController {
     
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
@@ -71,6 +71,7 @@ class ImagesListViewController: UIViewController {
     }
 }
 
+// MARK: - UITableViewDataSource
 extension ImagesListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return photosName.count
@@ -94,7 +95,18 @@ extension ImagesListViewController: UITableViewDataSource {
     }
 }
 
+// MARK: - UITableViewDelegate
 extension ImagesListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let singleImageViewController = SingleImageViewController()
+        
+        guard let image = UIImage(named: photosName[indexPath.row]) else { return }
+        
+        singleImageViewController.configure(image: image)
+        singleImageViewController.modalPresentationStyle = .fullScreen
+        
+        DispatchQueue.main.async {
+            self.present(singleImageViewController, animated: true, completion: nil)
+        }
     }
 }
