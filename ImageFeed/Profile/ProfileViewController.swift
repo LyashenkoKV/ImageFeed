@@ -18,6 +18,7 @@ final class ProfileViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .ypBlack
+        profileImage.image = UIImage(systemName: "person.crop.circle.fill")
         setupUI()
         setupConstraints()
     }
@@ -39,8 +40,8 @@ final class ProfileViewController: UIViewController {
     }
     
     private func configureExitButton() {
-        exitButton.setImage(UIImage(named: "Exit"), for: .normal)
-        exitButton.tintColor = .ypWhite.withAlphaComponent(0.5)
+        exitButton.setImage(UIImage(systemName: "ipad.and.arrow.forward"), for: .normal)
+        exitButton.tintColor = .ypRed
         exitButton.addTarget(self, action: #selector(exitButtonPressed), for: .touchUpInside)
     }
 
@@ -67,7 +68,6 @@ final class ProfileViewController: UIViewController {
         let horizontalStackView = UIStackView(arrangedSubviews: [profileImage, exitButton])
         horizontalStackView.axis = .horizontal
         horizontalStackView.alignment = .center
-        horizontalStackView.spacing = 10
         horizontalStackView.distribution = .equalSpacing
 
         let verticalStackView = UIStackView(arrangedSubviews: [horizontalStackView, nameLabel, mailLabel, descriptionLabel])
@@ -87,8 +87,8 @@ final class ProfileViewController: UIViewController {
         
         NSLayoutConstraint.activate([
             verticalStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
-            verticalStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            verticalStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            verticalStackView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
+            verticalStackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
             
             profileImage.widthAnchor.constraint(equalToConstant: 70),
             profileImage.heightAnchor.constraint(equalTo: profileImage.widthAnchor),
