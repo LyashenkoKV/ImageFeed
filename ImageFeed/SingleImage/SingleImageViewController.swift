@@ -16,23 +16,25 @@ final class SingleImageViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .ypBlack
+        guard let image = imageView.image else { return }
         
         configureScrollView()
         configureImageView()
         configureBackButton()
         setupViews()
+        rescaleAndCenterImageInScrollView(image: image)
+    }
+    
+    func configure(image: UIImage) {
+        imageView.image = image
+        imageView.frame.size = image.size
     }
     
     private func configureScrollView() {
-        scrollView.minimumZoomScale = 1.0
-        scrollView.maximumZoomScale = 4.0
+        scrollView.minimumZoomScale = 0.1
+        scrollView.maximumZoomScale = 1.25
         scrollView.delegate = self
         scrollView.backgroundColor = .ypBlack
-        scrollView.contentSize = imageView.frame.size
-        let centerOffsetX = (scrollView.contentSize.width - scrollView.bounds.size.width) / 2
-        let centerOffsetY = (scrollView.contentSize.height - scrollView.bounds.size.height) / 2
-        let centerOffset = CGPoint(x: centerOffsetX, y: centerOffsetY)
-        scrollView.setContentOffset(centerOffset, animated: true)
     }
     
     private func configureImageView() {
@@ -74,9 +76,21 @@ final class SingleImageViewController: UIViewController {
         ])
     }
     
-    func configure(image: UIImage) {
-        imageView.image = image
-        imageView.frame = CGRect(origin: .zero, size: image.size)
+    private func rescaleAndCenterImageInScrollView(image: UIImage) {
+        let minZoomScale = scrollView.minimumZoomScale
+        let maxZoomScale = scrollView.maximumZoomScale
+        view.layoutIfNeeded()
+        let visibleRectSize = scrollView.bounds.size
+        let imageSize = image.size
+        let hScale = visibleRectSize.width / imageSize.width
+        let vScale = visibleRectSize.height / imageSize.height
+        let scale = min(maxZoomScale, max(minZoomScale, min(hScale, vScale)))
+        scrollView.setZoomScale(scale, animated: false)
+        scrollView.layoutIfNeeded()
+        let newContentSize = scrollView.contentSize
+        let x = (newContentSize.width - visibleRectSize.width) / 2
+        let y = (newContentSize.height - visibleRectSize.height) / 2
+        scrollView.setContentOffset(CGPoint(x: x, y: y), animated: false)
     }
     
     @objc private func backButtonTapped() {
