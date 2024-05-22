@@ -34,7 +34,7 @@ final class ProfileViewController: UIViewController {
     private func configureProfileImage() {
         profileImage.contentMode = .scaleAspectFit
         profileImage.image = UIImage(named: "Photo")
-        profileImage.layer.cornerRadius = 35
+        profileImage.layer.cornerRadius = 25
         profileImage.clipsToBounds = true
     }
     

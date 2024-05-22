@@ -12,17 +12,18 @@ final class SingleImageViewController: UIViewController {
     private let scrollView = UIScrollView()
     private let imageView = UIImageView()
     private let backButton = UIButton()
+    private let shareButton = UIButton()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .ypBlack
-        guard let image = imageView.image else { return }
         
         configureScrollView()
         configureImageView()
         configureBackButton()
+        configureShareButton()
         setupViews()
-        rescaleAndCenterImageInScrollView(image: image)
+        rescaleAndCenterImageInScrollView()
     }
     
     func configure(image: UIImage) {
@@ -49,14 +50,24 @@ final class SingleImageViewController: UIViewController {
         backButton.addTarget(self, action: #selector(backButtonTapped), for: .touchUpInside)
     }
     
+    private func configureShareButton() {
+        shareButton.setImage(UIImage(systemName: "square.and.arrow.down"), for: .normal)
+        shareButton.tintColor = .ypWhite
+        shareButton.layer.cornerRadius = 25
+        shareButton.backgroundColor = .ypBlack
+        shareButton.addTarget(self, action: #selector(shareButtonTapped), for: .touchUpInside)
+    }
+    
     private func setupViews() {
         view.addSubview(scrollView)
         scrollView.addSubview(imageView)
         view.addSubview(backButton)
+        view.addSubview(shareButton)
         
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         backButton.translatesAutoresizingMaskIntoConstraints = false
+        shareButton.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -72,11 +83,18 @@ final class SingleImageViewController: UIViewController {
             backButton.widthAnchor.constraint(equalToConstant: 24),
             backButton.heightAnchor.constraint(equalToConstant: 24),
             backButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8),
-            backButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 8)
+            backButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 8),
+            
+            shareButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
+            shareButton.widthAnchor.constraint(equalToConstant: 50),
+            shareButton.heightAnchor.constraint(equalToConstant: 50),
+            shareButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: 17)
         ])
     }
     
-    private func rescaleAndCenterImageInScrollView(image: UIImage) {
+    private func rescaleAndCenterImageInScrollView() {
+        guard let image = imageView.image else { return }
+        
         let minZoomScale = scrollView.minimumZoomScale
         let maxZoomScale = scrollView.maximumZoomScale
         view.layoutIfNeeded()
@@ -87,14 +105,41 @@ final class SingleImageViewController: UIViewController {
         let scale = min(maxZoomScale, max(minZoomScale, min(hScale, vScale)))
         scrollView.setZoomScale(scale, animated: false)
         scrollView.layoutIfNeeded()
-        let newContentSize = scrollView.contentSize
-        let x = (newContentSize.width - visibleRectSize.width) / 2
-        let y = (newContentSize.height - visibleRectSize.height) / 2
-        scrollView.setContentOffset(CGPoint(x: x, y: y), animated: false)
+        centerImage()
+    }
+    
+    private func centerImage() {
+        let scrollViewSize = scrollView.bounds.size
+        let imageSize = imageView.frame.size
+        let horizontalPadding = max(0, (scrollViewSize.width - imageSize.width) / 2)
+        let verticalPadding = max(0, (scrollViewSize.height - imageSize.height) / 2)
+        scrollView.contentInset = UIEdgeInsets(top: verticalPadding, 
+                                               left: horizontalPadding,
+                                               bottom: verticalPadding,
+                                               right: horizontalPadding)
     }
     
     @objc private func backButtonTapped() {
         dismiss(animated: true, completion: nil)
+    }
+    
+    @objc private func shareButtonTapped() {
+        guard let image = imageView.image else { return }
+        let activityViewController = UIActivityViewController(activityItems: [image], applicationActivities: nil)
+        activityViewController.popoverPresentationController?.sourceView = self.view
+        
+        activityViewController.completionWithItemsHandler = { _, success, _, error in
+            if let error = error {
+                print("Error sharing: \(error.localizedDescription)")
+            } else if success {
+                print("Successfully shared the image")
+            } else {
+                print("Sharing was cancelled")
+            }
+        }
+        DispatchQueue.main.async {
+            self.present(activityViewController, animated: true, completion: nil)
+        }
     }
 }
 
@@ -102,5 +147,9 @@ final class SingleImageViewController: UIViewController {
 extension SingleImageViewController: UIScrollViewDelegate {
     func viewForZooming(in scrollView: UIScrollView) -> UIView? {
         return imageView
+    }
+    
+    func scrollViewDidZoom(_ scrollView: UIScrollView) {
+        centerImage()
     }
 }
