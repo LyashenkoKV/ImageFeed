@@ -39,7 +39,7 @@ final class ProfileViewController: UIViewController {
     }
     
     private func configureExitButton() {
-        exitButton.setImage(UIImage(systemName: "xmark.circle"), for: .normal)
+        exitButton.setImage(UIImage(named: "Exit"), for: .normal)
         exitButton.tintColor = .ypWhite.withAlphaComponent(0.5)
         exitButton.addTarget(self, action: #selector(exitButtonPressed), for: .touchUpInside)
     }
@@ -98,6 +98,5 @@ final class ProfileViewController: UIViewController {
         ])
     }
     
-    @objc func exitButtonPressed() {
-    }
+    @objc func exitButtonPressed() {}
 }
