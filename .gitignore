@@ -9,6 +9,10 @@
 ## User settings
 xcuserdata/
 
+# Ignore xcschememanagement.plist
+*.xcodeproj/xcuserdata/*/xcschememanagement.plist
+*.xcworkspace/xcuserdata/*/xcschememanagement.plist
+
 ## compatibility with Xcode 8 and earlier (ignoring not required starting Xcode 9)
 *.xcscmblueprint
 *.xccheckout
