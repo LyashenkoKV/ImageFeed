@@ -11,10 +11,12 @@ final class AuthViewController: UIViewController {
     
     private let image = UIImageView()
     private let loginButton = UIButton()
+    private let webViewViewController = WebViewViewController()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .ypBlack
+        webViewViewController.delegate = self
         setupUI()
         setupConstraints()
     }
@@ -59,7 +61,16 @@ final class AuthViewController: UIViewController {
     }
     
     @objc func loginButtonPressed() {
-        let webViewViewController = WebViewViewController()
         navigationController?.pushViewController(webViewViewController, animated: true)
+    }
+}
+
+extension AuthViewController: WebViewViewControllerDelegate {
+    func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String) {
+        //TODO: process code
+    }
+    
+    func webViewViewControllerDidCancel(_ vc: WebViewViewController) {
+        navigationController?.popViewController(animated: true)
     }
 }

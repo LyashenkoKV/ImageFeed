@@ -64,7 +64,7 @@ final class ImagesListCell: UITableViewCell {
             let resizedHeartImage = heartImage.resizableImage(withCapInsets: .zero, resizingMode: .tile)
             
             likeButton.setImage(resizedHeartImage, for: .normal)
-            //likeButton.tintColor = .ypWhite.withAlphaComponent(0.5)
+            //likeButton.tintColor = .ypWhite.withAlphaComponent(0.5) //TODO: process code
             likeButton.addTarget(self, action: #selector(likeButtonPressed), for: .touchUpInside)
             likeButton.translatesAutoresizingMaskIntoConstraints = false
         }
@@ -93,6 +93,7 @@ final class ImagesListCell: UITableViewCell {
     }
     
     @objc func likeButtonPressed() {
+        //TODO: process code
         //likeButton.tintColor = likeButton.tintColor == .ypRed ? .ypWhite.withAlphaComponent(0.5) : .ypRed
     }
     

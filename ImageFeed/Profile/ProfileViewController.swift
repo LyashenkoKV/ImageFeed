@@ -97,5 +97,7 @@ final class ProfileViewController: UIViewController {
         ])
     }
     
-    @objc func exitButtonPressed() {}
+    @objc func exitButtonPressed() {
+        //TODO: process code
+    }
 }
