@@ -14,11 +14,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         
+        let authViewController = AuthViewController()
         let imagesListViewController = ImagesListViewController()
         let profileViewController = ProfileViewController()
         
         let tabBarController = UITabBarController()
         
+        let authNavigationController = UINavigationController(rootViewController: authViewController)
         let imagesNavigationController = UINavigationController(rootViewController: imagesListViewController)
         let profileNavigationController = UINavigationController(rootViewController: profileViewController)
         
@@ -37,7 +39,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let window = UIWindow(windowScene: windowScene)
         self.window = window
         
-        window.rootViewController = tabBarController
+        window.rootViewController = authNavigationController//tabBarController
         window.makeKeyAndVisible()
     }
 }
