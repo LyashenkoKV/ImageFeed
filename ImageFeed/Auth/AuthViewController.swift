@@ -12,6 +12,7 @@ final class AuthViewController: UIViewController {
     private let image = UIImageView()
     private let loginButton = UIButton()
     private let webViewViewController = WebViewViewController()
+    private let oauth2Service = OAuth2Service.shared
 
     override func viewDidLoad() {
         super.viewDidLoad()
