@@ -53,8 +53,9 @@ final class OAuth2Service: OAuth2ServiceProtocol {
             if let response = response as? HTTPURLResponse {
                 switch response.statusCode {
                 case 200..<300:
-                    if let data = data {
+                    if let data {
                         fulfillCompletionOnTheMainThread(.success(data))
+                        OAuth2TokenStorage.shared.token = String(decoding: data, as: UTF8.self)
                     } else {
                         fulfillCompletionOnTheMainThread(.failure(NetworkError.emptyData))
                     }

@@ -84,10 +84,13 @@ extension AuthService: WKNavigationDelegate {
                 guard let self else { return }
                 
                 switch result {
-                case .success:
+                case .success(let token):
                     self.delegate?.authService(self, didAuthenticateWithCode: code)
+                    print("Токен получен")
+                    print("\(token)") // ❌
                 case .failure(let error):
                     self.showErrorAlert(with: NetworkErrorHandler.errorMessage(from: error))
+                    print(NetworkError.errorFetchingAccessToken)
                 }
             }
             decisionHandler(.cancel)
