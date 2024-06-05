@@ -19,15 +19,14 @@ final class AuthViewController: UIViewController {
         view.backgroundColor = .ypBlack
         webViewViewController.delegate = self
         setupUI()
-        setupConstraints()
     }
     
     private func setupUI() {
         configureProfileImage()
         configureLoginButton()
-        
         view.addSubview(image)
         view.addSubview(loginButton)
+        setupConstraints()
     }
     
     private func configureProfileImage() {

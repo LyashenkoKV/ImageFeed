@@ -24,25 +24,28 @@ final class AuthService: NSObject {
         super.init()
         self.webView.navigationDelegate = self
     }
-
+    
+    private func authURL() -> String? {
+        if var urlComponents = URLComponents(string: Constants.unsplashAuthorizeURLString) {
+            
+            urlComponents.queryItems = [
+                URLQueryItem(name: "client_id", value: Constants.accessKey),
+                URLQueryItem(name: "redirect_uri", value: Constants.redirectURI),
+                URLQueryItem(name: "response_type", value: "code"),
+                URLQueryItem(name: "scope", value: Constants.accessScope)
+            ]
+            
+            return urlComponents.url?.absoluteString
+        }
+        return ""
+    }
+    
     func loadAuthView() {
-        guard var urlComponents = URLComponents(string: Constants.unsplashAuthorizeURLString) else {
+        guard let urlString = authURL(), let url = URL(string: urlString) else {
             print(NetworkError.invalidURLString)
             return
         }
-
-        urlComponents.queryItems = [
-            URLQueryItem(name: "client_id", value: Constants.accessKey),
-            URLQueryItem(name: "redirect_uri", value: Constants.redirectURI),
-            URLQueryItem(name: "response_type", value: "code"),
-            URLQueryItem(name: "scope", value: Constants.accessScope)
-        ]
-
-        guard let url = urlComponents.url else {
-            print(NetworkError.unableToConstructURL)
-            return
-        }
-
+        
         let request = URLRequest(url: url)
         DispatchQueue.main.async {
             self.webView.load(request)
@@ -75,6 +78,7 @@ extension AuthService: WKNavigationDelegate {
     func webView(_ webView: WKWebView, 
                  decidePolicyFor navigationAction: WKNavigationAction,
                  decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        
         if let code = code(from: navigationAction) {
             OAuth2Service.shared.fetchOAuthToken(code: code) { [weak self] result in
                 guard let self else { return }
@@ -87,6 +91,7 @@ extension AuthService: WKNavigationDelegate {
                 }
             }
             decisionHandler(.cancel)
+            return
         } else {
             decisionHandler(.allow)
         }

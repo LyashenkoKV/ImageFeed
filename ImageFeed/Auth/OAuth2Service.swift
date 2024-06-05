@@ -40,36 +40,42 @@ final class OAuth2Service: OAuth2ServiceProtocol {
     }
     
     func fetchOAuthToken(code: String, completion: @escaping (Result<Data, Error>) -> Void) {
-        let request = makeOAuthTokenRequest(code: code)
         
+        let fulfillCompletionOnTheMainThread: (Result<Data, Error>) -> Void = { result in
+            DispatchQueue.main.async {
+                completion(result)
+            }
+        }
+        
+        let request = makeOAuthTokenRequest(code: code)
         let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
             
             if let response = response as? HTTPURLResponse {
                 switch response.statusCode {
                 case 200..<300:
                     if let data = data {
-                        completion(.success(data))
+                        fulfillCompletionOnTheMainThread(.success(data))
                     } else {
-                        completion(.failure(NetworkError.emptyData))
+                        fulfillCompletionOnTheMainThread(.failure(NetworkError.emptyData))
                     }
                 case 400:
-                    completion(.failure(NetworkError.invalidURLString))
+                    fulfillCompletionOnTheMainThread(.failure(NetworkError.invalidURLString))
                 case 401:
-                    completion(.failure(NetworkError.errorFetchingAccessToken))
+                    fulfillCompletionOnTheMainThread(.failure(NetworkError.errorFetchingAccessToken))
                 case 403:
-                    completion(.failure(NetworkError.unauthorized))
+                    fulfillCompletionOnTheMainThread(.failure(NetworkError.unauthorized))
                 case 422:
-                    completion(.failure(NetworkError.unknownError))
+                    fulfillCompletionOnTheMainThread(.failure(NetworkError.unknownError))
                 case 500..<600:
-                    completion(.failure(NetworkError.serviceUnavailable))
+                    fulfillCompletionOnTheMainThread(.failure(NetworkError.serviceUnavailable))
                 default:
-                    completion(.failure(NetworkError.unknownError))
+                    fulfillCompletionOnTheMainThread(.failure(NetworkError.unknownError))
                 }
             } else if let error {
                 if let nsError = error as NSError?, nsError.code == NSURLErrorTimedOut {
-                    completion(.failure(NetworkError.requestTimedOut))
+                    fulfillCompletionOnTheMainThread(.failure(NetworkError.requestTimedOut))
                 } else {
-                    completion(.failure(NetworkError.noInternetConnection))
+                    fulfillCompletionOnTheMainThread(.failure(NetworkError.noInternetConnection))
                 }
             }
         }

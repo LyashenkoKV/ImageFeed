@@ -13,18 +13,14 @@ class WebViewViewController: UIViewController {
     weak var delegate: WebViewViewControllerDelegate?
     private let webView = WKWebView()
     private let progressView = UIProgressView()
-    private var authService: AuthService!
+    private var authService: AuthService?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .ypWhite
-        configureBackButton()
-        configureProgressView()
         setupUI()
-        setupConstraints()
         authService = AuthService(webView: webView)
-        authService.delegate = self
-        authService.loadAuthView()
+        authService?.delegate = self
         updateProgress()
     }
     
@@ -32,6 +28,7 @@ class WebViewViewController: UIViewController {
         super.viewWillAppear(animated)
         
         webView.addObserver(self, forKeyPath: #keyPath(WKWebView.estimatedProgress), options: .new, context: nil)
+        authService?.loadAuthView()
     }
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -61,8 +58,11 @@ class WebViewViewController: UIViewController {
     
     private func setupUI() {
         configureWebView()
+        configureBackButton()
+        configureProgressView()
         view.addSubview(progressView)
         view.addSubview(webView)
+        setupConstraints()
     }
     
     private func configureBackButton() {
@@ -101,7 +101,8 @@ class WebViewViewController: UIViewController {
                                       message: "Вы уверены, что хотите покинуть страницу авторизации?",
                                       preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "Отмена", style: .cancel, handler: nil))
-        alert.addAction(UIAlertAction(title: "Выход", style: .destructive) { _ in
+        alert.addAction(UIAlertAction(title: "Выход", style: .destructive) { [weak self] _ in
+            guard let self else { return }
             self.delegate?.webViewViewControllerDidCancel(self)
         })
         present(alert, animated: true)
