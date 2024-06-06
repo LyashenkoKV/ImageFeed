@@ -8,13 +8,14 @@
 
 import Foundation
 import WebKit
-
+// MARK: - protocol
 protocol AuthServiceDelegate: AnyObject {
     func authService(_ authService: AuthService, didAuthenticateWithCode code: String)
     func authServiceDidCancel(_ authService: AuthService)
     func authService(_ authService: AuthService, didFailWithError error: Error)
 }
 
+// MARK: - object
 final class AuthService: NSObject {
     weak var delegate: AuthServiceDelegate?
     private let webView: WKWebView
@@ -79,7 +80,7 @@ extension AuthService: WKNavigationDelegate {
     }
 }
 
-// MARK: - code
+// MARK: - code method
 extension AuthService {
     private func code(from navigationAction: WKNavigationAction) -> String? {
         if

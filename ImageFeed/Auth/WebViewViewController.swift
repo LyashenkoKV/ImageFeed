@@ -8,9 +8,18 @@
 import UIKit
 import WebKit
 
+// MARK: - protocol
+protocol WebViewViewControllerDelegate: AnyObject {
+    func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String)
+    func webViewViewControllerDidCancel(_ vc: WebViewViewController)
+    func webViewViewController(_ vc: WebViewViewController, didFailWithError error: Error)
+}
+
+// MARK: - UIViewController
 class WebViewViewController: UIViewController {
     
     weak var delegate: WebViewViewControllerDelegate?
+    
     private let webView = WKWebView()
     private let progressView = UIProgressView()
     private var authService: AuthService?
@@ -109,6 +118,7 @@ class WebViewViewController: UIViewController {
     }
 }
 
+// MARK: - AuthServiceDelegate
 extension WebViewViewController: AuthServiceDelegate {
     func authService(_ authService: AuthService, didAuthenticateWithCode code: String) {
         delegate?.webViewViewController(self, didAuthenticateWithCode: code)

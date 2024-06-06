@@ -6,12 +6,13 @@
 //
 
 import Foundation
-
+// MARK: - protocol
 protocol OAuth2ServiceProtocol {
     func makeOAuthTokenRequest(code: String) -> URLRequest
     func fetchOAuthToken(code: String, completion: @escaping (Result<String, Error>) -> Void)
 }
 
+// MARK: - object
 final class OAuth2Service: OAuth2ServiceProtocol {
     static let shared = OAuth2Service()
     private let oAuth2TokenStorage = OAuth2TokenStorage.shared

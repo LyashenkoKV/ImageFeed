@@ -6,11 +6,12 @@
 //
 
 import UIKit
-
+// MARK: - protocol
 protocol AuthViewControllerDelegate: AnyObject {
     func didAuthenticate(_ vc: AuthViewController)
 }
 
+// MARK: - UIViewController
 final class AuthViewController: UIViewController {
     
     weak var delegate: AuthViewControllerDelegate?
@@ -41,13 +42,13 @@ final class AuthViewController: UIViewController {
     }
     
     private func configureLoginButton() {
+        loginButton.translatesAutoresizingMaskIntoConstraints = false
         loginButton.setTitle("Войти", for: .normal)
         loginButton.setTitleColor(.ypBlack, for: .normal)
         loginButton.titleLabel?.font = .boldSystemFont(ofSize: 17)
         loginButton.layer.cornerRadius = 16
         loginButton.layer.masksToBounds = true
         loginButton.backgroundColor = .ypWhite
-        loginButton.translatesAutoresizingMaskIntoConstraints = false
         loginButton.addTarget(self, action: #selector(loginButtonPressed), for: .touchUpInside)
     }
     
@@ -77,6 +78,7 @@ final class AuthViewController: UIViewController {
     }
 }
 
+// MARK: - WebViewViewControllerDelegate
 extension AuthViewController: WebViewViewControllerDelegate {
     func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String) {
         oauth2Service.fetchOAuthToken(code: code) { [weak self] result in
