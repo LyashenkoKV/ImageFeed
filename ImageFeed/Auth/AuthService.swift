@@ -18,7 +18,6 @@ protocol AuthServiceDelegate: AnyObject {
 final class AuthService: NSObject {
     weak var delegate: AuthServiceDelegate?
     private let webView: WKWebView
-    private let oauth2Service = OAuth2Service.shared
 
     init(webView: WKWebView) {
         self.webView = webView
@@ -50,20 +49,6 @@ final class AuthService: NSObject {
         }
     }
     
-    private func code(from navigationAction: WKNavigationAction) -> String? {
-        if
-            let url = navigationAction.request.url,
-            let urlComponents = URLComponents(string: url.absoluteString),
-            urlComponents.path == "/oauth/authorize/native",
-            let items = urlComponents.queryItems,
-            let codeItem = items.first(where: { $0.name == "code" })
-        {
-            return codeItem.value
-        } else {
-            return nil
-        }
-    }
-    
     private func showErrorAlert(with message: String) {
         delegate?.authService(self, didFailWithError: NSError(domain: "",
                                                               code: 0,
@@ -71,6 +56,7 @@ final class AuthService: NSObject {
     }
 }
 
+// MARK: - WKNavigationDelegate
 extension AuthService: WKNavigationDelegate {
     func webView(_ webView: WKWebView, 
                  decidePolicyFor navigationAction: WKNavigationAction,
@@ -90,5 +76,22 @@ extension AuthService: WKNavigationDelegate {
     
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         print("Загрузка завершена")
+    }
+}
+
+// MARK: - code
+extension AuthService {
+    private func code(from navigationAction: WKNavigationAction) -> String? {
+        if
+            let url = navigationAction.request.url,
+            let urlComponents = URLComponents(string: url.absoluteString),
+            urlComponents.path == "/oauth/authorize/native",
+            let items = urlComponents.queryItems,
+            let codeItem = items.first(where: { $0.name == "code" })
+        {
+            return codeItem.value
+        } else {
+            return nil
+        }
     }
 }

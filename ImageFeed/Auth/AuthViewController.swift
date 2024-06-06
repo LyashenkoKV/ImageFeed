@@ -7,7 +7,13 @@
 
 import UIKit
 
+protocol AuthViewControllerDelegate: AnyObject {
+    func didAuthenticate(_ vc: AuthViewController)
+}
+
 final class AuthViewController: UIViewController {
+    
+    weak var delegate: AuthViewControllerDelegate?
     
     private let image = UIImageView()
     private let loginButton = UIButton()
@@ -78,6 +84,7 @@ extension AuthViewController: WebViewViewControllerDelegate {
             
             switch result {
             case .success(let token):
+                self.delegate?.didAuthenticate(self)
                 print("Аутентификация выполнена! Токен: \(token)")
             case .failure(let error):
                 let errorMessage = NetworkErrorHandler.errorMessage(from: error)
