@@ -56,7 +56,7 @@ final class OAuth2Service: OAuth2ServiceProtocol {
             guard let self = self else { return }
             
             if let response = response as? HTTPURLResponse {
-                print("response \(response)")
+                print("response \(response.statusCode)")
                 switch response.statusCode {
                 case 200..<300:
                     if let data {

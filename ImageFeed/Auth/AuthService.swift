@@ -75,22 +75,8 @@ extension AuthService: WKNavigationDelegate {
     func webView(_ webView: WKWebView, 
                  decidePolicyFor navigationAction: WKNavigationAction,
                  decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-        
         if let code = code(from: navigationAction) {
-            oauth2Service.fetchOAuthToken(code: code) { [weak self] result in
-                guard let self else {
-                    decisionHandler(.cancel)
-                    return
-                }
-                switch result {
-                case .success(let token):
-                    self.delegate?.authService(self, didAuthenticateWithCode: token)
-                    print("Токен получен \(token)")
-                case .failure(let error):
-                    self.showErrorAlert(with: NetworkErrorHandler.errorMessage(from: error))
-                    print(NetworkError.errorFetchingAccessToken)
-                }
-            }
+            self.delegate?.authService(self, didAuthenticateWithCode: code)
             decisionHandler(.cancel)
         } else {
             decisionHandler(.allow)
@@ -100,11 +86,6 @@ extension AuthService: WKNavigationDelegate {
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
         showErrorAlert(with: NetworkErrorHandler.errorMessage(from: error))
         print("Ошибка при загрузке: \(error.localizedDescription)")
-    }
-
-    func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
-        showErrorAlert(with: NetworkErrorHandler.errorMessage(from: error))
-        print("Ошибка при начальной загрузке: \(error.localizedDescription)")
     }
     
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
