@@ -18,6 +18,7 @@ protocol AuthServiceDelegate: AnyObject {
 final class AuthService: NSObject {
     weak var delegate: AuthServiceDelegate?
     private let webView: WKWebView
+    private let oauth2Service = OAuth2Service.shared
 
     init(webView: WKWebView) {
         self.webView = webView
@@ -26,33 +27,29 @@ final class AuthService: NSObject {
     }
     
     private func authURL() -> String? {
-        if var urlComponents = URLComponents(string: Constants.unsplashAuthorizeURLString) {
-            
-            urlComponents.queryItems = [
-                URLQueryItem(name: "client_id", value: Constants.accessKey),
-                URLQueryItem(name: "redirect_uri", value: Constants.redirectURI),
-                URLQueryItem(name: "response_type", value: "code"),
-                URLQueryItem(name: "scope", value: Constants.accessScope)
-            ]
-            
-            return urlComponents.url?.absoluteString
-        }
-        return ""
+        var urlComponents = URLComponents(string: Constants.unsplashAuthorizeURLString)
+        urlComponents?.queryItems = [
+            URLQueryItem(name: "client_id", value: Constants.accessKey),
+            URLQueryItem(name: "redirect_uri", value: Constants.redirectURI),
+            URLQueryItem(name: "response_type", value: "code"),
+            URLQueryItem(name: "scope", value: Constants.accessScope)
+        ]
+        return urlComponents?.url?.absoluteString
     }
     
     func loadAuthView() {
         guard let urlString = authURL(), let url = URL(string: urlString) else {
-            print(NetworkError.invalidURLString)
+            delegate?.authService(self, didFailWithError: NetworkError.invalidURLString)
             return
         }
+        print("Загружаем URL: \(url.absoluteString)")
         
         let request = URLRequest(url: url)
         DispatchQueue.main.async {
             self.webView.load(request)
-            print("Loading request: \(request)")
         }
     }
-
+    
     private func code(from navigationAction: WKNavigationAction) -> String? {
         if
             let url = navigationAction.request.url,
@@ -66,9 +63,9 @@ final class AuthService: NSObject {
             return nil
         }
     }
-
+    
     private func showErrorAlert(with message: String) {
-        delegate?.authService(self, didFailWithError: NSError(domain: "", 
+        delegate?.authService(self, didFailWithError: NSError(domain: "",
                                                               code: 0,
                                                               userInfo: [NSLocalizedDescriptionKey: message]))
     }
@@ -80,21 +77,21 @@ extension AuthService: WKNavigationDelegate {
                  decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         
         if let code = code(from: navigationAction) {
-            OAuth2Service.shared.fetchOAuthToken(code: code) { [weak self] result in
-                guard let self else { return }
-                
+            oauth2Service.fetchOAuthToken(code: code) { [weak self] result in
+                guard let self else {
+                    decisionHandler(.cancel)
+                    return
+                }
                 switch result {
                 case .success(let token):
-                    self.delegate?.authService(self, didAuthenticateWithCode: code)
-                    print("Токен получен")
-                    print("\(token)") // ❌
+                    self.delegate?.authService(self, didAuthenticateWithCode: token)
+                    print("Токен получен \(token)")
                 case .failure(let error):
                     self.showErrorAlert(with: NetworkErrorHandler.errorMessage(from: error))
                     print(NetworkError.errorFetchingAccessToken)
                 }
             }
             decisionHandler(.cancel)
-            return
         } else {
             decisionHandler(.allow)
         }
@@ -102,9 +99,15 @@ extension AuthService: WKNavigationDelegate {
 
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
         showErrorAlert(with: NetworkErrorHandler.errorMessage(from: error))
+        print("Ошибка при загрузке: \(error.localizedDescription)")
     }
 
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
         showErrorAlert(with: NetworkErrorHandler.errorMessage(from: error))
+        print("Ошибка при начальной загрузке: \(error.localizedDescription)")
+    }
+    
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        print("Загрузка завершена")
     }
 }

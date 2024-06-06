@@ -63,22 +63,34 @@ final class AuthViewController: UIViewController {
     @objc func loginButtonPressed() {
         navigationController?.pushViewController(webViewViewController, animated: true)
     }
+    
+    private func showErrorAlert(with message: String) {
+        let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        present(alert, animated: true)
+    }
 }
 
 extension AuthViewController: WebViewViewControllerDelegate {
+    
     func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String) {
-        OAuth2Service.shared.fetchOAuthToken(code: code) { result in
-            
+        oauth2Service.fetchOAuthToken(code: code) { result in
             switch result {
-            case .success:
-                print("Authentication successful!")
+            case .success(let token):
+                print("Аутентификация выполнена! Токен: \(token)")
             case .failure(let error):
-                print("Authentication failed: \(error.localizedDescription)")
+                let errorMessage = NetworkErrorHandler.errorMessage(from: error)
+                self.showErrorAlert(with: errorMessage)
+                print("Ошибка аутентификации: \(errorMessage)")
             }
         }
     }
     
     func webViewViewControllerDidCancel(_ vc: WebViewViewController) {
         navigationController?.popViewController(animated: true)
+    }
+    
+    func webViewViewController(_ vc: WebViewViewController, didFailWithError error: any Error) {
+        showErrorAlert(with: NetworkErrorHandler.errorMessage(from: error))
     }
 }

@@ -9,11 +9,12 @@ import Foundation
 
 protocol OAuth2ServiceProtocol {
     func makeOAuthTokenRequest(code: String) -> URLRequest
-    func fetchOAuthToken(code: String, completion: @escaping (Result<Data, Error>) -> Void)
+    func fetchOAuthToken(code: String, completion: @escaping (Result<String, Error>) -> Void)
 }
 
 final class OAuth2Service: OAuth2ServiceProtocol {
     static let shared = OAuth2Service()
+    private let oAuth2TokenStorage = OAuth2TokenStorage.shared
     private init() {}
     
     func makeOAuthTokenRequest(code: String) -> URLRequest {
@@ -22,40 +23,48 @@ final class OAuth2Service: OAuth2ServiceProtocol {
         components.host = "unsplash.com"
         components.path = "/oauth/token"
 
-        components.queryItems = [
-            URLQueryItem(name: "client_id", value: Constants.accessKey),
-            URLQueryItem(name: "client_secret", value: Constants.secretKey),
-            URLQueryItem(name: "redirect_uri", value: Constants.redirectURI),
-            URLQueryItem(name: "code", value: code),
-            URLQueryItem(name: "grant_type", value: "authorization_code")
+        let bodyParameters = [
+            "client_id": Constants.accessKey,
+            "client_secret": Constants.secretKey,
+            "redirect_uri": Constants.redirectURI,
+            "code": code,
+            "grant_type": "authorization_code"
         ]
-
-        guard let url = components.url else {
+        
+        guard let httpBody = try? JSONSerialization.data(withJSONObject: bodyParameters, options: []) else {
             fatalError(NetworkError.unableToConstructURL.localizedDescription)
         }
 
-        var request = URLRequest(url: url)
+        var request = URLRequest(url: components.url!)
         request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = httpBody
+        
         return request
     }
     
-    func fetchOAuthToken(code: String, completion: @escaping (Result<Data, Error>) -> Void) {
-        
-        let fulfillCompletionOnTheMainThread: (Result<Data, Error>) -> Void = { result in
+    func fetchOAuthToken(code: String, completion: @escaping (Result<String, Error>) -> Void) {
+            
+        let fulfillCompletionOnTheMainThread: (Result<String, Error>) -> Void = { result in
             DispatchQueue.main.async {
                 completion(result)
             }
         }
         
         let request = makeOAuthTokenRequest(code: code)
-        let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
+        let task = URLSession.shared.dataTask(with: request) { [weak self] (data, response, error) in
+            guard let self = self else { return }
             
             if let response = response as? HTTPURLResponse {
+                print("response \(response)")
                 switch response.statusCode {
                 case 200..<300:
                     if let data {
-                        fulfillCompletionOnTheMainThread(.success(data))
-                        OAuth2TokenStorage.shared.token = String(decoding: data, as: UTF8.self)
+                        guard let token = parseAndStoreToken(data: data) else {
+                            fulfillCompletionOnTheMainThread(.failure(NetworkError.emptyData))
+                            return
+                        }
+                        fulfillCompletionOnTheMainThread(.success(token))
                     } else {
                         fulfillCompletionOnTheMainThread(.failure(NetworkError.emptyData))
                     }
@@ -65,14 +74,16 @@ final class OAuth2Service: OAuth2ServiceProtocol {
                     fulfillCompletionOnTheMainThread(.failure(NetworkError.errorFetchingAccessToken))
                 case 403:
                     fulfillCompletionOnTheMainThread(.failure(NetworkError.unauthorized))
+                case 404:
+                    fulfillCompletionOnTheMainThread(.failure(NetworkError.notFound))
                 case 422:
                     fulfillCompletionOnTheMainThread(.failure(NetworkError.unknownError))
-                case 500..<600:
+                case 500, 503:
                     fulfillCompletionOnTheMainThread(.failure(NetworkError.serviceUnavailable))
                 default:
                     fulfillCompletionOnTheMainThread(.failure(NetworkError.unknownError))
                 }
-            } else if let error {
+            } else if let error = error {
                 if let nsError = error as NSError?, nsError.code == NSURLErrorTimedOut {
                     fulfillCompletionOnTheMainThread(.failure(NetworkError.requestTimedOut))
                 } else {
@@ -81,5 +92,19 @@ final class OAuth2Service: OAuth2ServiceProtocol {
             }
         }
         task.resume()
+    }
+    
+    private func parseAndStoreToken(data: Data) -> String? {
+        do {
+            let tokenResponse = try JSONDecoder().decode(OAuthTokenResponseBody.self, from: data)
+            let accessToken = tokenResponse.accessToken
+            self.oAuth2TokenStorage.token = accessToken
+            print("Токен доступа сохранен: \(accessToken)")
+            return accessToken
+        } catch {
+            let error = NetworkErrorHandler.errorMessage(from: error)
+            print("Ошибка анализа ответа токена: \(error)")
+            return nil
+        }
     }
 }

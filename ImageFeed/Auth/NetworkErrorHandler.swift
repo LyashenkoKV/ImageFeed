@@ -22,6 +22,7 @@ enum NetworkError: Error {
     case serviceUnavailable
     case errorFetchingAccessToken
     case unauthorized
+    case notFound
 }
 
 struct NetworkErrorHandler: NetworkErrorProtocol {
@@ -51,6 +52,8 @@ struct NetworkErrorHandler: NetworkErrorProtocol {
                 errorMessage = "Ошибка получения токена доступа"
             case .unauthorized:
                 errorMessage = "Недостаточно прав"
+            case .notFound:
+                errorMessage = "Запрашиаемый ресурс не существует"
             }
         }
         return errorMessage

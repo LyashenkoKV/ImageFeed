@@ -107,12 +107,6 @@ class WebViewViewController: UIViewController {
         })
         present(alert, animated: true)
     }
-    
-    private func showErrorAlert(with message: String) {
-        let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-        present(alert, animated: true)
-    }
 }
 
 extension WebViewViewController: AuthServiceDelegate {
@@ -125,6 +119,6 @@ extension WebViewViewController: AuthServiceDelegate {
     }
 
     func authService(_ authService: AuthService, didFailWithError error: Error) {
-        showErrorAlert(with: NetworkErrorHandler.errorMessage(from: error))
+        delegate?.webViewViewController(self, didFailWithError: error)
     }
 }
