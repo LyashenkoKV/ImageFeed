@@ -7,11 +7,20 @@
 
 import Foundation
 
+import Foundation
+
 enum Constants {
-    static let accessKey = "YDB9YmrpeX5TFK7woqynOGi5hBWLuoBG8bJ9kxaOLb8"
-    static let secretKey = "oEgPi3ZUXExKMhNxwpw0eAKRWBCyfRjh17NuYONkMEs"
-    static let redirectURI = "urn:ietf:wg:oauth:2.0:oob"
+    static var accessKey: String {
+        return KeychainService.shared.get(valueFor: "accessKey") ?? ""
+    }
+    static var secretKey: String {
+        return KeychainService.shared.get(valueFor: "secretKey") ?? ""
+    }
+    static var redirectURI: String {
+        return KeychainService.shared.get(valueFor: "redirectURI") ?? ""
+    }
     static let accessScope = "public+read_user+write_likes"
     static let defaultBaseURL = URL(string: "https://api.unsplash.com")!
     static let unsplashAuthorizeURLString = "https://unsplash.com/oauth/authorize"
 }
+
