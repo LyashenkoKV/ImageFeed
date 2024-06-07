@@ -16,8 +16,26 @@ final class AuthViewController: UIViewController {
     
     weak var delegate: AuthViewControllerDelegate?
     
-    private let image = UIImageView()
-    private let loginButton = UIButton()
+    private lazy var image: UIImageView = {
+        let imageView = UIImageView()
+        imageView.image = UIImage(named: "VectorAuth")
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        return imageView
+    }()
+    
+    private lazy var loginButton: UIButton = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle("Войти", for: .normal)
+        button.setTitleColor(.ypBlack, for: .normal)
+        button.titleLabel?.font = .boldSystemFont(ofSize: 17)
+        button.layer.cornerRadius = 16
+        button.layer.masksToBounds = true
+        button.backgroundColor = .ypWhite
+        button.addTarget(self, action: #selector(loginButtonPressed), for: .touchUpInside)
+        return button
+    }()
+    
     private let webViewViewController = WebViewViewController()
     private let oauth2Service = OAuth2Service.shared
 
@@ -29,27 +47,9 @@ final class AuthViewController: UIViewController {
     }
     
     private func setupUI() {
-        configureProfileImage()
-        configureLoginButton()
         view.addSubview(image)
         view.addSubview(loginButton)
         setupConstraints()
-    }
-    
-    private func configureProfileImage() {
-        image.image = UIImage(named: "VectorAuth")
-        image.translatesAutoresizingMaskIntoConstraints = false
-    }
-    
-    private func configureLoginButton() {
-        loginButton.translatesAutoresizingMaskIntoConstraints = false
-        loginButton.setTitle("Войти", for: .normal)
-        loginButton.setTitleColor(.ypBlack, for: .normal)
-        loginButton.titleLabel?.font = .boldSystemFont(ofSize: 17)
-        loginButton.layer.cornerRadius = 16
-        loginButton.layer.masksToBounds = true
-        loginButton.backgroundColor = .ypWhite
-        loginButton.addTarget(self, action: #selector(loginButtonPressed), for: .touchUpInside)
     }
     
     private func setupConstraints() {
@@ -67,7 +67,7 @@ final class AuthViewController: UIViewController {
         ])
     }
     
-    @objc func loginButtonPressed() {
+    @objc private func loginButtonPressed() {
         navigationController?.pushViewController(webViewViewController, animated: true)
     }
     

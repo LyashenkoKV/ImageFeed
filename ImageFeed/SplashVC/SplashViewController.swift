@@ -17,7 +17,7 @@ final class SplashViewController: UIViewController {
     }
     
     private func checkAuthorization() {
-        if let _ = storage.token {
+        if storage.token != nil {
             switchToTabBarController()
         } else {
             showAuthViewController()

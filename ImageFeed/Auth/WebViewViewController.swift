@@ -20,8 +20,28 @@ class WebViewViewController: UIViewController {
     
     weak var delegate: WebViewViewControllerDelegate?
     
-    private let webView = WKWebView()
-    private let progressView = UIProgressView()
+    private lazy var webView: WKWebView = {
+        let webView = WKWebView()
+        webView.translatesAutoresizingMaskIntoConstraints = false
+        return webView
+    }()
+    
+    private lazy var progressView: UIProgressView = {
+        let progressView = UIProgressView()
+        progressView.translatesAutoresizingMaskIntoConstraints = false
+        progressView.progressTintColor = .ypBlack
+        return progressView
+    }()
+    
+    private lazy var backButton: UIBarButtonItem = {
+        let backButton = UIBarButtonItem(image: UIImage(systemName: "chevron.backward"),
+                                         style: .plain,
+                                         target: self,
+                                         action: #selector(backButtonPressed))
+        backButton.tintColor = .ypBlack
+        return backButton
+    }()
+    
     private var authService: AuthService?
     
     override func viewDidLoad() {
@@ -66,30 +86,14 @@ class WebViewViewController: UIViewController {
     }
     
     private func setupUI() {
-        configureWebView()
         configureBackButton()
-        configureProgressView()
         view.addSubview(progressView)
         view.addSubview(webView)
         setupConstraints()
     }
     
     private func configureBackButton() {
-        let backButton = UIBarButtonItem(image: UIImage(systemName: "chevron.backward"),
-                                         style: .plain,
-                                         target: self,
-                                         action: #selector(backButtonPressed))
-        backButton.tintColor = .ypBlack
         navigationItem.leftBarButtonItem = backButton
-    }
-    
-    private func configureProgressView() {
-        progressView.translatesAutoresizingMaskIntoConstraints = false
-        progressView.progressTintColor = .ypBlack
-    }
-    
-    private func configureWebView() {
-        webView.translatesAutoresizingMaskIntoConstraints = false
     }
     
     private func setupConstraints() {

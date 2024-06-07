@@ -16,7 +16,9 @@ protocol OAuth2ServiceProtocol {
 // MARK: - Object
 final class OAuth2Service: OAuth2ServiceProtocol {
     static let shared = OAuth2Service()
+    
     private let oAuth2TokenStorage = OAuth2TokenStorage.shared
+    
     private init() {}
 
     func makeOAuthTokenRequest(code: String) -> URLRequest? {

@@ -83,13 +83,11 @@ extension AuthService: WKNavigationDelegate {
 // MARK: - code method
 extension AuthService {
     private func code(from navigationAction: WKNavigationAction) -> String? {
-        if
-            let url = navigationAction.request.url,
+        if let url = navigationAction.request.url,
             let urlComponents = URLComponents(string: url.absoluteString),
-            urlComponents.path == "/oauth/authorize/native",
+            urlComponents.path == Constants.authRedirectPath,
             let items = urlComponents.queryItems,
-            let codeItem = items.first(where: { $0.name == "code" })
-        {
+            let codeItem = items.first(where: { $0.name == "code" }) {
             return codeItem.value
         } else {
             return nil
