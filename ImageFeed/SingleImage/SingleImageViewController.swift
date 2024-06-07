@@ -9,19 +9,49 @@ import UIKit
 
 final class SingleImageViewController: UIViewController {
     
-    private let scrollView = UIScrollView()
-    private let imageView = UIImageView()
-    private let backButton = UIButton()
-    private let shareButton = UIButton()
-
+    private lazy var scrollView: UIScrollView = {
+        let scrollView = UIScrollView()
+        scrollView.minimumZoomScale = 0.1
+        scrollView.maximumZoomScale = 1.25
+        scrollView.delegate = self
+        scrollView.backgroundColor = .ypBlack
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        return scrollView
+    }()
+    
+    private lazy var imageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFit
+        imageView.backgroundColor = .ypBlack
+        imageView.clipsToBounds = true
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        return imageView
+    }()
+    
+    private lazy var backButton: UIButton = {
+        let button = UIButton()
+        button.setImage(UIImage(systemName: "chevron.backward"), for: .normal)
+        button.tintColor = .ypWhite
+        button.addTarget(self, action: #selector(backButtonTapped), for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
+    private lazy var shareButton: UIButton = {
+        let button = UIButton()
+        button.setImage(UIImage(systemName: "square.and.arrow.down"), for: .normal)
+        button.tintColor = .ypWhite
+        button.layer.cornerRadius = 25
+        button.backgroundColor = .ypBlack
+        button.addTarget(self, action: #selector(shareButtonTapped), for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .ypBlack
         
-        configureScrollView()
-        configureImageView()
-        configureBackButton()
-        configureShareButton()
         setupViews()
         rescaleAndCenterImageInScrollView()
     }
@@ -31,43 +61,11 @@ final class SingleImageViewController: UIViewController {
         imageView.frame.size = image.size
     }
     
-    private func configureScrollView() {
-        scrollView.minimumZoomScale = 0.1
-        scrollView.maximumZoomScale = 1.25
-        scrollView.delegate = self
-        scrollView.backgroundColor = .ypBlack
-    }
-    
-    private func configureImageView() {
-        imageView.contentMode = .scaleAspectFit
-        imageView.backgroundColor = .ypBlack
-        imageView.clipsToBounds = true
-    }
-
-    private func configureBackButton() {
-        backButton.setImage(UIImage(systemName: "chevron.backward"), for: .normal)
-        backButton.tintColor = .ypWhite
-        backButton.addTarget(self, action: #selector(backButtonTapped), for: .touchUpInside)
-    }
-    
-    private func configureShareButton() {
-        shareButton.setImage(UIImage(systemName: "square.and.arrow.down"), for: .normal)
-        shareButton.tintColor = .ypWhite
-        shareButton.layer.cornerRadius = 25
-        shareButton.backgroundColor = .ypBlack
-        shareButton.addTarget(self, action: #selector(shareButtonTapped), for: .touchUpInside)
-    }
-    
     private func setupViews() {
         view.addSubview(scrollView)
         scrollView.addSubview(imageView)
         view.addSubview(backButton)
         view.addSubview(shareButton)
-        
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
-        backButton.translatesAutoresizingMaskIntoConstraints = false
-        shareButton.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -113,7 +111,7 @@ final class SingleImageViewController: UIViewController {
         let imageSize = imageView.frame.size
         let horizontalPadding = max(0, (scrollViewSize.width - imageSize.width) / 2)
         let verticalPadding = max(0, (scrollViewSize.height - imageSize.height) / 2)
-        scrollView.contentInset = UIEdgeInsets(top: verticalPadding, 
+        scrollView.contentInset = UIEdgeInsets(top: verticalPadding,
                                                left: horizontalPadding,
                                                bottom: verticalPadding,
                                                right: horizontalPadding)
