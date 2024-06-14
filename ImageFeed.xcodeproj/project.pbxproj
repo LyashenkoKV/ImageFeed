@@ -24,6 +24,7 @@
 		24C042862C107E7900746C39 /* SplashViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24C042852C107E7900746C39 /* SplashViewController.swift */; };
 		24C0428A2C11E1CE00746C39 /* KeychainService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24C042892C11E1CE00746C39 /* KeychainService.swift */; };
 		24C0428D2C1B19D500746C39 /* ProgressHUD in Frameworks */ = {isa = PBXBuildFile; productRef = 24C0428C2C1B19D500746C39 /* ProgressHUD */; };
+		24C0428F2C1C3DEA00746C39 /* UIBlockingProgressHUD.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24C0428E2C1C3DEA00746C39 /* UIBlockingProgressHUD.swift */; };
 		24C496E62BF5F46400109D90 /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24C496E52BF5F46400109D90 /* ProfileViewController.swift */; };
 		24C496EC2BFB431F00109D90 /* SingleImageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24C496EB2BFB431F00109D90 /* SingleImageViewController.swift */; };
 /* End PBXBuildFile section */
@@ -47,6 +48,7 @@
 		24C042822C106BD200746C39 /* OAuth2TokenStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OAuth2TokenStorage.swift; sourceTree = "<group>"; };
 		24C042852C107E7900746C39 /* SplashViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashViewController.swift; sourceTree = "<group>"; };
 		24C042892C11E1CE00746C39 /* KeychainService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainService.swift; sourceTree = "<group>"; };
+		24C0428E2C1C3DEA00746C39 /* UIBlockingProgressHUD.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIBlockingProgressHUD.swift; sourceTree = "<group>"; };
 		24C496E52BF5F46400109D90 /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
 		24C496EB2BFB431F00109D90 /* SingleImageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleImageViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -131,6 +133,7 @@
 				24C042802C1062DC00746C39 /* OAuthTokenResponseBody.swift */,
 				24C042822C106BD200746C39 /* OAuth2TokenStorage.swift */,
 				24C042892C11E1CE00746C39 /* KeychainService.swift */,
+				24C0428E2C1C3DEA00746C39 /* UIBlockingProgressHUD.swift */,
 			);
 			path = Auth;
 			sourceTree = "<group>";
@@ -245,6 +248,7 @@
 				24C0428A2C11E1CE00746C39 /* KeychainService.swift in Sources */,
 				247966022BE8C58000E53C29 /* SceneDelegate.swift in Sources */,
 				24C042862C107E7900746C39 /* SplashViewController.swift in Sources */,
+				24C0428F2C1C3DEA00746C39 /* UIBlockingProgressHUD.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
