@@ -14,7 +14,7 @@ protocol OAuth2ServiceProtocol {
 }
 
 // MARK: - Object
-final class OAuth2Service: OAuth2ServiceProtocol {
+final class OAuth2Service {
     static let shared = OAuth2Service()
     
     private let oAuth2TokenStorage = OAuth2TokenStorage.shared
@@ -23,6 +23,23 @@ final class OAuth2Service: OAuth2ServiceProtocol {
     
     private init() {}
 
+    private func parseAndStoreToken(data: Data) -> String? {
+        do {
+            let tokenResponse = try JSONDecoder().decode(OAuthTokenResponseBody.self, from: data)
+            let accessToken = tokenResponse.accessToken
+            self.oAuth2TokenStorage.token = accessToken
+            print("Access token saved: \(accessToken)")
+            return accessToken
+        } catch {
+            print("Token parsing error: \(error.localizedDescription)")
+            return nil
+        }
+    }
+}
+
+// MARK: - OAuth2ServiceProtocol
+extension OAuth2Service: OAuth2ServiceProtocol {
+    
     func makeOAuthTokenRequest(code: String) -> URLRequest? {
         var components = URLComponents()
         components.scheme = "https"
@@ -120,19 +137,4 @@ final class OAuth2Service: OAuth2ServiceProtocol {
             task.resume()
         }
     }
-
-    private func parseAndStoreToken(data: Data) -> String? {
-        do {
-            let tokenResponse = try JSONDecoder().decode(OAuthTokenResponseBody.self, from: data)
-            let accessToken = tokenResponse.accessToken
-            self.oAuth2TokenStorage.token = accessToken
-            print("Access token saved: \(accessToken)")
-            return accessToken
-        } catch {
-            print("Token parsing error: \(error.localizedDescription)")
-            return nil
-        }
-    }
 }
-
-

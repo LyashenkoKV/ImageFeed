@@ -13,7 +13,7 @@ protocol UIBlockingProgressHUDProtocol {
     static func dismiss()
 }
 
-final class UIBlockingProgressHUD: UIBlockingProgressHUDProtocol {
+final class UIBlockingProgressHUD {
     private static var window: UIWindow? {
         if #available(iOS 15.0, *) {
             guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene else {
@@ -24,7 +24,9 @@ final class UIBlockingProgressHUD: UIBlockingProgressHUDProtocol {
             return UIApplication.shared.windows.first
         }
     }
-    
+}
+
+extension UIBlockingProgressHUD: UIBlockingProgressHUDProtocol {
     static func show() {
         window?.isUserInteractionEnabled = false
         ProgressHUD.animate()
