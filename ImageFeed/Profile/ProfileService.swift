@@ -15,6 +15,7 @@ protocol ProfileServiceProtocol {
 final class ProfileService {
     static let shared = ProfileService()
     
+    private(set) var profile: Profile?
     private let queue = DispatchQueue(label: "ProfileServiceQueue", attributes: .concurrent)
     
     private init() {}
@@ -76,11 +77,12 @@ extension ProfileService: ProfileServiceProtocol {
                 }
                 
                 if response.statusCode == 200 {
-                    guard let data = data, let token = self.parse(data: data) else {
+                    guard let data = data, let profile = self.parse(data: data) else {
                         fulfillCompletionOnTheMainThread(.failure(NetworkError.emptyData))
                         return
                     }
-                    fulfillCompletionOnTheMainThread(.success(token))
+                    self.profile = profile
+                    fulfillCompletionOnTheMainThread(.success(profile))
                 } else {
                     let error = NetworkErrorHandler.handleErrorResponse(statusCode: response.statusCode)
                     fulfillCompletionOnTheMainThread(.failure(error))

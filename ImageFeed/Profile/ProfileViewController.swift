@@ -80,7 +80,10 @@ final class ProfileViewController: UIViewController {
         view.backgroundColor = .ypBlack
         setupUI()
         setupConstraints()
-        getProfileData()
+        
+        if let profile = profileService.profile {
+            updateProfileDetails(profile: profile)
+        }
     }
     
     private func setupUI() {
@@ -101,27 +104,14 @@ final class ProfileViewController: UIViewController {
         ])
     }
     
-    private func getProfileData() {
-        guard let token = OAuth2TokenStorage.shared.token else { return }
-        
-        profileService.fetchProfile(token) { [weak self] result in
-            guard let self else { return }
-            switch result {
-            case .success(let profile):
-                DispatchQueue.main.async {
-                    self.nameLabel.text = profile.name
-                    self.loginNameLabel.text = profile.loginName
-                    self.descriptionLabel.text = profile.bio
-                }
-            case .failure(let error):
-                let errorMessage = NetworkErrorHandler.errorMessage(from: error)
-                print("Нет данных профиля: \(errorMessage)")
-            }
-        }
+    private func updateProfileDetails(profile: Profile) {
+        nameLabel.text = profile.name
+        loginNameLabel.text = profile.loginName
+        descriptionLabel.text = profile.bio
     }
     
     @objc private func exitButtonPressed() {
         //TODO: process code
-       _ = keychainService.delete(valueFor: tokenKey) // ❌
+        _ = keychainService.delete(valueFor: tokenKey) // ❌
     }
 }
