@@ -9,6 +9,9 @@ import UIKit
 
 final class ProfileViewController: UIViewController {
     
+    private let keychainService = KeychainService.shared // ❌
+    private let tokenKey = "OAuth2Token" // ❌
+    
     private lazy var profileImage: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFit
@@ -101,5 +104,6 @@ final class ProfileViewController: UIViewController {
     
     @objc private func exitButtonPressed() {
         //TODO: process code
+       _ = keychainService.delete(valueFor: tokenKey) // ❌
     }
 }

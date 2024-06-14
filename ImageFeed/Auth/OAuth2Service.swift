@@ -18,6 +18,8 @@ final class OAuth2Service: OAuth2ServiceProtocol {
     static let shared = OAuth2Service()
     
     private let oAuth2TokenStorage = OAuth2TokenStorage.shared
+    private var currentTask: URLSessionDataTask?
+    private var currentCode: String?
     
     private init() {}
 
@@ -49,57 +51,74 @@ final class OAuth2Service: OAuth2ServiceProtocol {
 
         return request
     }
-
+    
     func fetchOAuthToken(code: String, completion: @escaping (Result<String, Error>) -> Void) {
-        guard let request = makeOAuthTokenRequest(code: code) else {
-            completion(.failure(NetworkError.unableToConstructURL))
-            return
-        }
-
-        let task = URLSession.shared.dataTask(with: request) { [weak self] (data, response, error) in
-            guard let self = self else { return }
-
-            let fulfillCompletionOnTheMainThread: (Result<String, Error>) -> Void = { result in
+        DispatchQueue.main.async {
+            if let currentCode = self.currentCode, currentCode == code, let currentTask = self.currentTask {
+                currentTask.cancel()
+            } else if let currentCode = self.currentCode, currentCode != code {
+                completion(.failure(NetworkError.tooManyRequests))
+                return
+            }
+            
+            guard let request = self.makeOAuthTokenRequest(code: code) else {
+                completion(.failure(NetworkError.unableToConstructURL))
+                return
+            }
+            
+            self.currentCode = code
+            
+            let task = URLSession.shared.dataTask(with: request) { [weak self] (data, response, error) in
+                guard let self else { return }
+                
                 DispatchQueue.main.async {
-                    completion(result)
+                    self.currentTask = nil
+                    self.currentCode = nil
                 }
-            }
-
-            if let error = error {
-                fulfillCompletionOnTheMainThread(.failure(error))
-                return
-            }
-
-            guard let response = response as? HTTPURLResponse else {
-                fulfillCompletionOnTheMainThread(.failure(NetworkError.unknownError))
-                return
-            }
-
-            switch response.statusCode {
-            case 200..<300:
-                guard let data = data, let token = self.parseAndStoreToken(data: data) else {
-                    fulfillCompletionOnTheMainThread(.failure(NetworkError.emptyData))
+                
+                let fulfillCompletionOnTheMainThread: (Result<String, Error>) -> Void = { result in
+                    DispatchQueue.main.async {
+                        completion(result)
+                    }
+                }
+                
+                if let error = error {
+                    fulfillCompletionOnTheMainThread(.failure(error))
                     return
                 }
-                fulfillCompletionOnTheMainThread(.success(token))
-
-            case 400:
-                fulfillCompletionOnTheMainThread(.failure(NetworkError.invalidURLString))
-            case 401:
-                fulfillCompletionOnTheMainThread(.failure(NetworkError.errorFetchingAccessToken))
-            case 403:
-                fulfillCompletionOnTheMainThread(.failure(NetworkError.unauthorized))
-            case 404:
-                fulfillCompletionOnTheMainThread(.failure(NetworkError.notFound))
-            case 422:
-                fulfillCompletionOnTheMainThread(.failure(NetworkError.unknownError))
-            case 500, 503:
-                fulfillCompletionOnTheMainThread(.failure(NetworkError.serviceUnavailable))
-            default:
-                fulfillCompletionOnTheMainThread(.failure(NetworkError.unknownError))
+                
+                guard let response = response as? HTTPURLResponse else {
+                    fulfillCompletionOnTheMainThread(.failure(NetworkError.unknownError))
+                    return
+                }
+                
+                switch response.statusCode {
+                case 200..<300:
+                    guard let data = data, let token = self.parseAndStoreToken(data: data) else {
+                        fulfillCompletionOnTheMainThread(.failure(NetworkError.emptyData))
+                        return
+                    }
+                    fulfillCompletionOnTheMainThread(.success(token))
+                    
+                case 400:
+                    fulfillCompletionOnTheMainThread(.failure(NetworkError.invalidURLString))
+                case 401:
+                    fulfillCompletionOnTheMainThread(.failure(NetworkError.errorFetchingAccessToken))
+                case 403:
+                    fulfillCompletionOnTheMainThread(.failure(NetworkError.unauthorized))
+                case 404:
+                    fulfillCompletionOnTheMainThread(.failure(NetworkError.notFound))
+                case 422:
+                    fulfillCompletionOnTheMainThread(.failure(NetworkError.unknownError))
+                case 500, 503:
+                    fulfillCompletionOnTheMainThread(.failure(NetworkError.serviceUnavailable))
+                default:
+                    fulfillCompletionOnTheMainThread(.failure(NetworkError.unknownError))
+                }
             }
+            self.currentTask = task
+            task.resume()
         }
-        task.resume()
     }
 
     private func parseAndStoreToken(data: Data) -> String? {
@@ -115,3 +134,5 @@ final class OAuth2Service: OAuth2ServiceProtocol {
         }
     }
 }
+
+
