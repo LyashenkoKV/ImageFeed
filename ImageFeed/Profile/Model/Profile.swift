@@ -11,12 +11,12 @@ import Foundation
 
 struct Profile {
     let loginName: String
-    let username: String?
+    let userName: String?
     let name: String?
     let bio: String?
     
     init(userProfile: ProfileResult) {
-        self.username = userProfile.userName
+        self.userName = userProfile.userName
         self.name = [userProfile.firstName, userProfile.lastName].compactMap { $0 }.joined(separator: " ")
         self.loginName = "@\(userProfile.userName)"
         self.bio = userProfile.bio

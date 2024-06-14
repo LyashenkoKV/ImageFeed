@@ -31,7 +31,7 @@ final class OAuth2Service {
             print("Access token saved: \(accessToken)")
             return accessToken
         } catch {
-            print("Token parsing error: \(error.localizedDescription)")
+            print("Token parsing error: \(NetworkError.errorFetchingAccessToken)")
             return nil
         }
     }
@@ -70,6 +70,7 @@ extension OAuth2Service: OAuth2ServiceProtocol {
     }
     
     func fetchOAuthToken(code: String, completion: @escaping (Result<String, Error>) -> Void) {
+        
         DispatchQueue.main.async {
             if let currentCode = self.currentCode, currentCode == code, let currentTask = self.currentTask {
                 currentTask.cancel()

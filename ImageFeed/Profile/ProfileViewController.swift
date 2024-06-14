@@ -11,6 +11,7 @@ final class ProfileViewController: UIViewController {
     
     private let keychainService = KeychainService.shared // ❌
     private let tokenKey = "OAuth2Token" // ❌
+    private let profileService = ProfileService.shared
     
     private lazy var profileImage: UIImageView = {
         let imageView = UIImageView()
@@ -36,16 +37,14 @@ final class ProfileViewController: UIViewController {
         let label = UILabel()
         label.textColor = .ypWhite
         label.font = UIFont.boldSystemFont(ofSize: 23)
-        label.text = "Екатерина Новикова"
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
-    private lazy var mailLabel: UILabel = {
+    private lazy var loginNameLabel: UILabel = {
         let label = UILabel()
         label.textColor = .ypGray
         label.font = UIFont.systemFont(ofSize: 13)
-        label.text = "@ekaterina_nov"
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -55,7 +54,6 @@ final class ProfileViewController: UIViewController {
         label.textColor = .ypWhite
         label.font = UIFont.systemFont(ofSize: 13)
         label.numberOfLines = 0
-        label.text = "Hello, world!"
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -70,7 +68,7 @@ final class ProfileViewController: UIViewController {
     }()
     
     private lazy var verticalStackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [horizontalStackView, nameLabel, mailLabel, descriptionLabel])
+        let stackView = UIStackView(arrangedSubviews: [horizontalStackView, nameLabel, loginNameLabel, descriptionLabel])
         stackView.axis = .vertical
         stackView.spacing = 10
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -82,6 +80,7 @@ final class ProfileViewController: UIViewController {
         view.backgroundColor = .ypBlack
         setupUI()
         setupConstraints()
+        getProfileData()
     }
     
     private func setupUI() {
@@ -100,6 +99,25 @@ final class ProfileViewController: UIViewController {
             exitButton.widthAnchor.constraint(equalToConstant: 42),
             exitButton.heightAnchor.constraint(equalTo: exitButton.widthAnchor)
         ])
+    }
+    
+    private func getProfileData() {
+        guard let token = OAuth2TokenStorage.shared.token else { return }
+        
+        profileService.fetchProfile(token) { [weak self] result in
+            guard let self else { return }
+            switch result {
+            case .success(let profile):
+                DispatchQueue.main.async {
+                    self.nameLabel.text = profile.name
+                    self.loginNameLabel.text = profile.loginName
+                    self.descriptionLabel.text = profile.bio
+                }
+            case .failure(let error):
+                let errorMessage = NetworkErrorHandler.errorMessage(from: error)
+                print("Нет данных профиля: \(errorMessage)")
+            }
+        }
     }
     
     @objc private func exitButtonPressed() {
