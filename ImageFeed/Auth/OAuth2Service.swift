@@ -109,30 +109,18 @@ extension OAuth2Service: OAuth2ServiceProtocol {
                     return
                 }
                 
-                switch response.statusCode {
-                case 200..<300:
+                if response.statusCode == 200 {
                     guard let data = data, let token = self.parseAndStoreToken(data: data) else {
                         fulfillCompletionOnTheMainThread(.failure(NetworkError.emptyData))
                         return
                     }
                     fulfillCompletionOnTheMainThread(.success(token))
-                    
-                case 400:
-                    fulfillCompletionOnTheMainThread(.failure(NetworkError.invalidURLString))
-                case 401:
-                    fulfillCompletionOnTheMainThread(.failure(NetworkError.errorFetchingAccessToken))
-                case 403:
-                    fulfillCompletionOnTheMainThread(.failure(NetworkError.unauthorized))
-                case 404:
-                    fulfillCompletionOnTheMainThread(.failure(NetworkError.notFound))
-                case 422:
-                    fulfillCompletionOnTheMainThread(.failure(NetworkError.unknownError))
-                case 500, 503:
-                    fulfillCompletionOnTheMainThread(.failure(NetworkError.serviceUnavailable))
-                default:
-                    fulfillCompletionOnTheMainThread(.failure(NetworkError.unknownError))
+                } else {
+                    let error = NetworkErrorHandler.handleErrorResponse(statusCode: response.statusCode)
+                    fulfillCompletionOnTheMainThread(.failure(error))
                 }
             }
+            
             self.currentTask = task
             task.resume()
         }

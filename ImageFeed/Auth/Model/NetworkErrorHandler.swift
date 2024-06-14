@@ -59,4 +59,24 @@ struct NetworkErrorHandler: NetworkErrorProtocol {
         }
         return errorMessage
     }
+    
+    static func handleErrorResponse(statusCode: Int) -> NetworkError {
+        switch statusCode {
+        case 400:
+            return .invalidURLString
+        case 401:
+            return .errorFetchingAccessToken
+        case 403:
+            return .unauthorized
+        case 404:
+            return .notFound
+        case 422:
+            return .unknownError
+        case 500, 503:
+            return .serviceUnavailable
+        default:
+            return .unknownError
+        }
+    }
 }
+
