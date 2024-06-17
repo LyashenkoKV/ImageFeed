@@ -10,6 +10,7 @@ import Foundation
 // MARK: - protocol
 protocol NetworkErrorProtocol {
     static func errorMessage(from error: Error) -> String
+    static func handleErrorResponse(statusCode: Int) -> NetworkError
 }
 
 enum NetworkError: Error {

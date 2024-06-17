@@ -12,7 +12,7 @@ final class ProfileViewController: UIViewController {
     private let keychainService = KeychainService.shared // ❌
     private let tokenKey = "OAuth2Token" // ❌
     private let profileService = ProfileService.shared
-    private let profileImageService = ProfileImageService.shared
+    private var profileImageServiceObserver: NSObjectProtocol?
     
     private lazy var profileImage: UIImageView = {
         let imageView = UIImageView()
@@ -65,9 +65,9 @@ final class ProfileViewController: UIViewController {
         setupUI()
         setupConstraints()
         
-        if let profile = profileService.profile, let profileImage = profileImageService.avatarURL {
+        addObserver()
+        if let profile = profileService.profile {
             updateProfileDetails(profile: profile)
-            loadImage(from: profileImage)
         }
     }
     
@@ -103,6 +103,19 @@ final class ProfileViewController: UIViewController {
             exitButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
             exitButton.centerYAnchor.constraint(equalTo: profileImage.centerYAnchor)
         ])
+    }
+    
+    private func addObserver() {
+        guard let profileImage = ProfileImageService.shared.avatarURL else { return }
+        
+        profileImageServiceObserver = NotificationCenter.default.addObserver(forName: ProfileImageService.didChangeNotification,
+                                                                             object: self,
+                                                                             queue: .main,
+                                                                             using: { [weak self] _ in
+            guard let self else { return }
+            self.loadImage(from: profileImage)
+        })
+        loadImage(from: profileImage)
     }
     
     private func updateProfileDetails(profile: Profile) {

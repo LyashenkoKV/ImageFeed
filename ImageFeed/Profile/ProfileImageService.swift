@@ -18,6 +18,7 @@ final class ProfileImageService {
     private(set) var avatarURL: String?
     private let queue = DispatchQueue(label: "ProfileImageServiceQueue", attributes: .concurrent)
     private var currentTask: URLSessionDataTask?
+    static let didChangeNotification = Notification.Name(rawValue: "ProfileImageProviderDidChange")
     
     init() {}
     
@@ -85,6 +86,9 @@ extension ProfileImageService: ProfileImageServiceProtocol {
                         return
                     }
                     fulfillCompletionOnTheMainThread(.success(profileImageURL))
+                    NotificationCenter.default.post(name: ProfileImageService.didChangeNotification, 
+                                                    object: self,
+                                                    userInfo: ["URL": profileImageURL])
                 } else {
                     let error = NetworkErrorHandler.handleErrorResponse(statusCode: response.statusCode)
                     fulfillCompletionOnTheMainThread(.failure(error))
