@@ -71,6 +71,10 @@ final class ProfileViewController: UIViewController {
         }
     }
     
+    deinit {
+        removeObserver()
+    }
+    
     private func setupUI() {
         view.addSubview(profileImage)
         view.addSubview(nameLabel)
@@ -105,23 +109,39 @@ final class ProfileViewController: UIViewController {
         ])
     }
     
+    @objc private func exitButtonPressed() {
+        //TODO: process code
+        _ = keychainService.delete(valueFor: tokenKey) // ❌
+    }
+}
+
+private extension ProfileViewController {
     private func addObserver() {
-        guard let profileImage = ProfileImageService.shared.avatarURL else { return }
-        
         profileImageServiceObserver = NotificationCenter.default.addObserver(forName: ProfileImageService.didChangeNotification,
-                                                                             object: self,
+                                                                             object: nil,
                                                                              queue: .main,
-                                                                             using: { [weak self] _ in
+                                                                             using: { [weak self] notification in
             guard let self else { return }
-            self.loadImage(from: profileImage)
+            
+            if let userInfo = notification.userInfo, let profileImageURL = userInfo["URL"] as? String {
+                self.loadImage(from: profileImageURL)
+            }
         })
-        loadImage(from: profileImage)
+        if let profileImageURL = ProfileImageService.shared.avatarURL {
+            loadImage(from: profileImageURL)
+        }
     }
     
     private func updateProfileDetails(profile: Profile) {
         nameLabel.text = profile.name
         loginNameLabel.text = profile.loginName
         descriptionLabel.text = profile.bio
+    }
+    
+    private func removeObserver() {
+        if let observer = profileImageServiceObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
     }
     
     private func loadImage(from urlString: String) {
@@ -139,10 +159,5 @@ final class ProfileViewController: UIViewController {
                 }
             }
         }.resume()
-    }
-    
-    @objc private func exitButtonPressed() {
-        //TODO: process code
-        _ = keychainService.delete(valueFor: tokenKey) // ❌
     }
 }

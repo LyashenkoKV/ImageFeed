@@ -14,11 +14,11 @@ protocol ProfileImageServiceProtocol {
 // MARK: - object
 final class ProfileImageService {
     static let shared = ProfileImageService()
+    static let didChangeNotification = Notification.Name(rawValue: "ProfileImageProviderDidChange")
     
     private(set) var avatarURL: String?
     private let queue = DispatchQueue(label: "ProfileImageServiceQueue", attributes: .concurrent)
     private var currentTask: URLSessionDataTask?
-    static let didChangeNotification = Notification.Name(rawValue: "ProfileImageProviderDidChange")
     
     init() {}
     
