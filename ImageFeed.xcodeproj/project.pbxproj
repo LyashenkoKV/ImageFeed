@@ -29,6 +29,7 @@
 		24C042932C1C585C00746C39 /* ProfileResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24C042922C1C585C00746C39 /* ProfileResult.swift */; };
 		24C0429B2C20206200746C39 /* ProfileImageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24C0429A2C20206200746C39 /* ProfileImageService.swift */; };
 		24C0429D2C20210300746C39 /* UserResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24C0429C2C20210300746C39 /* UserResult.swift */; };
+		24C042A02C20990900746C39 /* NetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24C0429F2C20990900746C39 /* NetworkService.swift */; };
 		24C496E62BF5F46400109D90 /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24C496E52BF5F46400109D90 /* ProfileViewController.swift */; };
 		24C496EC2BFB431F00109D90 /* SingleImageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24C496EB2BFB431F00109D90 /* SingleImageViewController.swift */; };
 /* End PBXBuildFile section */
@@ -57,6 +58,7 @@
 		24C042922C1C585C00746C39 /* ProfileResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileResult.swift; sourceTree = "<group>"; };
 		24C0429A2C20206200746C39 /* ProfileImageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileImageService.swift; sourceTree = "<group>"; };
 		24C0429C2C20210300746C39 /* UserResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserResult.swift; sourceTree = "<group>"; };
+		24C0429F2C20990900746C39 /* NetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkService.swift; sourceTree = "<group>"; };
 		24C496E52BF5F46400109D90 /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
 		24C496EB2BFB431F00109D90 /* SingleImageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleImageViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -95,6 +97,7 @@
 				247965FF2BE8C58000E53C29 /* AppDelegate.swift */,
 				247966012BE8C58000E53C29 /* SceneDelegate.swift */,
 				24C042722C08C5F000746C39 /* Constants.swift */,
+				24C0429E2C2098DD00746C39 /* New Group */,
 				24C042842C107E4300746C39 /* SplashVC */,
 				24C496E82BFB406900109D90 /* Auth */,
 				247966352BEA3F2600E53C29 /* ImagesList */,
@@ -139,6 +142,14 @@
 				24C0427C2C0F0B1200746C39 /* NetworkErrorHandler.swift */,
 			);
 			path = Model;
+			sourceTree = "<group>";
+		};
+		24C0429E2C2098DD00746C39 /* New Group */ = {
+			isa = PBXGroup;
+			children = (
+				24C0429F2C20990900746C39 /* NetworkService.swift */,
+			);
+			path = "New Group";
 			sourceTree = "<group>";
 		};
 		24C496E72BFB401D00109D90 /* Profile */ = {
@@ -260,6 +271,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				24C042A02C20990900746C39 /* NetworkService.swift in Sources */,
 				247966042BE8C58000E53C29 /* ImagesListViewController.swift in Sources */,
 				247966342BEA3B9500E53C29 /* ImagesListCell.swift in Sources */,
 				24C042932C1C585C00746C39 /* ProfileResult.swift in Sources */,

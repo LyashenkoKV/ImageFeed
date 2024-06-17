@@ -6,95 +6,60 @@
 //
 
 import UIKit
-// MARK: - protocol
-protocol ProfileImageServiceProtocol {
-    func request(username: String, token: String) -> URLRequest?
-    func fetchProfileImageURL(username: String, token: String, _ completion: @escaping (Result<String, Error>) -> Void)
-}
-// MARK: - object
-final class ProfileImageService {
+
+final class ProfileImageService: NetworkService {
     static let shared = ProfileImageService()
     static let didChangeNotification = Notification.Name(rawValue: "ProfileImageProviderDidChange")
     
+    private let serialQueue = DispatchQueue(label: "ProfileImageService.serialQueue")
+        
+    
     private(set) var avatarURL: String?
-    private let queue = DispatchQueue(label: "ProfileImageServiceQueue", attributes: .concurrent)
-    private var currentTask: URLSessionDataTask?
     
-    init() {}
+    private init() {}
     
-    private func parse(data: Data) -> String? {
-        do {
-            let userResult = try JSONDecoder().decode(UserResult.self, from: data)
-            self.avatarURL = userResult.profileImage.small
-            return self.avatarURL
-        } catch {
-            print("Error parsing profile data: \(NetworkError.emptyData)")
-            return nil
-        }
-    }
-}
-// MARK: - ProfileImageServiceProtocol
-extension ProfileImageService: ProfileImageServiceProtocol {
-    func request(username: String, token: String) -> URLRequest? {
-        guard let url = URL(string: "https://api.unsplash.com/users/\(username)") else {
+    func makeRequest(parameters: [String: String], method: String, url: String) -> URLRequest? {
+        guard let url = URL(string: url) else {
             print(NetworkError.invalidURLString)
             return nil
         }
         
         var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        request.httpMethod = method
+        request.setValue("Bearer \(parameters["token"] ?? "")", forHTTPHeaderField: "Authorization")
         
         return request
     }
     
-    func fetchProfileImageURL(username: String, token: String, _ completion: @escaping (Result<String, any Error>) -> Void) {
-        queue.async() { [weak self] in
-            guard let self else { return }
+    func parse(data: Data) -> UserResult? {
+        do {
+            let userResult = try JSONDecoder().decode(UserResult.self, from: data)
+            return userResult
+        } catch {
+            print("Error parsing profile data: \(NetworkError.emptyData)")
+            return nil
+        }
+    }
+    
+    func fetchProfileImageURL(username: String, token: String, completion: @escaping (Result<String, Error>) -> Void) {
+        serialQueue.async { [weak self] in
+            guard let self = self else { return }
             
-            self.currentTask?.cancel()
-            
-            guard let request = self.request(username: username, token: token) else {
-                DispatchQueue.main.async {
-                    completion(.failure(NetworkError.unableToConstructURL))
-                }
-                return
-            }
-            
-            self.currentTask = URLSession.shared.dataTask(with: request) { [weak self] (data, response, error) in
-                guard let self else { return }
-                
-                let fulfillCompletionOnTheMainThread: (Result<String, Error>) -> Void = { result in
+            self.fetch(parameters: ["username": username, "token": token], method: "GET", url: "https://api.unsplash.com/users/\(username)") { (result: Result<UserResult, Error>) in
+                switch result {
+                case .success(let userResult):
+                    let profileImageURL = userResult.profileImage.small
+                    self.avatarURL = profileImageURL
+                    NotificationCenter.default.post(name: ProfileImageService.didChangeNotification, object: self, userInfo: ["URL": profileImageURL])
                     DispatchQueue.main.async {
-                        completion(result)
+                        completion(.success(profileImageURL))
                     }
-                }
-                
-                if let error = error {
-                    fulfillCompletionOnTheMainThread(.failure(error))
-                    return
-                }
-                
-                guard let response = response as? HTTPURLResponse else {
-                    fulfillCompletionOnTheMainThread(.failure(NetworkError.unknownError))
-                    return
-                }
-                
-                if response.statusCode == 200 {
-                    guard let data = data, let profileImageURL = self.parse(data: data) else {
-                        fulfillCompletionOnTheMainThread(.failure(NetworkError.emptyData))
-                        return
+                case .failure(let error):
+                    DispatchQueue.main.async {
+                        completion(.failure(error))
                     }
-                    fulfillCompletionOnTheMainThread(.success(profileImageURL))
-                    NotificationCenter.default.post(name: ProfileImageService.didChangeNotification, 
-                                                    object: self,
-                                                    userInfo: ["URL": profileImageURL])
-                } else {
-                    let error = NetworkErrorHandler.handleErrorResponse(statusCode: response.statusCode)
-                    fulfillCompletionOnTheMainThread(.failure(error))
                 }
             }
-            self.currentTask?.resume()
         }
     }
 }

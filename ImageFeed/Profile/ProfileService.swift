@@ -6,91 +6,56 @@
 //
 
 import UIKit
-// MARK: - protocol
-protocol ProfileServiceProtocol {
-    func request(token: String) -> URLRequest?
-    func fetchProfile(_ token: String, completion: @escaping (Result<Profile, Error>) -> Void)
-}
 
-// MARK: - object
-final class ProfileService {
+final class ProfileService: NetworkService {
+    
     static let shared = ProfileService()
     
     private(set) var profile: Profile?
-    private let queue = DispatchQueue(label: "ProfileServiceQueue", attributes: .concurrent)
+    private let serialQueue = DispatchQueue(label: "ProfileService.serialQueue")
     
     private init() {}
     
-    private func parse(data: Data) -> Profile? {
-        do {
-            let userProfile = try JSONDecoder().decode(ProfileResult.self, from: data)
-            let profile = Profile(userProfile: userProfile)
-            return profile
-        } catch {
-            print("Error parsing profile data: \(NetworkError.emptyData)")
-            return nil
-        }
-    }
-}
-
-// MARK: - ProfileServiceProtocol
-extension ProfileService: ProfileServiceProtocol {
-    
-    func request(token: String) -> URLRequest? {
-        guard let url = URL(string: "https://api.unsplash.com/me") else {
+    func makeRequest(parameters: [String: String], method: String, url: String) -> URLRequest? {
+        guard let url = URL(string: url) else {
             print(NetworkError.invalidURLString)
             return nil
         }
         
         var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        request.httpMethod = method
+        request.setValue("Bearer \(parameters["token"] ?? "")", forHTTPHeaderField: "Authorization")
         
         return request
     }
     
-    func fetchProfile(_ token: String, completion: @escaping (Result<Profile, any Error>) -> Void) {
-        
-        queue.async {
-            guard let request = self.request(token: token) else {
-                DispatchQueue.main.async {
-                    completion(.failure(NetworkError.unableToConstructURL))
-                }
-                return
-            }
+    func parse(data: Data) -> Profile? {
+        do {
+            let userProfile = try JSONDecoder().decode(ProfileResult.self, from: data)
+            return Profile(userProfile: userProfile)
+        } catch {
+            print("Error parsing profile data: \(NetworkError.emptyData)")
+            return nil
+        }
+    }
+    
+    func fetchProfile(_ token: String, completion: @escaping (Result<Profile, Error>) -> Void) {
+        serialQueue.async { [weak self] in
+            guard let self = self else { return }
             
-            let task = URLSession.shared.dataTask(with: request) { [weak self] (data, response, error) in
-                guard let self else { return }
-                
-                let fulfillCompletionOnTheMainThread: (Result<Profile, Error>) -> Void = { result in
+            self.fetch(parameters: ["token": token], method: "GET", url: "https://api.unsplash.com/me") { (result: Result<Profile, Error>) in
+                switch result {
+                case .success(let profile):
                     DispatchQueue.main.async {
-                        completion(result)
+                        self.profile = profile
+                        completion(.success(profile))
                     }
-                }
-                
-                if let error = error {
-                    fulfillCompletionOnTheMainThread(.failure(error))
-                    return
-                }
-                
-                guard let response = response as? HTTPURLResponse else {
-                    fulfillCompletionOnTheMainThread(.failure(NetworkError.unknownError))
-                    return
-                }
-                
-                if response.statusCode == 200 {
-                    guard let data = data, let profile = self.parse(data: data) else {
-                        fulfillCompletionOnTheMainThread(.failure(NetworkError.emptyData))
-                        return
+                case .failure(let error):
+                    DispatchQueue.main.async {
+                        completion(.failure(error))
                     }
-                    self.profile = profile
-                    fulfillCompletionOnTheMainThread(.success(profile))
-                } else {
-                    let error = NetworkErrorHandler.handleErrorResponse(statusCode: response.statusCode)
-                    fulfillCompletionOnTheMainThread(.failure(error))
                 }
             }
-            task.resume()
         }
     }
 }

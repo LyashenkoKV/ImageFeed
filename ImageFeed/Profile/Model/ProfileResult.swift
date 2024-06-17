@@ -21,7 +21,7 @@ struct ProfileResult: Decodable {
     }
 }
 
-struct Profile {
+struct Profile: Decodable {
     let loginName: String
     let userName: String
     let name: String?
