@@ -71,10 +71,6 @@ final class ProfileViewController: UIViewController {
         }
     }
     
-    deinit {
-        removeObserver()
-    }
-    
     private func setupUI() {
         view.addSubview(profileImage)
         view.addSubview(nameLabel)
@@ -136,12 +132,6 @@ private extension ProfileViewController {
         nameLabel.text = profile.name
         loginNameLabel.text = profile.loginName
         descriptionLabel.text = profile.bio
-    }
-    
-    private func removeObserver() {
-        if let observer = profileImageServiceObserver {
-            NotificationCenter.default.removeObserver(observer)
-        }
     }
     
     private func loadImage(from urlString: String) {
