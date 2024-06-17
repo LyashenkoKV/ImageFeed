@@ -6,12 +6,13 @@
 //
 
 import UIKit
-
+// MARK: - protocol
 protocol ProfileServiceProtocol {
     func request(token: String) -> URLRequest?
     func fetchProfile(_ token: String, completion: @escaping (Result<Profile, Error>) -> Void)
 }
 
+// MARK: - object
 final class ProfileService {
     static let shared = ProfileService()
     
@@ -32,6 +33,7 @@ final class ProfileService {
     }
 }
 
+// MARK: - ProfileServiceProtocol
 extension ProfileService: ProfileServiceProtocol {
     
     func request(token: String) -> URLRequest? {

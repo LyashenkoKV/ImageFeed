@@ -7,12 +7,12 @@
 
 import ProgressHUD
 import UIKit
-
+// MARK: - protocol
 protocol UIBlockingProgressHUDProtocol {
     static func show()
     static func dismiss()
 }
-
+// MARK: - object
 final class UIBlockingProgressHUD {
     private static var window: UIWindow? {
         if #available(iOS 15.0, *) {
@@ -25,7 +25,7 @@ final class UIBlockingProgressHUD {
         }
     }
 }
-
+// MARK: - UIBlockingProgressHUDProtocol
 extension UIBlockingProgressHUD: UIBlockingProgressHUDProtocol {
     static func show() {
         window?.isUserInteractionEnabled = false

@@ -11,6 +11,7 @@ final class SplashViewController: UIViewController {
     
     private let profileService = ProfileService.shared
     private let storage = OAuth2TokenStorage.shared
+    private let profileImageService = ProfileImageService.shared
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
@@ -72,20 +73,34 @@ final class SplashViewController: UIViewController {
 
 // MARK: - AuthViewControllerDelegate
 extension SplashViewController: AuthViewControllerDelegate {
+    
     func fetchProfile(_ token: String) {
         UIBlockingProgressHUD.show()
         
-        profileService.fetchProfile(token) { [ weak self ] result in
-            UIBlockingProgressHUD.dismiss()
-            guard let self else { return }
-            
-            switch result {
-            case .success:
-                self.switchToTabBarController()
-            case .failure(let error):
-                let errorMessage = NetworkErrorHandler.errorMessage(from: error)
-                print("Нет данных профиля: \(errorMessage)")
-                self.showAuthViewController()
+        profileService.fetchProfile(token) { [weak self] result in
+            DispatchQueue.main.async {
+                UIBlockingProgressHUD.dismiss()
+                guard let self = self else { return }
+                
+                switch result {
+                case .success(let result):
+                    self.profileImageService.fetchProfileImageURL(username: result.userName, token: token) { [weak self] imageResult in
+                        guard let self else { return }
+                        
+                        switch imageResult {
+                        case .success(_):
+                            self.switchToTabBarController()
+                        case .failure(let error):
+                            let errorMessage = NetworkErrorHandler.errorMessage(from: error)
+                            print("Нет данных профиля: \(errorMessage)")
+                        }
+                    }
+                    self.switchToTabBarController()
+                case .failure(let error):
+                    let errorMessage = NetworkErrorHandler.errorMessage(from: error)
+                    print("Нет данных профиля: \(errorMessage)")
+                    self.showAuthViewController()
+                }
             }
         }
     }
