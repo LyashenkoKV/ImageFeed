@@ -7,17 +7,18 @@
 
 import UIKit
 
-final class ProfileImageService: NetworkService {
+final class ProfileImageService {
     static let shared = ProfileImageService()
     static let didChangeNotification = Notification.Name(rawValue: "ProfileImageProviderDidChange")
     
     private let serialQueue = DispatchQueue(label: "ProfileImageService.serialQueue")
-        
-    
     private(set) var avatarURL: String?
     
     private init() {}
-    
+}
+
+// MARK: - NetworkService
+extension ProfileImageService: NetworkService {
     func makeRequest(parameters: [String: String], method: String, url: String) -> URLRequest? {
         guard let url = URL(string: url) else {
             print(NetworkError.invalidURLString)

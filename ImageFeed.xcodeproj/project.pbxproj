@@ -30,6 +30,8 @@
 		24C0429B2C20206200746C39 /* ProfileImageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24C0429A2C20206200746C39 /* ProfileImageService.swift */; };
 		24C0429D2C20210300746C39 /* UserResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24C0429C2C20210300746C39 /* UserResult.swift */; };
 		24C042A02C20990900746C39 /* NetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24C0429F2C20990900746C39 /* NetworkService.swift */; };
+		24C042A32C20B37C00746C39 /* AlertPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24C042A22C20B37C00746C39 /* AlertPresenter.swift */; };
+		24C042A52C20B3CE00746C39 /* AlertModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24C042A42C20B3CE00746C39 /* AlertModel.swift */; };
 		24C496E62BF5F46400109D90 /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24C496E52BF5F46400109D90 /* ProfileViewController.swift */; };
 		24C496EC2BFB431F00109D90 /* SingleImageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24C496EB2BFB431F00109D90 /* SingleImageViewController.swift */; };
 /* End PBXBuildFile section */
@@ -59,6 +61,8 @@
 		24C0429A2C20206200746C39 /* ProfileImageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileImageService.swift; sourceTree = "<group>"; };
 		24C0429C2C20210300746C39 /* UserResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserResult.swift; sourceTree = "<group>"; };
 		24C0429F2C20990900746C39 /* NetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkService.swift; sourceTree = "<group>"; };
+		24C042A22C20B37C00746C39 /* AlertPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertPresenter.swift; sourceTree = "<group>"; };
+		24C042A42C20B3CE00746C39 /* AlertModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertModel.swift; sourceTree = "<group>"; };
 		24C496E52BF5F46400109D90 /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
 		24C496EB2BFB431F00109D90 /* SingleImageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleImageViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -97,7 +101,8 @@
 				247965FF2BE8C58000E53C29 /* AppDelegate.swift */,
 				247966012BE8C58000E53C29 /* SceneDelegate.swift */,
 				24C042722C08C5F000746C39 /* Constants.swift */,
-				24C0429E2C2098DD00746C39 /* New Group */,
+				24C042A12C20B35F00746C39 /* Alert */,
+				24C0429E2C2098DD00746C39 /* Network */,
 				24C042842C107E4300746C39 /* SplashVC */,
 				24C496E82BFB406900109D90 /* Auth */,
 				247966352BEA3F2600E53C29 /* ImagesList */,
@@ -144,12 +149,21 @@
 			path = Model;
 			sourceTree = "<group>";
 		};
-		24C0429E2C2098DD00746C39 /* New Group */ = {
+		24C0429E2C2098DD00746C39 /* Network */ = {
 			isa = PBXGroup;
 			children = (
 				24C0429F2C20990900746C39 /* NetworkService.swift */,
 			);
-			path = "New Group";
+			path = Network;
+			sourceTree = "<group>";
+		};
+		24C042A12C20B35F00746C39 /* Alert */ = {
+			isa = PBXGroup;
+			children = (
+				24C042A22C20B37C00746C39 /* AlertPresenter.swift */,
+				24C042A42C20B3CE00746C39 /* AlertModel.swift */,
+			);
+			path = Alert;
 			sourceTree = "<group>";
 		};
 		24C496E72BFB401D00109D90 /* Profile */ = {
@@ -275,6 +289,7 @@
 				247966042BE8C58000E53C29 /* ImagesListViewController.swift in Sources */,
 				247966342BEA3B9500E53C29 /* ImagesListCell.swift in Sources */,
 				24C042932C1C585C00746C39 /* ProfileResult.swift in Sources */,
+				24C042A52C20B3CE00746C39 /* AlertModel.swift in Sources */,
 				24C496E62BF5F46400109D90 /* ProfileViewController.swift in Sources */,
 				247966002BE8C58000E53C29 /* AppDelegate.swift in Sources */,
 				24C0427B2C0F053500746C39 /* OAuth2Service.swift in Sources */,
@@ -286,6 +301,7 @@
 				24C042812C1062DC00746C39 /* OAuthTokenResponseBody.swift in Sources */,
 				24C496EC2BFB431F00109D90 /* SingleImageViewController.swift in Sources */,
 				24C042912C1C579D00746C39 /* ProfileService.swift in Sources */,
+				24C042A32C20B37C00746C39 /* AlertPresenter.swift in Sources */,
 				24C042832C106BD200746C39 /* OAuth2TokenStorage.swift in Sources */,
 				24C0429B2C20206200746C39 /* ProfileImageService.swift in Sources */,
 				24C042772C09DF7E00746C39 /* WebViewViewController.swift in Sources */,

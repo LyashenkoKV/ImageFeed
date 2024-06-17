@@ -7,14 +7,18 @@
 
 import Foundation
 
-final class OAuth2Service: NetworkService {
+final class OAuth2Service {
+    
     static let shared = OAuth2Service()
     
     private let oAuth2TokenStorage = OAuth2TokenStorage.shared
     private let serialQueue = DispatchQueue(label: "OAuth2Service.serialQueue")
     
     private init() {}
-    
+}
+
+// MARK: - NetworkService
+extension OAuth2Service: NetworkService {
     func makeRequest(parameters: [String: String], method: String, url: String) -> URLRequest? {
         var components = URLComponents(string: url)
         components?.queryItems = parameters.map { URLQueryItem(name: $0.key, value: $0.value) }

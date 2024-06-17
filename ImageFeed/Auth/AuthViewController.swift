@@ -17,6 +17,9 @@ protocol AuthViewControllerDelegate: AnyObject {
 final class AuthViewController: UIViewController {
     
     weak var delegate: AuthViewControllerDelegate?
+    private let alertPresenter = AlertPresenter()
+    private let webViewViewController = WebViewViewController()
+    private let oauth2Service = OAuth2Service.shared
     
     private lazy var image: UIImageView = {
         let imageView = UIImageView()
@@ -37,14 +40,12 @@ final class AuthViewController: UIViewController {
         button.addTarget(self, action: #selector(loginButtonPressed), for: .touchUpInside)
         return button
     }()
-    
-    private let webViewViewController = WebViewViewController()
-    private let oauth2Service = OAuth2Service.shared
 
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .ypBlack
         webViewViewController.delegate = self
+        alertPresenter.delegate = self
         setupUI()
     }
     
@@ -73,10 +74,15 @@ final class AuthViewController: UIViewController {
         navigationController?.pushViewController(webViewViewController, animated: true)
     }
     
-    private func showErrorAlert(with message: String) {
-        let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-        present(alert, animated: true)
+    private func showErrorAlert() {
+        let alertModel = AlertModel(
+            title: "Что-то пошло не так(",
+            message: "Не удалось войти в систему",
+            buttonText: "Ок",
+            context: .error,
+            completion: nil
+        )
+        alertPresenter.showAlert(with: alertModel)
     }
 }
 
@@ -97,8 +103,8 @@ extension AuthViewController: WebViewViewControllerDelegate {
                 print("Аутентификация выполнена! Токен: \(token)")
             case .failure(let error):
                 let errorMessage = NetworkErrorHandler.errorMessage(from: error)
-                self.showErrorAlert(with: errorMessage)
                 print("Ошибка аутентификации: \(errorMessage)")
+                self.showErrorAlert()
             }
         }
     }
@@ -108,6 +114,12 @@ extension AuthViewController: WebViewViewControllerDelegate {
     }
     
     func webViewViewController(_ vc: WebViewViewController, didFailWithError error: any Error) {
-        showErrorAlert(with: NetworkErrorHandler.errorMessage(from: error))
+        showErrorAlert()
+    }
+}
+
+extension AuthViewController: AlertPresenterDelegate {
+    func presentAlert(_ alert: UIAlertController) {
+        present(alert, animated: true)
     }
 }

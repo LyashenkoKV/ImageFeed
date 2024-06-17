@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class ProfileService: NetworkService {
+final class ProfileService {
     
     static let shared = ProfileService()
     
@@ -15,7 +15,9 @@ final class ProfileService: NetworkService {
     private let serialQueue = DispatchQueue(label: "ProfileService.serialQueue")
     
     private init() {}
-    
+}
+// MARK: - NetworkService
+extension ProfileService: NetworkService {
     func makeRequest(parameters: [String: String], method: String, url: String) -> URLRequest? {
         guard let url = URL(string: url) else {
             print(NetworkError.invalidURLString)

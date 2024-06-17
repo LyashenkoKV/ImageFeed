@@ -22,6 +22,7 @@ class WebViewViewController: UIViewController {
     
     private var authService: AuthService?
     private var estimatedProgressObservation: NSKeyValueObservation?
+    private let alertPresenter = AlertPresenter()
     
     private lazy var webView: WKWebView = {
         let webView = WKWebView()
@@ -51,6 +52,7 @@ class WebViewViewController: UIViewController {
         setupUI()
         authService = AuthService(webView: webView)
         authService?.delegate = self
+        alertPresenter.delegate = self
         updateProgress()
     }
     
@@ -95,6 +97,8 @@ class WebViewViewController: UIViewController {
     }
     
     @objc private func backButtonPressed() {
+        
+        
         let alert = UIAlertController(title: "Выход из авторизации",
                                       message: "Вы уверены, что хотите покинуть страницу авторизации?",
                                       preferredStyle: .alert)
@@ -116,8 +120,21 @@ extension WebViewViewController: AuthServiceDelegate {
     func authServiceDidCancel(_ authService: AuthService) {
         delegate?.webViewViewControllerDidCancel(self)
     }
-
+    
     func authService(_ authService: AuthService, didFailWithError error: Error) {
-        delegate?.webViewViewController(self, didFailWithError: error)
+        let alertModel = AlertModel(
+            title: "Ошибка",
+            message: NetworkErrorHandler.errorMessage(from: error),
+            buttonText: "Ок",
+            context: .error,
+            completion: nil
+        )
+        alertPresenter.showAlert(with: alertModel)
+    }
+}
+
+extension WebViewViewController: AlertPresenterDelegate {
+    func presentAlert(_ alert: UIAlertController) {
+        present(alert, animated: true, completion: nil)
     }
 }
