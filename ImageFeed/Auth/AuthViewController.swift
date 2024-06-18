@@ -78,9 +78,8 @@ final class AuthViewController: UIViewController {
         let alertModel = AlertModel(
             title: "Что-то пошло не так(",
             message: "Не удалось войти в систему",
-            buttonText: "Ок",
-            context: .error,
-            completion: nil
+            buttons: [AlertButton(title: "OK", style: .cancel, handler: nil)],
+            context: .error
         )
         alertPresenter.showAlert(with: alertModel)
     }

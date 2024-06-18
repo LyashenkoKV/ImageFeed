@@ -5,7 +5,7 @@
 //  Created by Konstantin Lyashenko on 17.06.2024.
 //
 
-import Foundation
+import UIKit
 
 struct AlertModel {
     enum Context {
@@ -14,7 +14,12 @@ struct AlertModel {
     
     let title: String
     let message: String
-    let buttonText: String
+    let buttons: [AlertButton]
     let context: Context
-    let completion: (()->Void)?
+}
+
+struct AlertButton {
+    let title: String
+    let style: UIAlertAction.Style
+    let handler: (() -> Void)?
 }

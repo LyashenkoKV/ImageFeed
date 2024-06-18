@@ -97,17 +97,19 @@ class WebViewViewController: UIViewController {
     }
     
     @objc private func backButtonPressed() {
-        
-        
-        let alert = UIAlertController(title: "Выход из авторизации",
-                                      message: "Вы уверены, что хотите покинуть страницу авторизации?",
-                                      preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "Отмена", style: .cancel, handler: nil))
-        alert.addAction(UIAlertAction(title: "Выход", style: .destructive) { [weak self] _ in
-            guard let self else { return }
-            self.delegate?.webViewViewControllerDidCancel(self)
-        })
-        present(alert, animated: true)
+        let alertModel = AlertModel(
+            title: "Выход из авторизации",
+            message: "Вы уверены, что хотите покинуть страницу авторизации?",
+            buttons: [
+                AlertButton(title: "Отмена", style: .cancel, handler: nil),
+                AlertButton(title: "Выход", style: .destructive, handler: { [weak self] in
+                    guard let self = self else { return }
+                    self.delegate?.webViewViewControllerDidCancel(self)
+                })
+            ],
+            context: .back
+        )
+        alertPresenter.showAlert(with: alertModel)
     }
 }
 
@@ -125,14 +127,13 @@ extension WebViewViewController: AuthServiceDelegate {
         let alertModel = AlertModel(
             title: "Ошибка",
             message: NetworkErrorHandler.errorMessage(from: error),
-            buttonText: "Ок",
-            context: .error,
-            completion: nil
+            buttons: [AlertButton(title: "OK", style: .cancel, handler: nil)],
+            context: .error
         )
         alertPresenter.showAlert(with: alertModel)
     }
 }
-
+// MARK: - AlertPresenterDelegate
 extension WebViewViewController: AlertPresenterDelegate {
     func presentAlert(_ alert: UIAlertController) {
         present(alert, animated: true, completion: nil)
