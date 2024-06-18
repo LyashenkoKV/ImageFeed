@@ -6,6 +6,8 @@
 //
 
 import UIKit
+import SkeletonView
+import Kingfisher
 
 final class ProfileViewController: UIViewController {
     
@@ -22,6 +24,8 @@ final class ProfileViewController: UIViewController {
         imageView.layer.cornerRadius = 35
         imageView.clipsToBounds = true
         imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.isSkeletonable = true
+        imageView.skeletonCornerRadius = 35
         return imageView
     }()
     
@@ -39,6 +43,8 @@ final class ProfileViewController: UIViewController {
         label.textColor = .ypWhite
         label.font = UIFont.boldSystemFont(ofSize: 23)
         label.translatesAutoresizingMaskIntoConstraints = false
+        label.isSkeletonable = true
+        label.skeletonCornerRadius = 10
         return label
     }()
     
@@ -47,6 +53,8 @@ final class ProfileViewController: UIViewController {
         label.textColor = .ypGray
         label.font = UIFont.systemFont(ofSize: 13)
         label.translatesAutoresizingMaskIntoConstraints = false
+        label.isSkeletonable = true
+        label.skeletonCornerRadius = 10
         return label
     }()
     
@@ -56,6 +64,8 @@ final class ProfileViewController: UIViewController {
         label.font = UIFont.systemFont(ofSize: 13)
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
+        label.isSkeletonable = true
+        label.skeletonCornerRadius = 10
         return label
     }()
     
@@ -64,11 +74,8 @@ final class ProfileViewController: UIViewController {
         view.backgroundColor = .ypBlack
         setupUI()
         setupConstraints()
-        
         addObserver()
-        if let profile = profileService.profile {
-            updateProfileDetails(profile: profile)
-        }
+        tryShowProfileDetails()
     }
     
     private func setupUI() {
@@ -105,6 +112,28 @@ final class ProfileViewController: UIViewController {
         ])
     }
     
+    private func tryShowProfileDetails() {
+        if let profile = profileService.profile {
+            updateProfileDetails(profile: profile)
+        } else {
+            showSkeletons()
+        }
+    }
+    
+    private func showSkeletons() {
+        profileImage.showAnimatedGradientSkeleton()
+        nameLabel.showAnimatedGradientSkeleton()
+        loginNameLabel.showAnimatedGradientSkeleton()
+        descriptionLabel.showAnimatedGradientSkeleton()
+    }
+
+    private func hideSkeletons() {
+        profileImage.hideSkeleton()
+        nameLabel.hideSkeleton()
+        loginNameLabel.hideSkeleton()
+        descriptionLabel.hideSkeleton()
+    }
+    
     @objc private func exitButtonPressed() {
         //TODO: process code
         _ = keychainService.delete(valueFor: tokenKey) // ❌
@@ -132,22 +161,24 @@ private extension ProfileViewController {
         nameLabel.text = profile.name
         loginNameLabel.text = profile.loginName
         descriptionLabel.text = profile.bio
+        hideSkeletons()
     }
     
     private func loadImage(from urlString: String) {
         guard let url = URL(string: urlString) else { return }
-        URLSession.shared.dataTask(with: url) { [weak self] (data, _, error) in
+        
+        profileImage.kf.indicatorType = .activity
+        profileImage.kf.setImage(with: url, 
+                                 placeholder: UIImage(systemName: "person.crop.circle.fill"),
+                                 options: [.transition(.fade(0.2))]) { [weak self] result in
             guard let self else { return }
-            if let data = data, let image = UIImage(data: data) {
-                DispatchQueue.main.async {
-                    self.profileImage.image = image
-                }
-            } else {
-                if let error {
-                    let errorMessage = NetworkErrorHandler.errorMessage(from: error)
-                    print("Не удалось загрузить Image: \(errorMessage)")
-                }
+            switch result {
+            case .success(_):
+                self.hideSkeletons()
+            case .failure(let error):
+                print("Не удалось загрузить Image: \(error.localizedDescription)")
             }
-        }.resume()
+        }
     }
 }
+
