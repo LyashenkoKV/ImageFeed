@@ -6,20 +6,23 @@
 //
 
 import Foundation
-
+// MARK: - Object
 final class OAuth2Service {
     
     static let shared = OAuth2Service()
     
     private let oAuth2TokenStorage = OAuth2TokenStorage.shared
     private let serialQueue = DispatchQueue(label: "OAuth2Service.serialQueue")
+    private var activeRequests: [String: [(Result<String, Error>) -> Void]] = [:]
     
     private init() {}
 }
 
 // MARK: - NetworkService
 extension OAuth2Service: NetworkService {
-    func makeRequest(parameters: [String: String], method: String, url: String) -> URLRequest? {
+    func makeRequest(parameters: [String: String], 
+                     method: String,
+                     url: String) -> URLRequest? {
         var components = URLComponents(string: url)
         components?.queryItems = parameters.map { URLQueryItem(name: $0.key, value: $0.value) }
         
@@ -48,26 +51,40 @@ extension OAuth2Service: NetworkService {
         }
     }
     
-    func fetchOAuthToken(code: String, completion: @escaping (Result<String, Error>) -> Void) {
-        let parameters = [
-            "client_id": Constants.accessKey,
-            "client_secret": Constants.secretKey,
-            "redirect_uri": Constants.redirectURI,
-            "code": code,
-            "grant_type": "authorization_code"
-        ]
+    func fetchOAuthToken(code: String, 
+                         completion: @escaping (Result<String, Error>) -> Void) {
         serialQueue.async { [weak self] in
             guard let self = self else { return }
             
-            self.fetch(parameters: parameters, method: "POST", url: "https://unsplash.com/oauth/token") { (result: Result<OAuthTokenResponseBody, Error>) in
-                switch result {
-                case .success(let response):
-                    DispatchQueue.main.async {
-                        completion(.success(response.accessToken))
-                    }
-                case .failure(let error):
-                    DispatchQueue.main.async {
-                        completion(.failure(error))
+            if self.activeRequests[code] != nil {
+                self.activeRequests[code]?.append(completion)
+                return
+            } else {
+                self.activeRequests[code] = [completion]
+            }
+            
+            let parameters = [
+                "client_id": Constants.accessKey,
+                "client_secret": Constants.secretKey,
+                "redirect_uri": Constants.redirectURI,
+                "code": code,
+                "grant_type": "authorization_code"
+            ]
+            
+            self.fetch(parameters: parameters, 
+                       method: "POST",
+                       url: "https://unsplash.com/oauth/token") { (result: Result<OAuthTokenResponseBody, Error>) in
+                self.serialQueue.async {
+                    let completions = self.activeRequests.removeValue(forKey: code) ?? []
+                    for completion in completions {
+                        DispatchQueue.main.async {
+                            switch result {
+                            case .success(let response):
+                                completion(.success(response.accessToken))
+                            case .failure(let error):
+                                completion(.failure(error))
+                            }
+                        }
                     }
                 }
             }

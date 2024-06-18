@@ -7,10 +7,11 @@
 
 import UIKit
 
+// MARK: - Delegate
 protocol AlertPresenterDelegate: AnyObject {
     func presentAlert(_ alert: UIAlertController)
 }
-
+// MARK: - Object
 final class AlertPresenter {
     
     weak var delegate: AlertPresenterDelegate?

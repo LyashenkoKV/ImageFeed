@@ -7,6 +7,7 @@
 
 import UIKit
 
+// MARK: - Object
 final class SplashViewController: UIViewController {
     
     private let profileService = ProfileService.shared

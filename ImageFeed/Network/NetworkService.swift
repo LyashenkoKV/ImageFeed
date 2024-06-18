@@ -7,6 +7,7 @@
 
 import Foundation
 
+// MARK: - Protocol
 protocol NetworkService {
     associatedtype Model: Decodable
     
@@ -15,6 +16,7 @@ protocol NetworkService {
     func fetch(parameters: [String: String], method: String, url: String, completion: @escaping (Result<Model, Error>) -> Void)
 }
 
+// MARK: - Extension
 extension NetworkService {
     func fetch(parameters: [String: String], method: String, url: String, completion: @escaping (Result<Model, Error>) -> Void) {
         

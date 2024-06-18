@@ -7,13 +7,13 @@
 
 import UIKit
 import ProgressHUD
-// MARK: - protocol
+// MARK: - Protocol
 protocol AuthViewControllerDelegate: AnyObject {
     func didAuthenticate(_ vc: AuthViewController)
     func fetchProfile(_ token: String)
 }
 
-// MARK: - UIViewController
+// MARK: - Object
 final class AuthViewController: UIViewController {
     
     weak var delegate: AuthViewControllerDelegate?
@@ -116,7 +116,7 @@ extension AuthViewController: WebViewViewControllerDelegate {
         showErrorAlert()
     }
 }
-
+// MARK: - AlertPresenterDelegate
 extension AuthViewController: AlertPresenterDelegate {
     func presentAlert(_ alert: UIAlertController) {
         present(alert, animated: true)

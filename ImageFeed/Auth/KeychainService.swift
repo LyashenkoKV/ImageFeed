@@ -21,6 +21,7 @@ final class KeychainService {
 }
 // MARK: - KeychainServiceProtocol
 extension KeychainService: KeychainServiceProtocol {
+    
     func set(value: String, for key: String) -> Bool {
         guard let data = value.data(using: .utf8) else { return false }
         
@@ -47,7 +48,9 @@ extension KeychainService: KeychainServiceProtocol {
         var dataTypeRef: AnyObject?
         let status = SecItemCopyMatching(query as CFDictionary, &dataTypeRef)
         
-        guard status == errSecSuccess, let data = dataTypeRef as? Data, let value = String(data: data, encoding: .utf8) else {
+        guard status == errSecSuccess, 
+                let data = dataTypeRef as? Data,
+                let value = String(data: data, encoding: .utf8) else {
             return nil
         }
         

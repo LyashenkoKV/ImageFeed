@@ -9,6 +9,7 @@ import UIKit
 import SkeletonView
 import Kingfisher
 
+// MARK: - Object
 final class ProfileViewController: UIViewController {
     
     private let keychainService = KeychainService.shared // ❌
@@ -140,6 +141,7 @@ final class ProfileViewController: UIViewController {
     }
 }
 
+// MARK: - Extensions
 private extension ProfileViewController {
     private func addObserver() {
         profileImageServiceObserver = NotificationCenter.default.addObserver(forName: ProfileImageService.didChangeNotification,

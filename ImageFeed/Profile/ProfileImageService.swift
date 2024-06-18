@@ -7,6 +7,7 @@
 
 import UIKit
 
+// MARK: - Object
 final class ProfileImageService {
     static let shared = ProfileImageService()
     static let didChangeNotification = Notification.Name(rawValue: "ProfileImageProviderDidChange")
@@ -19,7 +20,9 @@ final class ProfileImageService {
 
 // MARK: - NetworkService
 extension ProfileImageService: NetworkService {
-    func makeRequest(parameters: [String: String], method: String, url: String) -> URLRequest? {
+    func makeRequest(parameters: [String: String], 
+                     method: String,
+                     url: String) -> URLRequest? {
         guard let url = URL(string: url) else {
             print(NetworkError.invalidURLString)
             return nil
@@ -27,7 +30,8 @@ extension ProfileImageService: NetworkService {
         
         var request = URLRequest(url: url)
         request.httpMethod = method
-        request.setValue("Bearer \(parameters["token"] ?? "")", forHTTPHeaderField: "Authorization")
+        request.setValue("Bearer \(parameters["token"] ?? "")", 
+                         forHTTPHeaderField: "Authorization")
         
         return request
     }
@@ -42,16 +46,22 @@ extension ProfileImageService: NetworkService {
         }
     }
     
-    func fetchProfileImageURL(username: String, token: String, completion: @escaping (Result<String, Error>) -> Void) {
+    func fetchProfileImageURL(username: String, 
+                              token: String,
+                              completion: @escaping (Result<String, Error>) -> Void) {
         serialQueue.async { [weak self] in
             guard let self = self else { return }
             
-            self.fetch(parameters: ["username": username, "token": token], method: "GET", url: "https://api.unsplash.com/users/\(username)") { (result: Result<UserResult, Error>) in
+            self.fetch(parameters: ["username": username, "token": token], 
+                       method: "GET",
+                       url: "https://api.unsplash.com/users/\(username)") { (result: Result<UserResult, Error>) in
                 switch result {
                 case .success(let userResult):
-                    let profileImageURL = userResult.profileImage.small
+                    let profileImageURL = userResult.profileImage.large
                     self.avatarURL = profileImageURL
-                    NotificationCenter.default.post(name: ProfileImageService.didChangeNotification, object: self, userInfo: ["URL": profileImageURL])
+                    NotificationCenter.default.post(name: ProfileImageService.didChangeNotification, 
+                                                    object: self,
+                                                    userInfo: ["URL": profileImageURL])
                     DispatchQueue.main.async {
                         completion(.success(profileImageURL))
                     }

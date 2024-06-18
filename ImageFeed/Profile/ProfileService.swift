@@ -7,6 +7,7 @@
 
 import UIKit
 
+// MARK: - Object
 final class ProfileService {
     
     static let shared = ProfileService()
@@ -45,7 +46,9 @@ extension ProfileService: NetworkService {
         serialQueue.async { [weak self] in
             guard let self = self else { return }
             
-            self.fetch(parameters: ["token": token], method: "GET", url: "https://api.unsplash.com/me") { (result: Result<Profile, Error>) in
+            self.fetch(parameters: ["token": token], 
+                       method: "GET",
+                       url: "https://api.unsplash.com/me") { (result: Result<Profile, Error>) in
                 switch result {
                 case .success(let profile):
                     DispatchQueue.main.async {
