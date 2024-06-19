@@ -57,13 +57,19 @@ extension ProfileImageService: NetworkService {
                        url: "https://api.unsplash.com/users/\(username)") { (result: Result<UserResult, Error>) in
                 switch result {
                 case .success(let userResult):
-                    let profileImageURL = userResult.profileImage.large
-                    self.avatarURL = profileImageURL
-                    NotificationCenter.default.post(name: ProfileImageService.didChangeNotification, 
-                                                    object: self,
-                                                    userInfo: ["URL": profileImageURL])
-                    DispatchQueue.main.async {
-                        completion(.success(profileImageURL))
+                    if let imageURL = userResult.profileImage {
+                        let profileImageURL = imageURL.large
+                        self.avatarURL = profileImageURL
+                        NotificationCenter.default.post(name: ProfileImageService.didChangeNotification,
+                                                        object: self,
+                                                        userInfo: ["URL": profileImageURL])
+                        DispatchQueue.main.async {
+                            completion(.success(profileImageURL))
+                        }
+                    } else {
+                        DispatchQueue.main.async {
+                            completion(.success(""))
+                        }
                     }
                 case .failure(let error):
                     DispatchQueue.main.async {

@@ -80,24 +80,28 @@ extension SplashViewController: AuthViewControllerDelegate {
         
         profileService.fetchProfile(token) { [weak self] result in
             DispatchQueue.main.async {
-                UIBlockingProgressHUD.dismiss()
-                guard let self = self else { return }
+                guard let self = self else {
+                    UIBlockingProgressHUD.dismiss()
+                    return
+                }
                 
                 switch result {
-                case .success(let result):
-                    self.profileImageService.fetchProfileImageURL(username: result.userName, token: token) { [weak self] imageResult in
-                        guard let self else { return }
-                        
-                        switch imageResult {
-                        case .success(_):
-                            self.switchToTabBarController()
-                        case .failure(let error):
-                            let errorMessage = NetworkErrorHandler.errorMessage(from: error)
-                            print("Нет данных профиля: \(errorMessage)")
+                case .success(let profile):
+                    self.profileImageService.fetchProfileImageURL(username: profile.userName, token: token) { imageResult in
+                        DispatchQueue.main.async {
+                            UIBlockingProgressHUD.dismiss()
+                            switch imageResult {
+                            case .success(_):
+                                self.switchToTabBarController()
+                            case .failure(let error):
+                                let errorMessage = NetworkErrorHandler.errorMessage(from: error)
+                                print("Нет данных профиля: \(errorMessage)")
+                                self.showAuthViewController()
+                            }
                         }
                     }
-                    self.switchToTabBarController()
                 case .failure(let error):
+                    UIBlockingProgressHUD.dismiss()
                     let errorMessage = NetworkErrorHandler.errorMessage(from: error)
                     print("Нет данных профиля: \(errorMessage)")
                     self.showAuthViewController()
@@ -105,6 +109,7 @@ extension SplashViewController: AuthViewControllerDelegate {
             }
         }
     }
+
     
     func didAuthenticate(_ vc: AuthViewController) {
         vc.dismiss(animated: true) { [weak self] in
