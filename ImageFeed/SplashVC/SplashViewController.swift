@@ -80,7 +80,7 @@ extension SplashViewController: AuthViewControllerDelegate {
         
         profileService.fetchProfile(token) { [weak self] result in
             DispatchQueue.main.async {
-                guard let self = self else {
+                guard let self else {
                     UIBlockingProgressHUD.dismiss()
                     return
                 }
@@ -95,7 +95,7 @@ extension SplashViewController: AuthViewControllerDelegate {
                                 self.switchToTabBarController()
                             case .failure(let error):
                                 let errorMessage = NetworkErrorHandler.errorMessage(from: error)
-                                print("Нет данных профиля: \(errorMessage)")
+                                print("Нет данных аватарки: \(errorMessage)")
                                 self.showAuthViewController()
                             }
                         }
@@ -109,12 +109,11 @@ extension SplashViewController: AuthViewControllerDelegate {
             }
         }
     }
-
     
     func didAuthenticate(_ vc: AuthViewController) {
         vc.dismiss(animated: true) { [weak self] in
-            guard let self else { return }
-            guard let token = storage.token else { return }
+            guard let self,
+                  let token = self.storage.token else { return }
             
             fetchProfile(token)
         }
