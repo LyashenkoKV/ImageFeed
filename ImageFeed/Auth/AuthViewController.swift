@@ -17,7 +17,6 @@ protocol AuthViewControllerDelegate: AnyObject {
 final class AuthViewController: UIViewController {
     
     weak var delegate: AuthViewControllerDelegate?
-    private let alertPresenter = AlertPresenter()
     private let webViewViewController = WebViewViewController()
     private let oauth2Service = OAuth2Service.shared
     
@@ -45,7 +44,6 @@ final class AuthViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .ypBlack
         webViewViewController.delegate = self
-        alertPresenter.delegate = self
         setupUI()
     }
     
@@ -81,7 +79,7 @@ final class AuthViewController: UIViewController {
             buttons: [AlertButton(title: "OK", style: .cancel, handler: nil)],
             context: .error
         )
-        alertPresenter.showAlert(with: alertModel)
+        AlertPresenter.showAlert(with: alertModel, delegate: self)
     }
 }
 

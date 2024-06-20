@@ -122,10 +122,12 @@ final class ProfileViewController: UIViewController {
     }
     
     private func showSkeletons() {
-        profileImage.showAnimatedGradientSkeleton()
-        nameLabel.showAnimatedGradientSkeleton()
-        loginNameLabel.showAnimatedGradientSkeleton()
-        descriptionLabel.showAnimatedGradientSkeleton()
+        DispatchQueue.main.async {
+            self.profileImage.showAnimatedGradientSkeleton()
+            self.nameLabel.showAnimatedGradientSkeleton()
+            self.loginNameLabel.showAnimatedGradientSkeleton()
+            self.descriptionLabel.showAnimatedGradientSkeleton()
+        }
     }
 
     private func hideSkeletons() {

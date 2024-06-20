@@ -9,7 +9,7 @@ import UIKit
 
 struct AlertModel {
     enum Context {
-        case back, error
+        case back, error, logout
     }
     
     let title: String

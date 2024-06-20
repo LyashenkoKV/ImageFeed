@@ -16,7 +16,7 @@ final class AlertPresenter {
     
     weak var delegate: AlertPresenterDelegate?
     
-    func showAlert(with model: AlertModel) {
+    static func showAlert(with model: AlertModel, delegate: AlertPresenterDelegate?) {
         let alert = UIAlertController(title: model.title, message: model.message, preferredStyle: .alert)
         
         for button in model.buttons {
@@ -31,6 +31,8 @@ final class AlertPresenter {
             alert.view.accessibilityIdentifier = "Back"
         case .error:
             alert.view.accessibilityIdentifier = "ErrorAlert"
+        case .logout:
+            alert.view.accessibilityIdentifier = "Logout"
         }
         
         delegate?.presentAlert(alert)

@@ -22,7 +22,6 @@ class WebViewViewController: UIViewController {
     
     private var authService: AuthService?
     private var estimatedProgressObservation: NSKeyValueObservation?
-    private let alertPresenter = AlertPresenter()
     
     private lazy var webView: WKWebView = {
         let webView = WKWebView()
@@ -52,7 +51,6 @@ class WebViewViewController: UIViewController {
         setupUI()
         authService = AuthService(webView: webView)
         authService?.delegate = self
-        alertPresenter.delegate = self
         updateProgress()
     }
     
@@ -109,7 +107,7 @@ class WebViewViewController: UIViewController {
             ],
             context: .back
         )
-        alertPresenter.showAlert(with: alertModel)
+        AlertPresenter.showAlert(with: alertModel, delegate: self)
     }
 }
 
@@ -130,7 +128,7 @@ extension WebViewViewController: AuthServiceDelegate {
             buttons: [AlertButton(title: "OK", style: .cancel, handler: nil)],
             context: .error
         )
-        alertPresenter.showAlert(with: alertModel)
+        AlertPresenter.showAlert(with: alertModel, delegate: self)
     }
 }
 // MARK: - AlertPresenterDelegate
