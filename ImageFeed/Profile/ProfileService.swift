@@ -51,7 +51,7 @@ extension ProfileService: NetworkService {
             
             self.fetch(parameters: ["token": token], 
                        method: "GET",
-                       url: "https://api.unsplash.com/me") { (result: Result<Profile, Error>) in
+                       url: APIEndpoints.Profile.me) { (result: Result<Profile, Error>) in
                 switch result {
                 case .success(let profile):
                     DispatchQueue.main.async {

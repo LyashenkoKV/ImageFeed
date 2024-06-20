@@ -57,7 +57,7 @@ extension ProfileImageService: NetworkService {
             
             self.fetch(parameters: ["username": username, "token": token], 
                        method: "GET",
-                       url: "https://api.unsplash.com/users/\(username)") { (result: Result<UserResult, Error>) in
+                       url: APIEndpoints.Profile.profile(username: username)) { (result: Result<UserResult, Error>) in
                 switch result {
                 case .success(let userResult):
                     if let imageURL = userResult.profileImage {

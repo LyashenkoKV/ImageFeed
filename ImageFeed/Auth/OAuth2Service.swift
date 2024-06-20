@@ -77,7 +77,7 @@ extension OAuth2Service: NetworkService {
             
             self.fetch(parameters: parameters, 
                        method: "POST",
-                       url: "https://unsplash.com/oauth/token") { (result: Result<OAuthTokenResponseBody, Error>) in
+                       url: APIEndpoints.OAuth.token) { (result: Result<OAuthTokenResponseBody, Error>) in
                 self.serialQueue.async {
                     let completions = self.activeRequests.removeValue(forKey: code) ?? []
                     for completion in completions {
