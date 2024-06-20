@@ -27,7 +27,7 @@ extension OAuth2Service: NetworkService {
         components?.queryItems = parameters.map { URLQueryItem(name: $0.key, value: $0.value) }
         
         guard let url = components?.url else {
-            print(NetworkError.unableToConstructURL.localizedDescription)
+            Logger.shared.log(.error, message: "Unable to construct URL with parameters: \(parameters)")
             return nil
         }
         
@@ -36,6 +36,8 @@ extension OAuth2Service: NetworkService {
         request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
         request.httpBody = components?.percentEncodedQuery?.data(using: .utf8)
         
+        Logger.shared.log(.debug, message: "Request created: \(request)")
+        
         return request
     }
     
@@ -43,10 +45,10 @@ extension OAuth2Service: NetworkService {
         do {
             let tokenResponse = try JSONDecoder().decode(OAuthTokenResponseBody.self, from: data)
             self.oAuth2TokenStorage.token = tokenResponse.accessToken
-            print("Access token saved: \(tokenResponse.accessToken)")
+            Logger.shared.log(.debug, message: "Access token saved", metadata: ["token": tokenResponse.accessToken])
             return tokenResponse
         } catch {
-            print("Token parsing error: \(NetworkError.errorFetchingAccessToken)")
+            Logger.shared.log(.error, message: "Token parsing error: \(error.localizedDescription)")
             return nil
         }
     }
@@ -71,6 +73,8 @@ extension OAuth2Service: NetworkService {
                 "grant_type": "authorization_code"
             ]
             
+            Logger.shared.log(.debug, message: "Fetching OAuth token with code: \(code)")
+            
             self.fetch(parameters: parameters, 
                        method: "POST",
                        url: "https://unsplash.com/oauth/token") { (result: Result<OAuthTokenResponseBody, Error>) in
@@ -80,8 +84,10 @@ extension OAuth2Service: NetworkService {
                         DispatchQueue.main.async {
                             switch result {
                             case .success(let response):
+                                Logger.shared.log(.debug, message: "Successfully fetched OAuth token", metadata: ["token": response.accessToken])
                                 completion(.success(response.accessToken))
                             case .failure(let error):
+                                Logger.shared.log(.error, message: "Failed to fetch OAuth token", metadata: ["error": error.localizedDescription])
                                 completion(.failure(error))
                             }
                         }
