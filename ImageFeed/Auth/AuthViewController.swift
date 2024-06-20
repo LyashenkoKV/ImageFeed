@@ -6,15 +6,18 @@
 //
 
 import UIKit
-// MARK: - protocol
+import ProgressHUD
+// MARK: - Protocol
 protocol AuthViewControllerDelegate: AnyObject {
     func didAuthenticate(_ vc: AuthViewController)
+    func fetchProfile(_ token: String)
 }
 
-// MARK: - UIViewController
+// MARK: - Object
 final class AuthViewController: UIViewController {
     
     weak var delegate: AuthViewControllerDelegate?
+    private let oauth2Service = OAuth2Service.shared
     
     private lazy var image: UIImageView = {
         let imageView = UIImageView()
@@ -35,14 +38,10 @@ final class AuthViewController: UIViewController {
         button.addTarget(self, action: #selector(loginButtonPressed), for: .touchUpInside)
         return button
     }()
-    
-    private let webViewViewController = WebViewViewController()
-    private let oauth2Service = OAuth2Service.shared
 
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .ypBlack
-        webViewViewController.delegate = self
         setupUI()
     }
     
@@ -68,21 +67,32 @@ final class AuthViewController: UIViewController {
     }
     
     @objc private func loginButtonPressed() {
+        let webViewViewController = WebViewViewController()
+        webViewViewController.delegate = self
         navigationController?.pushViewController(webViewViewController, animated: true)
     }
     
-    private func showErrorAlert(with message: String) {
-        let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-        present(alert, animated: true)
+    private func showErrorAlert() {
+        let alertModel = AlertModel(
+            title: "Что-то пошло не так(",
+            message: "Не удалось войти в систему",
+            buttons: [AlertButton(title: "OK", style: .cancel, handler: nil)],
+            context: .error
+        )
+        AlertPresenter.showAlert(with: alertModel, delegate: self)
     }
 }
 
 // MARK: - WebViewViewControllerDelegate
 extension AuthViewController: WebViewViewControllerDelegate {
     func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String) {
+        
+        UIBlockingProgressHUD.show()
+        
         oauth2Service.fetchOAuthToken(code: code) { [weak self] result in
             guard let self else { return }
+            
+            UIBlockingProgressHUD.dismiss()
             
             switch result {
             case .success(let token):
@@ -90,8 +100,8 @@ extension AuthViewController: WebViewViewControllerDelegate {
                 print("Аутентификация выполнена! Токен: \(token)")
             case .failure(let error):
                 let errorMessage = NetworkErrorHandler.errorMessage(from: error)
-                self.showErrorAlert(with: errorMessage)
                 print("Ошибка аутентификации: \(errorMessage)")
+                self.showErrorAlert()
             }
         }
     }
@@ -101,6 +111,12 @@ extension AuthViewController: WebViewViewControllerDelegate {
     }
     
     func webViewViewController(_ vc: WebViewViewController, didFailWithError error: any Error) {
-        showErrorAlert(with: NetworkErrorHandler.errorMessage(from: error))
+        showErrorAlert()
+    }
+}
+// MARK: - AlertPresenterDelegate
+extension AuthViewController: AlertPresenterDelegate {
+    func presentAlert(_ alert: UIAlertController) {
+        present(alert, animated: true)
     }
 }
