@@ -17,7 +17,6 @@ protocol AuthViewControllerDelegate: AnyObject {
 final class AuthViewController: UIViewController {
     
     weak var delegate: AuthViewControllerDelegate?
-    private let webViewViewController = WebViewViewController()
     private let oauth2Service = OAuth2Service.shared
     
     private lazy var image: UIImageView = {
@@ -43,7 +42,6 @@ final class AuthViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .ypBlack
-        webViewViewController.delegate = self
         setupUI()
     }
     
@@ -69,6 +67,8 @@ final class AuthViewController: UIViewController {
     }
     
     @objc private func loginButtonPressed() {
+        let webViewViewController = WebViewViewController()
+        webViewViewController.delegate = self
         navigationController?.pushViewController(webViewViewController, animated: true)
     }
     
