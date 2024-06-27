@@ -10,9 +10,11 @@ import Kingfisher
 
 final class ImagesListService {
     
+    private (set) var photos: [Photos] = []
     private var lastLoadedPage: Int?
     
-    private func fetchPhotosNextPage() {
+    func fetchPhotosNextPage() {
         
+        let nextPage = (lastLoadedPage ?? 0) + 1
     }
 }

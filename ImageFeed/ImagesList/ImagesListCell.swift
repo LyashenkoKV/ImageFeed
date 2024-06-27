@@ -98,7 +98,7 @@ final class ImagesListCell: UITableViewCell {
         likeButton.tintColor = likeButton.tintColor == .ypRed ? .ypWhite.withAlphaComponent(0.5) : .ypRed
     }
     
-    func configure(withImage image: UIImage?, text: String, isLiked: Bool, tintColor: UIColor) {
+    func configure(withImage image: UIImage?, text: String, isLiked: Bool) {
         self.image.image = image
         customTextLabel.text = text
     }

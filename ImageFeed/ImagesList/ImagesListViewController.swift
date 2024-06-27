@@ -64,10 +64,7 @@ final class ImagesListViewController: UIViewController {
         let imageName = photosName[indexPath.row]
         let image = UIImage(named: imageName)
         let dateText = dateFormatter.string(from: Date())
-        let isLiked = indexPath.row % 2 == 0
-        let tintColor = isLiked ? UIColor.white.withAlphaComponent(0.5) : UIColor.red
-        
-        cell.configure(withImage: image, text: dateText, isLiked: isLiked, tintColor: tintColor)
+        cell.configure(withImage: image, text: dateText, isLiked: true)
     }
 }
 
@@ -92,6 +89,10 @@ extension ImagesListViewController: UITableViewDataSource {
         let scale = imageViewWidth / imageWidth
         let cellHeight = image.size.height * scale + insets.top + insets.bottom
         return cellHeight
+    }
+    
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        
     }
 }
 
