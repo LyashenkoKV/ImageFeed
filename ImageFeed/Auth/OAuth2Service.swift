@@ -55,8 +55,7 @@ extension OAuth2Service: NetworkService {
     
     func fetchOAuthToken(code: String, 
                          completion: @escaping (Result<String, Error>) -> Void) {
-        serialQueue.async { [weak self] in
-            guard let self = self else { return }
+        serialQueue.async {
             
             if self.activeRequests[code] != nil {
                 self.activeRequests[code]?.append(completion)

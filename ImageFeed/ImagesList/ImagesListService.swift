@@ -16,6 +16,8 @@ final class ImagesListService {
     private var lastLoadedPage: Int?
     private var isLoading: Bool = false
     
+    private let synchronizationQueue = DispatchQueue(label: "ImagesListService.serialQueue")
+    private let semaphore = DispatchSemaphore(value: 1)
 }
 
 // MARK: - NetworkService
@@ -47,25 +49,31 @@ extension ImagesListService: NetworkService {
     }
     
     func fetchPhotosNextPage(with token: String) {
-        guard !isLoading else { return }
-        
-        isLoading = true
-        let nextPage = (lastLoadedPage ?? 0) + 1
-        
-        fetch(parameters: ["page": "\(nextPage)", "per_page": "100", "token": token], method: "GET", url: APIEndpoints.Photos.photos) { [weak self] result in
-            guard let self else { return }
-            self.isLoading = false
+        synchronizationQueue.async {
+            self.semaphore.wait()
+            defer { self.semaphore.signal() }
             
-            switch result {
-            case .success(let photoResults):
-                let newPhotos = photoResults.compactMap { self.mapToPhotos(photoResult: $0) }
-                self.photos.append(contentsOf: newPhotos)
-                self.lastLoadedPage = nextPage
-                Logger.shared.log(.debug, message: "Изображения успешно получены")
+            guard !self.isLoading else { return }
+            self.isLoading = true
+            let nextPage = (self.lastLoadedPage ?? 0) + 1
+            
+            self.fetch(parameters: ["page": "\(nextPage)", "per_page": "100", "token": token],
+                  method: "GET",
+                  url: APIEndpoints.Photos.photos) { [weak self] result in
+                guard let self else { return }
+                self.isLoading = false
                 
-                NotificationCenter.default.post(name: ImagesListService.didChangeNotification, object: nil)
-            case .failure(let error):
-                Logger.shared.log(.error, message: "Не удалось получить изображения", metadata: ["error": error.localizedDescription])
+                switch result {
+                case .success(let photoResults):
+                    let newPhotos = photoResults.compactMap { self.mapToPhotos(photoResult: $0) }
+                    self.photos.append(contentsOf: newPhotos)
+                    self.lastLoadedPage = nextPage
+                    Logger.shared.log(.debug, message: "Изображения успешно получены")
+                    
+                    NotificationCenter.default.post(name: ImagesListService.didChangeNotification, object: nil)
+                case .failure(let error):
+                    Logger.shared.log(.error, message: "Не удалось получить изображения", metadata: ["error": error.localizedDescription])
+                }
             }
         }
     }

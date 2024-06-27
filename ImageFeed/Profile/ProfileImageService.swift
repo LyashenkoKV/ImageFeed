@@ -52,9 +52,7 @@ extension ProfileImageService: NetworkService {
     func fetchProfileImageURL(username: String, 
                               token: String,
                               completion: @escaping (Result<String, Error>) -> Void) {
-        serialQueue.async { [weak self] in
-            guard let self else { return }
-            
+        serialQueue.async {
             self.fetch(parameters: ["username": username, "token": token], 
                        method: "GET",
                        url: APIEndpoints.Profile.profile(username: username)) { (result: Result<UserResult, Error>) in
