@@ -27,7 +27,7 @@ extension OAuth2Service: NetworkService {
         components?.queryItems = parameters.map { URLQueryItem(name: $0.key, value: $0.value) }
         
         guard let url = components?.url else {
-            Logger.shared.log(.error, message: "Unable to construct URL with parameters: \(parameters)")
+            Logger.shared.log(.error, message: "Невозможно создать URL с параметрами: \(parameters)")
             return nil
         }
         
@@ -36,7 +36,7 @@ extension OAuth2Service: NetworkService {
         request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
         request.httpBody = components?.percentEncodedQuery?.data(using: .utf8)
         
-        Logger.shared.log(.debug, message: "Request created: \(request)")
+        Logger.shared.log(.debug, message: "Запрос на создание: \(request)")
         
         return request
     }
@@ -45,10 +45,10 @@ extension OAuth2Service: NetworkService {
         do {
             let tokenResponse = try JSONDecoder().decode(OAuthTokenResponseBody.self, from: data)
             self.oAuth2TokenStorage.token = tokenResponse.accessToken
-            Logger.shared.log(.debug, message: "Access token saved", metadata: ["token": tokenResponse.accessToken])
+            Logger.shared.log(.debug, message: "Access token сохранен", metadata: ["token": tokenResponse.accessToken])
             return tokenResponse
         } catch {
-            Logger.shared.log(.error, message: "Token parsing error: \(error.localizedDescription)")
+            Logger.shared.log(.error, message: "Ошибка обработки токена: \(error.localizedDescription)")
             return nil
         }
     }
@@ -73,7 +73,7 @@ extension OAuth2Service: NetworkService {
                 "grant_type": "authorization_code"
             ]
             
-            Logger.shared.log(.debug, message: "Fetching OAuth token with code: \(code)")
+            Logger.shared.log(.debug, message: "Получение токена OAuth с кодом: \(code)")
             
             self.fetch(parameters: parameters, 
                        method: "POST",
@@ -84,10 +84,10 @@ extension OAuth2Service: NetworkService {
                         DispatchQueue.main.async {
                             switch result {
                             case .success(let response):
-                                Logger.shared.log(.debug, message: "Successfully fetched OAuth token", metadata: ["token": response.accessToken])
+                                Logger.shared.log(.debug, message: "Токен OAuth успешно получен", metadata: ["token": response.accessToken])
                                 completion(.success(response.accessToken))
                             case .failure(let error):
-                                Logger.shared.log(.error, message: "Failed to fetch OAuth token", metadata: ["error": error.localizedDescription])
+                                Logger.shared.log(.error, message: "Не удалось получить токен OAuth", metadata: ["error": error.localizedDescription])
                                 completion(.failure(error))
                             }
                         }

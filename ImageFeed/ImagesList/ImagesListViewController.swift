@@ -9,13 +9,15 @@ import UIKit
 
 final class ImagesListViewController: UIViewController {
     
+    private let storage = OAuth2TokenStorage.shared
+    
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
         return tableView
     }()
     
-    private let photosName: [String] = Array(0..<20).map{ "\($0)" }
+    private let imagesListService = ImagesListService()
     
     private lazy var dateFormatter: DateFormatter = {
         let dateFormatter = DateFormatter()
@@ -36,6 +38,14 @@ final class ImagesListViewController: UIViewController {
         }
         
         configureTableView()
+        setupNotifications()
+        checkAuthorization()
+    }
+    
+    private func checkAuthorization() {
+        if let token = storage.token {
+            imagesListService.fetchPhotosNextPage(with: token)
+        }
     }
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -57,21 +67,32 @@ final class ImagesListViewController: UIViewController {
         ])
     }
     
+    private func setupNotifications() {
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(reloadData),
+                                               name: ImagesListService.didChangeNotification,
+                                               object: nil)
+    }
+    
     private func configCell(_ cell: ImagesListCell, for indexPath: IndexPath) {
         cell.backgroundColor = .ypBlack
         cell.selectionStyle = .none
         
-        let imageName = photosName[indexPath.row]
-        let image = UIImage(named: imageName)
-        let dateText = dateFormatter.string(from: Date())
-        cell.configure(withImage: image, text: dateText, isLiked: true)
+        let photo = imagesListService.photos[indexPath.row]
+        let imageURL = URL(string: photo.thumbImageURL)
+        let dateText = dateFormatter.string(from: photo.createdAt ?? Date())
+        cell.configure(withImageURL: imageURL, text: dateText, isLiked: photo.isLiked)
+    }
+    
+    @objc private func reloadData() {
+        tableView.reloadData()
     }
 }
 
 // MARK: - UITableViewDataSource
 extension ImagesListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return photosName.count
+        return imagesListService.photos.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -81,18 +102,20 @@ extension ImagesListViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        guard let image = UIImage(named: photosName[indexPath.row]) else { return 0 }
+        let photo = imagesListService.photos[indexPath.row]
         
         let insets = UIEdgeInsets(top: 4, left: 16, bottom: 4, right: 16)
         let imageViewWidth = tableView.bounds.width - insets.left - insets.right
-        let imageWidth = image.size.width
+        let imageWidth = CGFloat(photo.size.width)
         let scale = imageViewWidth / imageWidth
-        let cellHeight = image.size.height * scale + insets.top + insets.bottom
+        let cellHeight = CGFloat(photo.size.height) * scale + insets.top + insets.bottom
         return cellHeight
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        
+        if indexPath.row == imagesListService.photos.count - 1 {
+            checkAuthorization()
+        }
     }
 }
 
@@ -101,9 +124,10 @@ extension ImagesListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let singleImageViewController = SingleImageViewController()
         
-        guard let image = UIImage(named: photosName[indexPath.row]) else { return }
+        let photo = imagesListService.photos[indexPath.row]
+        guard let imageURL = URL(string: photo.largeImageURL) else { return }
         
-        singleImageViewController.configure(image: image)
+        singleImageViewController.configure(withImageURL: imageURL)
         singleImageViewController.modalPresentationStyle = .fullScreen
         
         DispatchQueue.main.async {

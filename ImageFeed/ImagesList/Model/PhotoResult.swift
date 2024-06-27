@@ -17,18 +17,18 @@ struct PhotoResult: Decodable {
     let likedByUser: Bool
     
     private enum CodingKeys: String, CodingKey {
-            case id
-            case createdAt = "created_at"
-            case width
-            case height
-            case description
-            case urls
-            case likedByUser = "liked_by_user"
-        }
+        case id
+        case createdAt = "created_at"
+        case width
+        case height
+        case description
+        case urls
+        case likedByUser = "liked_by_user"
+    }
 }
 
 struct UrlsResult: Decodable {
-    let thumb: String
     let full: String
+    let thumb: String
 }
 

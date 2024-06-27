@@ -19,7 +19,7 @@ final class ImagesListCell: UITableViewCell {
         return view
     }()
     
-    private lazy var image: UIImageView = {
+    private lazy var customImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
         imageView.translatesAutoresizingMaskIntoConstraints = false
@@ -54,14 +54,14 @@ final class ImagesListCell: UITableViewCell {
     
     private func setupViews() {
         contentView.addSubview(customContentView)
-        customContentView.addSubview(image)
+        customContentView.addSubview(customImageView)
         customContentView.addSubview(likeButton)
         customContentView.addSubview(customTextLabel)
         addGradientView()
     }
     
     private func addGradientView() {
-        let gradientView = UIView(frame: CGRect(x: 0.0, y: customContentView.frame.height - 30.0, width: image.bounds.width, height: 30.0))
+        let gradientView = UIView(frame: CGRect(x: 0.0, y: customContentView.frame.height - 30.0, width: customImageView.bounds.width, height: 30.0))
         let gradientLayer = CAGradientLayer()
         gradientLayer.frame = gradientView.bounds
         gradientLayer.colors = [UIColor.clear.cgColor, UIColor.ypBlack.withAlphaComponent(0.4).cgColor]
@@ -77,10 +77,10 @@ final class ImagesListCell: UITableViewCell {
             customContentView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
             customContentView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -8),
             
-            image.topAnchor.constraint(equalTo: customContentView.topAnchor),
-            image.bottomAnchor.constraint(equalTo: customContentView.bottomAnchor),
-            image.leadingAnchor.constraint(equalTo: customContentView.leadingAnchor),
-            image.trailingAnchor.constraint(equalTo: customContentView.trailingAnchor),
+            customImageView.topAnchor.constraint(equalTo: customContentView.topAnchor),
+            customImageView.bottomAnchor.constraint(equalTo: customContentView.bottomAnchor),
+            customImageView.leadingAnchor.constraint(equalTo: customContentView.leadingAnchor),
+            customImageView.trailingAnchor.constraint(equalTo: customContentView.trailingAnchor),
             
             customTextLabel.heightAnchor.constraint(equalToConstant: 18),
             customTextLabel.bottomAnchor.constraint(equalTo: customContentView.bottomAnchor, constant: -8),
@@ -98,8 +98,12 @@ final class ImagesListCell: UITableViewCell {
         likeButton.tintColor = likeButton.tintColor == .ypRed ? .ypWhite.withAlphaComponent(0.5) : .ypRed
     }
     
-    func configure(withImage image: UIImage?, text: String, isLiked: Bool) {
-        self.image.image = image
+    func configure(withImageURL imageURL: URL?, text: String, isLiked: Bool) {
+        if let imageURL = imageURL {
+            customImageView.kf.setImage(with: imageURL)
+        } else {
+            customImageView.image = nil
+        }
         customTextLabel.text = text
     }
 }

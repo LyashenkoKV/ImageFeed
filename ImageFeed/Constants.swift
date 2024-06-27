@@ -18,6 +18,10 @@ enum APIEndpoints {
         }
         static let me = "https://api.unsplash.com/me"
     }
+    
+    enum Photos {
+        static let photos = "https://api.unsplash.com/photos"
+    }
 }
 
 enum Constants {

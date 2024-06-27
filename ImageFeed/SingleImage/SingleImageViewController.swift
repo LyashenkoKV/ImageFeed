@@ -56,9 +56,20 @@ final class SingleImageViewController: UIViewController {
         rescaleAndCenterImageInScrollView()
     }
     
-    func configure(image: UIImage) {
-        imageView.image = image
-        imageView.frame.size = image.size
+    func configure(withImageURL imageURL: URL) {
+        imageView.kf.setImage(with: imageURL) { [weak self] result in
+            guard let self else { return }
+            
+            switch result {
+            case .success(let value):
+                self.imageView.image = value.image
+                self.imageView.frame.size = value.image.size
+                self.rescaleAndCenterImageInScrollView()
+            case .failure(let error):
+                let errorMessage = NetworkErrorHandler.errorMessage(from: error)
+                print("Ошибка загрузки изображения: \(errorMessage)")
+            }
+        }
     }
     
     private func setupViews() {

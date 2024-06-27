@@ -27,6 +27,7 @@ extension NetworkService {
         }
         
         guard let request = makeRequest(parameters: parameters, method: method, url: url) else {
+            
             fulfillCompletionOnTheMainThread(.failure(NetworkError.unableToConstructURL))
             return
         }

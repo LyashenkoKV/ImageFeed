@@ -24,7 +24,7 @@ extension ProfileImageService: NetworkService {
                      method: String,
                      url: String) -> URLRequest? {
         guard let url = URL(string: url) else {
-            Logger.shared.log(.error, message: "Invalid URL string: \(url)")
+            Logger.shared.log(.error, message: "Неверная строка URL: \(url)")
             return nil
         }
         
@@ -33,7 +33,7 @@ extension ProfileImageService: NetworkService {
         request.setValue("Bearer \(parameters["token"] ?? "")", 
                          forHTTPHeaderField: "Authorization")
         
-        Logger.shared.log(.debug, message: "Request created: \(request)")
+        Logger.shared.log(.debug, message: "Запрос создан: \(request)")
         
         return request
     }
@@ -41,10 +41,10 @@ extension ProfileImageService: NetworkService {
     func parse(data: Data) -> UserResult? {
         do {
             let userResult = try JSONDecoder().decode(UserResult.self, from: data)
-            Logger.shared.log(.debug, message: "Successfully parsed user result")
+            Logger.shared.log(.debug, message: "User result успешно обработаны")
             return userResult
         } catch {
-            Logger.shared.log(.error, message: "Error parsing user result: \(error.localizedDescription)")
+            Logger.shared.log(.error, message: "Ошибка парсинга User result: \(error.localizedDescription)")
             return nil
         }
     }
@@ -53,7 +53,7 @@ extension ProfileImageService: NetworkService {
                               token: String,
                               completion: @escaping (Result<String, Error>) -> Void) {
         serialQueue.async { [weak self] in
-            guard let self = self else { return }
+            guard let self else { return }
             
             self.fetch(parameters: ["username": username, "token": token], 
                        method: "GET",
@@ -67,18 +67,18 @@ extension ProfileImageService: NetworkService {
                                                         object: self,
                                                         userInfo: ["URL": profileImageURL])
                         DispatchQueue.main.async {
-                            Logger.shared.log(.debug, message: "Successfully fetched profile image URL", metadata: ["URL": profileImageURL])
+                            Logger.shared.log(.debug, message: "URL изображения профиля успешно получен", metadata: ["URL": profileImageURL])
                             completion(.success(profileImageURL))
                         }
                     } else {
                         DispatchQueue.main.async {
-                            Logger.shared.log(.debug, message: "No profile image URL found")
+                            Logger.shared.log(.debug, message: "URL-адрес изображения профиля не найден")
                             completion(.success(""))
                         }
                     }
                 case .failure(let error):
                     DispatchQueue.main.async {
-                        Logger.shared.log(.error, message: "Failed to fetch profile image URL", metadata: ["error": error.localizedDescription])
+                        Logger.shared.log(.error, message: "Не удалось получить URL изображения профиля", metadata: ["error": error.localizedDescription])
                         completion(.failure(error))
                     }
                 }
