@@ -57,7 +57,7 @@ extension ImagesListService: NetworkService {
             self.isLoading = true
             let nextPage = (self.lastLoadedPage ?? 0) + 1
             
-            self.fetch(parameters: ["page": "\(nextPage)", "per_page": "100", "token": token],
+            self.fetch(parameters: ["page": "\(nextPage)", "per_page": "10", "token": token],
                   method: "GET",
                   url: APIEndpoints.Photos.photos) { [weak self] result in
                 guard let self else { return }
