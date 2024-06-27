@@ -73,6 +73,8 @@ struct NetworkErrorHandler: NetworkErrorProtocol {
             return .notFound
         case 422:
             return .unknownError
+        case 429:
+            return .tooManyRequests
         case 500, 503:
             return .serviceUnavailable
         default:

@@ -37,6 +37,7 @@
 		24C042AD2C243D2500746C39 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24C042AC2C243D2500746C39 /* Logger.swift */; };
 		24C496E62BF5F46400109D90 /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24C496E52BF5F46400109D90 /* ProfileViewController.swift */; };
 		24C496EC2BFB431F00109D90 /* SingleImageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24C496EB2BFB431F00109D90 /* SingleImageViewController.swift */; };
+		24FDC44A2C2D52E300C9C9CA /* ImagesListService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24FDC4492C2D52E300C9C9CA /* ImagesListService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -69,6 +70,7 @@
 		24C042AC2C243D2500746C39 /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
 		24C496E52BF5F46400109D90 /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
 		24C496EB2BFB431F00109D90 /* SingleImageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleImageViewController.swift; sourceTree = "<group>"; };
+		24FDC4492C2D52E300C9C9CA /* ImagesListService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagesListService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -123,8 +125,10 @@
 		247966352BEA3F2600E53C29 /* ImagesList */ = {
 			isa = PBXGroup;
 			children = (
+				24FDC4482C2D52B500C9C9CA /* Model */,
 				247966032BE8C58000E53C29 /* ImagesListViewController.swift */,
 				247966332BEA3B9500E53C29 /* ImagesListCell.swift */,
+				24FDC4492C2D52E300C9C9CA /* ImagesListService.swift */,
 			);
 			path = ImagesList;
 			sourceTree = "<group>";
@@ -214,6 +218,13 @@
 				2479660D2BE8C58100E53C29 /* Info.plist */,
 			);
 			path = Resources;
+			sourceTree = "<group>";
+		};
+		24FDC4482C2D52B500C9C9CA /* Model */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Model;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -319,6 +330,7 @@
 				24C042AD2C243D2500746C39 /* Logger.swift in Sources */,
 				24C0428A2C11E1CE00746C39 /* KeychainService.swift in Sources */,
 				247966022BE8C58000E53C29 /* SceneDelegate.swift in Sources */,
+				24FDC44A2C2D52E300C9C9CA /* ImagesListService.swift in Sources */,
 				24C042862C107E7900746C39 /* SplashViewController.swift in Sources */,
 				24C0428F2C1C3DEA00746C39 /* UIBlockingProgressHUD.swift in Sources */,
 			);
