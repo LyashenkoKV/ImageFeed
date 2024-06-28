@@ -21,6 +21,14 @@ final class ImagesListService {
     private let semaphore = DispatchSemaphore(value: 1)
     
     private init() {}
+    
+    private func addPhotos(_ newPhotos: [Photos]) {
+        let startIndex = photos.count
+        photos.append(contentsOf: newPhotos)
+        let endIndex = photos.count - 1
+        
+        NotificationCenter.default.post(name: ImagesListService.didChangeNotification, object: nil, userInfo: ["startIndex": startIndex, "endIndex": endIndex])
+    }
 }
 
 // MARK: - NetworkService
@@ -73,9 +81,9 @@ extension ImagesListService: NetworkService {
                 switch result {
                 case .success(let photoResults):
                     let newPhotos = photoResults.compactMap { self.mapToPhotos(photoResult: $0) }
-                    self.photos.append(contentsOf: newPhotos)
                     self.lastLoadedPage = nextPage
-                    Logger.shared.log(.debug, 
+                    self.addPhotos(newPhotos)
+                    Logger.shared.log(.debug,
                                       message: "ImagesListService: Изображения успешно получены",
                                       metadata: ["✅": ""])
                     

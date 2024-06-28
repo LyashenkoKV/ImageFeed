@@ -10,14 +10,13 @@ import UIKit
 final class ImagesListViewController: UIViewController {
     
     private let storage = OAuth2TokenStorage.shared
+    private let imagesListService = ImagesListService.shared
     
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
         return tableView
     }()
-    
-    private let imagesListService = ImagesListService.shared
     
     private lazy var dateFormatter: DateFormatter = {
         let dateFormatter = DateFormatter()
@@ -71,7 +70,7 @@ final class ImagesListViewController: UIViewController {
     
     private func setupNotifications() {
         NotificationCenter.default.addObserver(self,
-                                               selector: #selector(reloadData),
+                                               selector: #selector(handleImagesListServiceDidChangeNotification(_:)),
                                                name: ImagesListService.didChangeNotification,
                                                object: nil)
     }
@@ -86,8 +85,19 @@ final class ImagesListViewController: UIViewController {
         cell.configure(withImageURL: imageURL, text: dateText, isLiked: photo.isLiked)
     }
     
-    @objc private func reloadData() {
-        tableView.reloadData()
+    @objc private func handleImagesListServiceDidChangeNotification(_ notification: Notification) {
+        guard let userInfo = notification.userInfo,
+              let startIndex = userInfo["startIndex"] as? Int,
+              let endIndex = userInfo["endIndex"] as? Int else {
+            tableView.reloadData()
+            return
+        }
+
+        let indexPaths = (startIndex...endIndex).map { IndexPath(row: $0, section: 0) }
+
+        UIView.performWithoutAnimation {
+            tableView.insertRows(at: indexPaths, with: .none)
+        }
     }
 }
 
