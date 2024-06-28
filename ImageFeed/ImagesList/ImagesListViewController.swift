@@ -17,7 +17,7 @@ final class ImagesListViewController: UIViewController {
         return tableView
     }()
     
-    private let imagesListService = ImagesListService()
+    private let imagesListService = ImagesListService.shared
     
     private lazy var dateFormatter: DateFormatter = {
         let dateFormatter = DateFormatter()
@@ -44,7 +44,9 @@ final class ImagesListViewController: UIViewController {
     
     private func checkAuthorization() {
         if let token = storage.token {
-            imagesListService.fetchPhotosNextPage(with: token)
+            DispatchQueue.main.async {
+                self.imagesListService.fetchPhotosNextPage(with: token)
+            }
         }
     }
     

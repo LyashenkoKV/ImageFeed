@@ -52,6 +52,11 @@ final class ImagesListCell: UITableViewCell {
         configureSubviews()
     }
     
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        customImageView.kf.cancelDownloadTask()
+    }
+    
     private func setupViews() {
         contentView.addSubview(customContentView)
         customContentView.addSubview(customImageView)

@@ -10,6 +10,7 @@ import Kingfisher
 
 final class ImagesListService {
     
+    static let shared = ImagesListService()
     static let didChangeNotification = Notification.Name(rawValue: "ImagesListServiceDidChange")
     
     private (set) var photos: [Photos] = []
@@ -18,6 +19,8 @@ final class ImagesListService {
     
     private let synchronizationQueue = DispatchQueue(label: "ImagesListService.serialQueue")
     private let semaphore = DispatchSemaphore(value: 1)
+    
+    private init() {}
 }
 
 // MARK: - NetworkService
@@ -86,12 +89,12 @@ extension ImagesListService: NetworkService {
         }
     }
 }
-
+// MARK: - Extension
 extension ImagesListService {
     
     private func mapToPhotos(photoResult: PhotoResult) -> Photos {
         let dateFormatter = ISO8601DateFormatter()
-        let date = photoResult.createdAt.flatMap { dateFormatter.date(from:$0) }
+        let date = photoResult.createdAt.flatMap { dateFormatter.date(from: $0) }
         
         return Photos(id: photoResult.id,
                       size: CGSize(width: photoResult.width,

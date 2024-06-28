@@ -13,6 +13,7 @@ final class SplashViewController: UIViewController {
     private let profileService = ProfileService.shared
     private let storage = OAuth2TokenStorage.shared
     private let profileImageService = ProfileImageService.shared
+    private let imagesListService = ImagesListService.shared
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
