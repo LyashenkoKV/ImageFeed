@@ -24,7 +24,9 @@ extension ProfileImageService: NetworkService {
                      method: String,
                      url: String) -> URLRequest? {
         guard let url = URL(string: url) else {
-            Logger.shared.log(.error, message: "Неверная строка URL: \(url)")
+            Logger.shared.log(.error, 
+                              message: "ProfileImageService: Неверная строка URL" ,
+                              metadata: ["❌": url])
             return nil
         }
         
@@ -33,7 +35,9 @@ extension ProfileImageService: NetworkService {
         request.setValue("Bearer \(parameters["token"] ?? "")", 
                          forHTTPHeaderField: "Authorization")
         
-        Logger.shared.log(.debug, message: "Запрос создан: \(request)")
+        Logger.shared.log(.debug, 
+                          message: "ProfileImageService: Запрос создан:",
+                          metadata: ["✅": "\(request)"])
         
         return request
     }
@@ -41,10 +45,14 @@ extension ProfileImageService: NetworkService {
     func parse(data: Data) -> UserResult? {
         do {
             let userResult = try JSONDecoder().decode(UserResult.self, from: data)
-            Logger.shared.log(.debug, message: "User result успешно обработаны")
+            Logger.shared.log(.debug, 
+                              message: "ProfileImageService: Данные Profile Image успешно обработаны",
+                              metadata: ["✅": ""])
             return userResult
         } catch {
-            Logger.shared.log(.error, message: "Ошибка парсинга User result: \(error.localizedDescription)")
+            Logger.shared.log(.error,
+                              message: "ProfileImageService: Ошибка парсинга Profile Image",
+                              metadata: ["❌": error.localizedDescription])
             return nil
         }
     }
@@ -65,18 +73,24 @@ extension ProfileImageService: NetworkService {
                                                         object: self,
                                                         userInfo: ["URL": profileImageURL])
                         DispatchQueue.main.async {
-                            Logger.shared.log(.debug, message: "URL изображения профиля успешно получен", metadata: ["URL": profileImageURL])
+                            Logger.shared.log(.debug,
+                                              message: "ProfileImageService: URL изображения профиля успешно получен",
+                                              metadata: ["✅ URL": profileImageURL])
                             completion(.success(profileImageURL))
                         }
                     } else {
                         DispatchQueue.main.async {
-                            Logger.shared.log(.debug, message: "URL-адрес изображения профиля не найден")
+                            Logger.shared.log(.debug, 
+                                              message: "ProfileImageService: URL-адрес изображения профиля не найден",
+                                              metadata: ["❗️": ""])
                             completion(.success(""))
                         }
                     }
                 case .failure(let error):
                     DispatchQueue.main.async {
-                        Logger.shared.log(.error, message: "Не удалось получить URL изображения профиля", metadata: ["error": error.localizedDescription])
+                        Logger.shared.log(.error, 
+                                          message: "ProfileImageService: Не удалось получить URL изображения профиля",
+                                          metadata: ["❌": error.localizedDescription])
                         completion(.failure(error))
                     }
                 }

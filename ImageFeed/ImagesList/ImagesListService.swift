@@ -29,7 +29,9 @@ extension ImagesListService: NetworkService {
         components?.queryItems = parameters.map { URLQueryItem(name: $0.key, value: $0.value) }
         
         guard let finalURl = components?.url else {
-            Logger.shared.log(.error, message: "Неверная строка URL: \(url)")
+            Logger.shared.log(.error, 
+                              message: "ImagesListService: Неверная строка URL",
+                              metadata: ["❌": url])
             return nil
         }
         
@@ -38,7 +40,9 @@ extension ImagesListService: NetworkService {
         request.setValue("Bearer \(parameters["token"] ?? "")",
                          forHTTPHeaderField: "Authorization")
         
-        Logger.shared.log(.debug, message: "Запрос создан: \(request)")
+        Logger.shared.log(.debug, 
+                          message: "ImagesListService: Запрос создан:",
+                          metadata: ["✅": "\(request)"])
         
         return request
     }
@@ -68,11 +72,15 @@ extension ImagesListService: NetworkService {
                     let newPhotos = photoResults.compactMap { self.mapToPhotos(photoResult: $0) }
                     self.photos.append(contentsOf: newPhotos)
                     self.lastLoadedPage = nextPage
-                    Logger.shared.log(.debug, message: "Изображения успешно получены")
+                    Logger.shared.log(.debug, 
+                                      message: "ImagesListService: Изображения успешно получены",
+                                      metadata: ["✅": ""])
                     
                     NotificationCenter.default.post(name: ImagesListService.didChangeNotification, object: nil)
                 case .failure(let error):
-                    Logger.shared.log(.error, message: "Не удалось получить изображения", metadata: ["error": error.localizedDescription])
+                    Logger.shared.log(.error, 
+                                      message: "ImagesListService: Не удалось получить изображения",
+                                      metadata: ["❌": error.localizedDescription])
                 }
             }
         }

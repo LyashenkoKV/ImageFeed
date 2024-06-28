@@ -21,7 +21,8 @@ final class ProfileService {
 extension ProfileService: NetworkService {
     func makeRequest(parameters: [String: String], method: String, url: String) -> URLRequest? {
         guard let url = URL(string: url) else {
-            Logger.shared.log(.error, message: "Неверная строка URL: \(url)")
+            Logger.shared.log(.error, message: "ProfileService: Неверная строка URL",
+                              metadata: ["❌": url])
             return nil
         }
         
@@ -29,7 +30,9 @@ extension ProfileService: NetworkService {
         request.httpMethod = method
         request.setValue("Bearer \(parameters["token"] ?? "")", forHTTPHeaderField: "Authorization")
         
-        Logger.shared.log(.debug, message: "Запрос создан: \(request)")
+        Logger.shared.log(.debug,
+                          message: "ProfileService: Запрос создан:",
+                          metadata: ["✅": "\(request)"])
         
         return request
     }
@@ -37,10 +40,14 @@ extension ProfileService: NetworkService {
     func parse(data: Data) -> Profile? {
         do {
             let userProfile = try JSONDecoder().decode(ProfileResult.self, from: data)
-            Logger.shared.log(.debug, message: "Данные профиля успешно обработаны")
+            Logger.shared.log(.debug, 
+                              message: "ProfileService: Данные профиля успешно обработаны",
+                              metadata: ["✅" : ""])
             return Profile(userProfile: userProfile)
         } catch {
-            Logger.shared.log(.error, message: "Ошибка парсинга: \(error.localizedDescription)")
+            Logger.shared.log(.error, 
+                              message: "ProfileService: Ошибка парсинга" ,
+                              metadata: ["❌": error.localizedDescription])
             return nil
         }
     }
@@ -54,12 +61,16 @@ extension ProfileService: NetworkService {
                 case .success(let profile):
                     DispatchQueue.main.async {
                         self.profile = profile
-                        Logger.shared.log(.debug, message: "Профиль успешно получен")
+                        Logger.shared.log(.debug, 
+                                          message: "ProfileService: Профиль успешно получен",
+                                          metadata: ["✅": ""])
                         completion(.success(profile))
                     }
                 case .failure(let error):
                     DispatchQueue.main.async {
-                        Logger.shared.log(.error, message: "Не удалось загрузить профиль", metadata: ["error": error.localizedDescription])
+                        Logger.shared.log(.error,
+                                          message: "ProfileService: Не удалось загрузить профиль",
+                                          metadata: ["❌": error.localizedDescription])
                         completion(.failure(error))
                     }
                 }
