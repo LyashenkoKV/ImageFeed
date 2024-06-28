@@ -96,7 +96,9 @@ final class ImagesListViewController: UIViewController {
         let indexPaths = (startIndex...endIndex).map { IndexPath(row: $0, section: 0) }
 
         UIView.performWithoutAnimation {
-            tableView.insertRows(at: indexPaths, with: .none)
+            tableView.performBatchUpdates({
+                tableView.insertRows(at: indexPaths, with: .none)
+            }, completion: nil)
         }
     }
 }
