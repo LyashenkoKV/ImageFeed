@@ -27,7 +27,9 @@ final class ImagesListService {
         photos.append(contentsOf: newPhotos)
         let endIndex = photos.count - 1
         
-        NotificationCenter.default.post(name: ImagesListService.didChangeNotification, object: nil, userInfo: ["startIndex": startIndex, "endIndex": endIndex])
+        NotificationCenter.default.post(name: ImagesListService.didChangeNotification, 
+                                        object: nil,
+                                        userInfo: ["startIndex": startIndex, "endIndex": endIndex])
     }
 }
 

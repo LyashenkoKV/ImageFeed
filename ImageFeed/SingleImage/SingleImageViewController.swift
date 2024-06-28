@@ -139,11 +139,17 @@ final class SingleImageViewController: UIViewController {
         
         activityViewController.completionWithItemsHandler = { _, success, _, error in
             if let error = error {
-                print("Error sharing: \(error.localizedDescription)")
+                Logger.shared.log(.error,
+                                  message: "ImagesListService: Не удалось расшарить изображения",
+                                  metadata: ["❌": error.localizedDescription])
             } else if success {
-                print("Successfully shared the image")
+                Logger.shared.log(.debug,
+                                  message: "SingleImageViewController: Изображения успешно расшарено",
+                                  metadata: ["✅": ""])
             } else {
-                print("Sharing was cancelled")
+                Logger.shared.log(.debug,
+                                  message: "SingleImageViewController: Sharing отменен",
+                                  metadata: ["✅": ""])
             }
         }
         DispatchQueue.main.async {

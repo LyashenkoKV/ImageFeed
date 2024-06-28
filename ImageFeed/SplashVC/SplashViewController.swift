@@ -22,7 +22,11 @@ final class SplashViewController: UIViewController {
     
     private func checkAuthorization() {
         if let token = storage.token {
-            fetchProfile(token)
+            if !profileService.isProfileLoaded {
+                fetchProfile(token)
+            } else {
+                switchToTabBarController()
+            }
         } else {
             showAuthViewController()
         }
@@ -112,11 +116,6 @@ extension SplashViewController: AuthViewControllerDelegate {
     }
     
     func didAuthenticate(_ vc: AuthViewController) {
-        vc.dismiss(animated: true) { [weak self] in
-            guard let self,
-                  let token = self.storage.token else { return }
-            
-            self.fetchProfile(token)
-        }
+        vc.dismiss(animated: true)
     }
 }

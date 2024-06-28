@@ -16,6 +16,10 @@ final class ProfileService {
     private let serialQueue = DispatchQueue(label: "ProfileService.serialQueue")
     
     private init() {}
+    
+    var isProfileLoaded: Bool {
+        return profile != nil
+    }
 }
 // MARK: - NetworkService
 extension ProfileService: NetworkService {

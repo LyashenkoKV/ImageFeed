@@ -12,6 +12,12 @@ final class ImagesListViewController: UIViewController {
     private let storage = OAuth2TokenStorage.shared
     private let imagesListService = ImagesListService.shared
     
+    private lazy var stubImageView: UIImageView = {
+        let image = UIImageView(image: UIImage(named: "Stub"))
+        image.translatesAutoresizingMaskIntoConstraints = false
+        return image
+    }()
+    
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -37,6 +43,7 @@ final class ImagesListViewController: UIViewController {
         }
         
         configureTableView()
+        configureStubImageView()
         setupNotifications()
         checkAuthorization()
     }
@@ -68,6 +75,17 @@ final class ImagesListViewController: UIViewController {
         ])
     }
     
+    private func configureStubImageView() {
+        view.addSubview(stubImageView)
+        
+        NSLayoutConstraint.activate([
+            stubImageView.widthAnchor.constraint(equalToConstant: 83),
+            stubImageView.heightAnchor.constraint(equalToConstant: 75),
+            stubImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            stubImageView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+        ])
+    }
+    
     private func setupNotifications() {
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(handleImagesListServiceDidChangeNotification(_:)),
@@ -90,15 +108,17 @@ final class ImagesListViewController: UIViewController {
               let startIndex = userInfo["startIndex"] as? Int,
               let endIndex = userInfo["endIndex"] as? Int else {
             tableView.reloadData()
+            stubImageView.isHidden = !imagesListService.photos.isEmpty
             return
         }
-
         let indexPaths = (startIndex...endIndex).map { IndexPath(row: $0, section: 0) }
 
         UIView.performWithoutAnimation {
             tableView.performBatchUpdates({
                 tableView.insertRows(at: indexPaths, with: .none)
-            }, completion: nil)
+            }, completion: { _ in
+                self.stubImageView.isHidden = !self.imagesListService.photos.isEmpty
+            })
         }
     }
 }

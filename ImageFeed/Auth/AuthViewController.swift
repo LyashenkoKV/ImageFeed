@@ -97,10 +97,15 @@ extension AuthViewController: WebViewViewControllerDelegate {
             switch result {
             case .success(let token):
                 self.delegate?.didAuthenticate(self)
-                print("Аутентификация выполнена! Токен: \(token)")
+                Logger.shared.log(.debug,
+                                  message: "AuthViewController: Аутентификация выполнена!",
+                                  metadata: ["✅ Токен:": token])
+
             case .failure(let error):
                 let errorMessage = NetworkErrorHandler.errorMessage(from: error)
-                print("Ошибка аутентификации: \(errorMessage)")
+                Logger.shared.log(.error,
+                                  message: "AuthViewController: Не удалось получить изображения",
+                                  metadata: ["❌": "Ошибка аутентификации: \(errorMessage)"])
                 self.showErrorAlert()
             }
         }

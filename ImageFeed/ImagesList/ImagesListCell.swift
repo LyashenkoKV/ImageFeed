@@ -21,7 +21,6 @@ final class ImagesListCell: UITableViewCell {
     
     private lazy var customImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFill
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.backgroundColor = .ypBlack
         return imageView
@@ -104,8 +103,24 @@ final class ImagesListCell: UITableViewCell {
     }
     
     func configure(withImageURL imageURL: URL?, text: String, isLiked: Bool) {
+        
+        customImageView.contentMode = .center
+        
         if let imageURL = imageURL {
-            customImageView.kf.setImage(with: imageURL)
+            customImageView.kf.setImage(with: imageURL,
+                                        placeholder: UIImage(named: "Stub"),
+                                        options: [
+                                            .transition(.fade(0.1)),
+                                            .cacheOriginalImage
+                                        ],
+                                        completionHandler: { result in
+                switch result {
+                case .success(_):
+                    self.customImageView.contentMode = .scaleAspectFill
+                case .failure(_):
+                    break
+                }
+            })
         } else {
             customImageView.image = nil
         }
