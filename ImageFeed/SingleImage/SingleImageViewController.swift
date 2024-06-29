@@ -56,22 +56,6 @@ final class SingleImageViewController: UIViewController {
         rescaleAndCenterImageInScrollView()
     }
     
-    func configure(withImageURL imageURL: URL) {
-        imageView.kf.setImage(with: imageURL) { [weak self] result in
-            guard let self else { return }
-            
-            switch result {
-            case .success(let value):
-                self.imageView.image = value.image
-                self.imageView.frame.size = value.image.size
-                self.rescaleAndCenterImageInScrollView()
-            case .failure(let error):
-                let errorMessage = NetworkErrorHandler.errorMessage(from: error)
-                print("Ошибка загрузки изображения: \(errorMessage)")
-            }
-        }
-    }
-    
     private func setupViews() {
         view.addSubview(scrollView)
         scrollView.addSubview(imageView)
@@ -131,7 +115,44 @@ final class SingleImageViewController: UIViewController {
     @objc private func backButtonTapped() {
         dismiss(animated: true, completion: nil)
     }
+}
+
+// MARK: - Configure Image
+extension SingleImageViewController {
+    func configure(withImageURL imageURL: URL) {
+        imageView.kf.setImage(with: imageURL,
+                              placeholder: UIImage(named: "Stub"),
+                              options: [
+                                .transition(.fade(0.1)),
+                                .cacheOriginalImage]) { [weak self] result in
+                                    guard let self else { return }
+                                    
+                                    switch result {
+                                    case .success(let value):
+                                        self.imageView.image = value.image
+                                        self.imageView.frame.size = value.image.size
+                                        self.rescaleAndCenterImageInScrollView()
+                                    case .failure(let error):
+                                        let errorMessage = NetworkErrorHandler.errorMessage(from: error)
+                                        print("Ошибка загрузки изображения: \(errorMessage)")
+                                    }
+                                }
+    }
+}
+
+// MARK: - UIScrollViewDelegate
+extension SingleImageViewController: UIScrollViewDelegate {
+    func viewForZooming(in scrollView: UIScrollView) -> UIView? {
+        return imageView
+    }
     
+    func scrollViewDidZoom(_ scrollView: UIScrollView) {
+        centerImage()
+    }
+}
+
+// MARK: - Share
+extension SingleImageViewController {
     @objc private func shareButtonTapped() {
         guard let image = imageView.image else { return }
         let activityViewController = UIActivityViewController(activityItems: [image], applicationActivities: nil)
@@ -155,16 +176,5 @@ final class SingleImageViewController: UIViewController {
         DispatchQueue.main.async {
             self.present(activityViewController, animated: true, completion: nil)
         }
-    }
-}
-
-// MARK: - UIScrollViewDelegate
-extension SingleImageViewController: UIScrollViewDelegate {
-    func viewForZooming(in scrollView: UIScrollView) -> UIView? {
-        return imageView
-    }
-    
-    func scrollViewDidZoom(_ scrollView: UIScrollView) {
-        centerImage()
     }
 }

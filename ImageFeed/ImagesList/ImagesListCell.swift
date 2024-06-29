@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SkeletonView
 
 final class ImagesListCell: UITableViewCell {
     static let reuseIdentifier = "ImagesListCell"
@@ -23,6 +24,7 @@ final class ImagesListCell: UITableViewCell {
         let imageView = UIImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.backgroundColor = .ypBlack
+        imageView.isSkeletonable = true
         return imageView
     }()
     
@@ -49,6 +51,7 @@ final class ImagesListCell: UITableViewCell {
         super.layoutSubviews()
         setupViews()
         configureSubviews()
+        showSkeletons()
     }
     
     override func prepareForReuse() {
@@ -98,10 +101,25 @@ final class ImagesListCell: UITableViewCell {
         ])
     }
     
+    private func showSkeletons() {
+        DispatchQueue.main.async {
+            self.customImageView.showAnimatedGradientSkeleton(usingGradient: .init(baseColor: .darkGray))
+        }
+    }
+
+    private func hideSkeletons() {
+        customImageView.hideSkeleton()
+        customImageView.isSkeletonable = false
+    }
+    
     @objc func likeButtonPressed() {
         likeButton.tintColor = likeButton.tintColor == .ypRed ? .ypWhite.withAlphaComponent(0.5) : .ypRed
     }
-    
+}
+
+
+// MARK: - Configure Image
+extension ImagesListCell {
     func configure(withImageURL imageURL: URL?, text: String, isLiked: Bool) {
         
         customImageView.contentMode = .center
@@ -111,16 +129,16 @@ final class ImagesListCell: UITableViewCell {
                                         placeholder: UIImage(named: "Stub"),
                                         options: [
                                             .transition(.fade(0.1)),
-                                            .cacheOriginalImage
-                                        ],
-                                        completionHandler: { result in
-                switch result {
-                case .success(_):
-                    self.customImageView.contentMode = .scaleAspectFill
-                case .failure(_):
-                    break
-                }
-            })
+                                            .cacheOriginalImage]) { [weak self] result in
+                                                guard let self else { return }
+                                                switch result {
+                                                case .success(_):
+                                                    self.customImageView.contentMode = .scaleAspectFill
+                                                    hideSkeletons()
+                                                case .failure(_):
+                                                    break
+                                                }
+                                            }
         } else {
             customImageView.image = nil
         }

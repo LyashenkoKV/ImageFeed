@@ -45,10 +45,10 @@ final class ImagesListViewController: UIViewController {
         configureTableView()
         configureStubImageView()
         setupNotifications()
-        checkAuthorization()
+        fetchPhotos()
     }
     
-    private func checkAuthorization() {
+    private func fetchPhotos() {
         if let token = storage.token {
             DispatchQueue.main.async {
                 self.imagesListService.fetchPhotosNextPage(with: token)
@@ -148,7 +148,7 @@ extension ImagesListViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         if indexPath.row == imagesListService.photos.count - 1 {
-            checkAuthorization()
+            fetchPhotos()
         }
     }
 }
