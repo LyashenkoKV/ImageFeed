@@ -100,7 +100,17 @@ final class ImagesListCell: UITableViewCell {
             likeButton.heightAnchor.constraint(equalToConstant: 42)
         ])
     }
-    
+}
+
+// MARK: - Button Action
+private extension ImagesListCell {
+    @objc func likeButtonPressed() {
+        likeButton.tintColor = likeButton.tintColor == .ypRed ? .ypWhite.withAlphaComponent(0.5) : .ypRed
+    }
+}
+
+// MARK: - SkeletonView
+private extension ImagesListCell {
     private func showSkeletons() {
         DispatchQueue.main.async {
             self.customImageView.showAnimatedGradientSkeleton(usingGradient: .init(baseColor: .darkGray))
@@ -111,12 +121,7 @@ final class ImagesListCell: UITableViewCell {
         customImageView.hideSkeleton()
         customImageView.isSkeletonable = false
     }
-    
-    @objc func likeButtonPressed() {
-        likeButton.tintColor = likeButton.tintColor == .ypRed ? .ypWhite.withAlphaComponent(0.5) : .ypRed
-    }
 }
-
 
 // MARK: - Configure Image
 extension ImagesListCell {

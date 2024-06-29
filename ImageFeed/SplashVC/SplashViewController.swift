@@ -20,18 +20,6 @@ final class SplashViewController: UIViewController {
         checkAuthorization()
     }
     
-    private func checkAuthorization() {
-        if let token = storage.token {
-            if !profileService.isProfileLoaded {
-                fetchProfile(token)
-            } else {
-                switchToTabBarController()
-            }
-        } else {
-            showAuthViewController()
-        }
-    }
-    
     private func switchToTabBarController() {
         guard let window = UIApplication.shared.windows.first else {
             assertionFailure("Invalid window configuration")
@@ -74,6 +62,22 @@ final class SplashViewController: UIViewController {
         tabBarController.viewControllers = [imagesNavigationController, profileNavigationController]
         
         return tabBarController
+    }
+}
+
+// MARK: - Authorization
+private extension SplashViewController {
+    
+    private func checkAuthorization() {
+        if let token = storage.token {
+            if !profileService.isProfileLoaded {
+                fetchProfile(token)
+            } else {
+                switchToTabBarController()
+            }
+        } else {
+            showAuthViewController()
+        }
     }
 }
 

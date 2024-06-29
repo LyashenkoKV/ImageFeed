@@ -111,7 +111,10 @@ final class SingleImageViewController: UIViewController {
                                                bottom: verticalPadding,
                                                right: horizontalPadding)
     }
-    
+}
+
+// MARK: - Button Action
+private extension SingleImageViewController {
     @objc private func backButtonTapped() {
         dismiss(animated: true, completion: nil)
     }

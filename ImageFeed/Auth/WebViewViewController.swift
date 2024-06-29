@@ -56,18 +56,7 @@ class WebViewViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
-        estimatedProgressObservation = webView.observe(\.estimatedProgress, changeHandler: { [weak self] _, _ in
-            guard let self else { return }
-            
-            self.updateProgress()
-        })
-        authService?.loadAuthView()
-    }
-
-    private func updateProgress() {
-        progressView.progress = Float(webView.estimatedProgress)
-        progressView.isHidden = fabs(webView.estimatedProgress - 1.0) <= 0.0001
+        addObserver()
     }
     
     private func setupUI() {
@@ -93,6 +82,28 @@ class WebViewViewController: UIViewController {
             webView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
     }
+}
+
+// MARK: - Update Progress
+private extension WebViewViewController {
+    
+    private func addObserver() {
+        estimatedProgressObservation = webView.observe(\.estimatedProgress, changeHandler: { [weak self] _, _ in
+            guard let self else { return }
+            
+            self.updateProgress()
+        })
+        authService?.loadAuthView()
+    }
+    
+    private func updateProgress() {
+        progressView.progress = Float(webView.estimatedProgress)
+        progressView.isHidden = fabs(webView.estimatedProgress - 1.0) <= 0.0001
+    }
+}
+
+// MARK: - Button Action
+private extension WebViewViewController {
     
     @objc private func backButtonPressed() {
         let alertModel = AlertModel(

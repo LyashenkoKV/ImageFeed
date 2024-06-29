@@ -65,21 +65,14 @@ final class AuthViewController: UIViewController {
             loginButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
         ])
     }
-    
+}
+
+// MARK: - Button Action
+private extension AuthViewController {
     @objc private func loginButtonPressed() {
         let webViewViewController = WebViewViewController()
         webViewViewController.delegate = self
         navigationController?.pushViewController(webViewViewController, animated: true)
-    }
-    
-    private func showErrorAlert() {
-        let alertModel = AlertModel(
-            title: "Что-то пошло не так(",
-            message: "Не удалось войти в систему",
-            buttons: [AlertButton(title: "OK", style: .cancel, handler: nil)],
-            context: .error
-        )
-        AlertPresenter.showAlert(with: alertModel, delegate: self)
     }
 }
 
@@ -123,5 +116,19 @@ extension AuthViewController: WebViewViewControllerDelegate {
 extension AuthViewController: AlertPresenterDelegate {
     func presentAlert(_ alert: UIAlertController) {
         present(alert, animated: true)
+    }
+}
+
+// MARK: - Show Error
+private extension AuthViewController {
+    
+    private func showErrorAlert() {
+        let alertModel = AlertModel(
+            title: "Что-то пошло не так(",
+            message: "Не удалось войти в систему",
+            buttons: [AlertButton(title: "OK", style: .cancel, handler: nil)],
+            context: .error
+        )
+        AlertPresenter.showAlert(with: alertModel, delegate: self)
     }
 }

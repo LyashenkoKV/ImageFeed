@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SkeletonView
 
 final class ImagesListViewController: UIViewController {
     
@@ -48,14 +49,6 @@ final class ImagesListViewController: UIViewController {
         fetchPhotos()
     }
     
-    private func fetchPhotos() {
-        if let token = storage.token {
-            DispatchQueue.main.async {
-                self.imagesListService.fetchPhotosNextPage(with: token)
-            }
-        }
-    }
-    
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
     }
@@ -85,22 +78,16 @@ final class ImagesListViewController: UIViewController {
             stubImageView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
     }
+}
+
+// MARK: - Observer
+private extension ImagesListViewController {
     
     private func setupNotifications() {
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(handleImagesListServiceDidChangeNotification(_:)),
                                                name: ImagesListService.didChangeNotification,
                                                object: nil)
-    }
-    
-    private func configCell(_ cell: ImagesListCell, for indexPath: IndexPath) {
-        cell.backgroundColor = .ypBlack
-        cell.selectionStyle = .none
-        
-        let photo = imagesListService.photos[indexPath.row]
-        let imageURL = URL(string: photo.thumbImageURL)
-        let dateText = dateFormatter.string(from: photo.createdAt ?? Date())
-        cell.configure(withImageURL: imageURL, text: dateText, isLiked: photo.isLiked)
     }
     
     @objc private func handleImagesListServiceDidChangeNotification(_ notification: Notification) {
@@ -167,5 +154,27 @@ extension ImagesListViewController: UITableViewDelegate {
         DispatchQueue.main.async {
             self.present(singleImageViewController, animated: true, completion: nil)
         }
+    }
+}
+
+// MARK: - Configure Images
+extension ImagesListViewController {
+    
+    private func fetchPhotos() {
+        if let token = storage.token {
+            DispatchQueue.main.async {
+                self.imagesListService.fetchPhotosNextPage(with: token)
+            }
+        }
+    }
+    
+    private func configCell(_ cell: ImagesListCell, for indexPath: IndexPath) {
+        cell.backgroundColor = .ypBlack
+        cell.selectionStyle = .none
+        
+        let photo = imagesListService.photos[indexPath.row]
+        let imageURL = URL(string: photo.thumbImageURL)
+        let dateText = dateFormatter.string(from: photo.createdAt ?? Date())
+        cell.configure(withImageURL: imageURL, text: dateText, isLiked: photo.isLiked)
     }
 }

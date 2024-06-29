@@ -12,9 +12,6 @@ import Kingfisher
 // MARK: - Object
 final class ProfileViewController: UIViewController {
     
-    private let keychainService = KeychainService.shared // ❌
-    private let tokenKey = "OAuth2Token" // ❌
-    private let profileService = ProfileService.shared
     private var profileImageServiceObserver: NSObjectProtocol?
     
     private lazy var profileImage: UIImageView = {
@@ -45,7 +42,7 @@ final class ProfileViewController: UIViewController {
         label.font = UIFont.boldSystemFont(ofSize: 23)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.isSkeletonable = true
-        label.skeletonCornerRadius = 10
+        label.skeletonCornerRadius = 15
         return label
     }()
     
@@ -55,7 +52,7 @@ final class ProfileViewController: UIViewController {
         label.font = UIFont.systemFont(ofSize: 13)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.isSkeletonable = true
-        label.skeletonCornerRadius = 10
+        label.skeletonCornerRadius = 15
         return label
     }()
     
@@ -66,7 +63,7 @@ final class ProfileViewController: UIViewController {
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
         label.isSkeletonable = true
-        label.skeletonCornerRadius = 10
+        label.skeletonCornerRadius = 15
         return label
     }()
     
@@ -112,38 +109,40 @@ final class ProfileViewController: UIViewController {
             exitButton.centerYAnchor.constraint(equalTo: profileImage.centerYAnchor)
         ])
     }
-    
-    private func tryShowProfileDetails() {
-        if let profile = profileService.profile {
-            updateProfileDetails(profile: profile)
-        } else {
-            showSkeletons()
-        }
-    }
-    
-    private func showSkeletons() {
-        DispatchQueue.main.async {
-            self.profileImage.showAnimatedGradientSkeleton()
-            self.nameLabel.showAnimatedGradientSkeleton()
-            self.loginNameLabel.showAnimatedGradientSkeleton()
-            self.descriptionLabel.showAnimatedGradientSkeleton()
-        }
-    }
+}
 
-    private func hideSkeletons() {
-        profileImage.hideSkeleton()
-        nameLabel.hideSkeleton()
-        loginNameLabel.hideSkeleton()
-        descriptionLabel.hideSkeleton()
-    }
-    
+// MARK: - Button Action
+private extension ProfileViewController {
     @objc private func exitButtonPressed() {
         //TODO: process code
+        let keychainService = KeychainService.shared // ❌
+        let tokenKey = "OAuth2Token" // ❌
         _ = keychainService.delete(valueFor: tokenKey) // ❌
     }
 }
 
-// MARK: - Extensions
+// MARK: - Update Profile Details
+private extension ProfileViewController {
+    
+    private func tryShowProfileDetails() {
+        let profileService = ProfileService.shared
+        if let profile = profileService.profile {
+            updateProfileDetails(profile: profile)
+            hideProfileSkeletons()
+        } else {
+            showSkeletonsProfile()
+        }
+    }
+    
+    private func updateProfileDetails(profile: Profile) {
+        nameLabel.text = profile.name
+        loginNameLabel.text = profile.loginName
+        descriptionLabel.text = profile.bio
+    }
+}
+
+
+// MARK: - Load Image & Observer
 private extension ProfileViewController {
     private func addObserver() {
         profileImageServiceObserver = NotificationCenter.default.addObserver(forName: ProfileImageService.didChangeNotification,
@@ -154,31 +153,28 @@ private extension ProfileViewController {
             
             if let userInfo = notification.userInfo, let profileImageURL = userInfo["URL"] as? String {
                 self.loadImage(from: profileImageURL)
+            } else {
+                self.showSkeletonsImage()
             }
         })
         if let profileImageURL = ProfileImageService.shared.avatarURL {
             loadImage(from: profileImageURL)
+        } else {
+            showSkeletonsImage()
         }
-    }
-    
-    private func updateProfileDetails(profile: Profile) {
-        nameLabel.text = profile.name
-        loginNameLabel.text = profile.loginName
-        descriptionLabel.text = profile.bio
-        hideSkeletons()
     }
     
     private func loadImage(from urlString: String) {
         guard let url = URL(string: urlString) else { return }
         
         profileImage.kf.indicatorType = .activity
-        profileImage.kf.setImage(with: url, 
+        profileImage.kf.setImage(with: url,
                                  placeholder: UIImage(systemName: "person.crop.circle.fill"),
                                  options: [.transition(.fade(0.2))]) { [weak self] result in
             guard let self else { return }
             switch result {
             case .success(_):
-                self.hideSkeletons()
+                self.hideImageSkeleton()
             case .failure(let error):
                 print("Не удалось загрузить Image: \(error.localizedDescription)")
             }
@@ -186,3 +182,36 @@ private extension ProfileViewController {
     }
 }
 
+// MARK: - SkeletonView
+private extension ProfileViewController {
+    
+    private func showSkeletonsProfile() {
+        DispatchQueue.main.async {
+            self.profileImage.showAnimatedGradientSkeleton(usingGradient: .init(baseColor: .darkGray))
+            self.nameLabel.showAnimatedGradientSkeleton(usingGradient: .init(baseColor: .darkGray))
+            self.loginNameLabel.showAnimatedGradientSkeleton(usingGradient: .init(baseColor: .darkGray))
+            self.descriptionLabel.showAnimatedGradientSkeleton(usingGradient: .init(baseColor: .darkGray))
+        }
+    }
+    
+    private func showSkeletonsImage() {
+        DispatchQueue.main.async {
+            self.profileImage.showAnimatedGradientSkeleton(usingGradient: .init(baseColor: .darkGray))
+        }
+    }
+
+    private func hideProfileSkeletons() {
+        nameLabel.hideSkeleton()
+        loginNameLabel.hideSkeleton()
+        descriptionLabel.hideSkeleton()
+        
+        nameLabel.isSkeletonable = false
+        loginNameLabel.isSkeletonable = false
+        descriptionLabel.isSkeletonable = false
+    }
+    
+    private func hideImageSkeleton() {
+        profileImage.hideSkeleton()
+        profileImage.isSkeletonable = false
+    }
+}
