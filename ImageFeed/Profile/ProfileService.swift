@@ -35,7 +35,7 @@ extension ProfileService: NetworkService {
         request.setValue("Bearer \(parameters["token"] ?? "")", forHTTPHeaderField: "Authorization")
         
         Logger.shared.log(.debug,
-                          message: "ProfileService: Запрос создан:",
+                          message: "ProfileService: Запрос данных профиля создан:",
                           metadata: ["✅": "\(request)"])
         
         return request
@@ -66,15 +66,16 @@ extension ProfileService: NetworkService {
                     DispatchQueue.main.async {
                         self.profile = profile
                         Logger.shared.log(.debug, 
-                                          message: "ProfileService: Профиль успешно получен",
+                                          message: "ProfileService: Данные профиля успешно получены",
                                           metadata: ["✅": ""])
                         completion(.success(profile))
                     }
                 case .failure(let error):
+                    let errorMessage = NetworkErrorHandler.errorMessage(from: error)
                     DispatchQueue.main.async {
                         Logger.shared.log(.error,
                                           message: "ProfileService: Не удалось загрузить профиль",
-                                          metadata: ["❌": error.localizedDescription])
+                                          metadata: ["❌": errorMessage])
                         completion(.failure(error))
                     }
                 }

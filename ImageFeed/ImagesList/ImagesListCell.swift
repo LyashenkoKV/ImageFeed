@@ -11,6 +11,14 @@ import SkeletonView
 final class ImagesListCell: UITableViewCell {
     static let reuseIdentifier = "ImagesListCell"
     
+    var photoId: String?
+    var isLiked: Bool = false {
+        didSet {
+            likeButton.tintColor = isLiked ? .ypRed : .ypWhite.withAlphaComponent(0.5)
+        }
+    }
+    var likeButtonAction: ((String, Bool) -> Void)?
+    
     private lazy var customContentView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -104,10 +112,14 @@ final class ImagesListCell: UITableViewCell {
 
 // MARK: - Button Action
 private extension ImagesListCell {
-    @objc func likeButtonPressed() {
-        likeButton.tintColor = likeButton.tintColor == .ypRed ? .ypWhite.withAlphaComponent(0.5) : .ypRed
-    }
+  @objc func likeButtonPressed() {
+    guard let photoId = photoId else { return }
+    
+    isLiked.toggle()
+    likeButtonAction?(photoId, isLiked)
+  }
 }
+
 
 // MARK: - SkeletonView
 private extension ImagesListCell {
@@ -125,7 +137,10 @@ private extension ImagesListCell {
 
 // MARK: - Configure Image
 extension ImagesListCell {
-    func configure(withImageURL imageURL: URL?, text: String, isLiked: Bool) {
+    func configure(withImageURL imageURL: URL?, text: String, isLiked: Bool, photoId: String) {
+        
+        self.photoId = photoId
+        self.isLiked = isLiked
         
         customImageView.contentMode = .center
         

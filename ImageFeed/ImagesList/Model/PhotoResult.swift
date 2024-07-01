@@ -32,3 +32,4 @@ struct UrlsResult: Decodable {
     let thumb: String
 }
 
+struct VoidModel: Decodable {}

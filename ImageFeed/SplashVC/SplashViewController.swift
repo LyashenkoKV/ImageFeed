@@ -103,16 +103,14 @@ extension SplashViewController: AuthViewControllerDelegate {
                             case .success(_):
                                 self.switchToTabBarController()
                             case .failure(let error):
-                                let errorMessage = NetworkErrorHandler.errorMessage(from: error)
-                                print("Нет данных аватарки: \(errorMessage)")
+                                _ = NetworkErrorHandler.errorMessage(from: error)
                                 self.showAuthViewController()
                             }
                         }
                     }
                 case .failure(let error):
                     UIBlockingProgressHUD.dismiss()
-                    let errorMessage = NetworkErrorHandler.errorMessage(from: error)
-                    print("Нет данных профиля: \(errorMessage)")
+                    _ = NetworkErrorHandler.errorMessage(from: error)
                     self.showAuthViewController()
                 }
             }

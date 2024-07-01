@@ -54,9 +54,10 @@ extension OAuth2Service: NetworkService {
                               metadata: ["✅": tokenResponse.accessToken])
             return tokenResponse
         } catch {
-            Logger.shared.log(.error, 
+            let errorMessage = NetworkErrorHandler.errorMessage(from: error)
+            Logger.shared.log(.error,
                               message: "OAuth2Service: Ошибка обработки токена:",
-                              metadata: ["❌": error.localizedDescription])
+                              metadata: ["❌": errorMessage])
             return nil
         }
     }
@@ -98,9 +99,10 @@ extension OAuth2Service: NetworkService {
                                                   metadata: ["✅": response.accessToken])
                                 completion(.success(response.accessToken))
                             case .failure(let error):
-                                Logger.shared.log(.error, 
+                                let errorMessage = NetworkErrorHandler.errorMessage(from: error)
+                                Logger.shared.log(.error,
                                                   message: "OAuth2Service: Не удалось получить токен OAuth",
-                                                  metadata: ["❌": error.localizedDescription])
+                                                  metadata: ["❌": errorMessage])
                                 completion(.failure(error))
                             }
                         }

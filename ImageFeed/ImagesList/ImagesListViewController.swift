@@ -12,6 +12,7 @@ final class ImagesListViewController: UIViewController {
     
     private let storage = OAuth2TokenStorage.shared
     private let imagesListService = ImagesListService.shared
+    private let refreshControl = UIRefreshControl()
     
     private lazy var stubImageView: UIImageView = {
         let image = UIImageView(image: UIImage(named: "Stub"))
@@ -35,13 +36,14 @@ final class ImagesListViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.addSubview(tableView)
+        
         view.backgroundColor = .ypBlack
         
         if let tabBarItem = self.tabBarItem {
             let imageInset = UIEdgeInsets(top: 13, left: 0, bottom: -13, right: 0)
             tabBarItem.imageInsets = imageInset
         }
+        refreshControl.addTarget(self, action: #selector(refreshTableView), for: .valueChanged)
         
         configureTableView()
         configureStubImageView()
@@ -54,10 +56,12 @@ final class ImagesListViewController: UIViewController {
     }
     
     private func configureTableView() {
+        view.addSubview(tableView)
         tableView.delegate = self
         tableView.dataSource = self
         tableView.separatorStyle = .none
         tableView.backgroundColor = .ypBlack
+        tableView.addSubview(refreshControl)
         tableView.register(ImagesListCell.self, forCellReuseIdentifier: ImagesListCell.reuseIdentifier)
         
         NSLayoutConstraint.activate([
@@ -77,6 +81,11 @@ final class ImagesListViewController: UIViewController {
             stubImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             stubImageView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
+    }
+    
+    @objc private func refreshTableView() {
+        tableView.reloadData()
+        refreshControl.endRefreshing()
     }
 }
 
@@ -172,9 +181,23 @@ extension ImagesListViewController {
         cell.backgroundColor = .ypBlack
         cell.selectionStyle = .none
         
-        let photo = imagesListService.photos[indexPath.row]
+        var photo = imagesListService.photos[indexPath.row]
         let imageURL = URL(string: photo.thumbImageURL)
         let dateText = dateFormatter.string(from: photo.createdAt ?? Date())
-        cell.configure(withImageURL: imageURL, text: dateText, isLiked: photo.isLiked)
+        cell.configure(withImageURL: imageURL, text: dateText, isLiked: photo.isLiked, photoId: photo.id)
+        
+        cell.likeButtonAction = { [weak self] (photoId, shouldLike) in
+            self?.imagesListService.changeLike(photoId: photoId, isLike: shouldLike) { result in
+                switch result {
+                case .success:
+                    DispatchQueue.main.async {
+                        photo.isLiked = shouldLike
+                        cell.isLiked = shouldLike
+                    }
+                case .failure(let error):
+                    print("Error changing like: \(error.localizedDescription)")
+                }
+            }
+        }
     }
 }

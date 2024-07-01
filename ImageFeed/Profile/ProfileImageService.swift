@@ -36,7 +36,7 @@ extension ProfileImageService: NetworkService {
                          forHTTPHeaderField: "Authorization")
         
         Logger.shared.log(.debug, 
-                          message: "ProfileImageService: Запрос создан:",
+                          message: "ProfileImageService: Запрос изображения профиля создан:",
                           metadata: ["✅": "\(request)"])
         
         return request
@@ -46,13 +46,14 @@ extension ProfileImageService: NetworkService {
         do {
             let userResult = try JSONDecoder().decode(UserResult.self, from: data)
             Logger.shared.log(.debug, 
-                              message: "ProfileImageService: Данные Profile Image успешно обработаны",
+                              message: "ProfileImageService: Данные изображения профиля успешно обработаны",
                               metadata: ["✅": ""])
             return userResult
         } catch {
+            let errorMessage = NetworkErrorHandler.errorMessage(from: error)
             Logger.shared.log(.error,
-                              message: "ProfileImageService: Ошибка парсинга Profile Image",
-                              metadata: ["❌": error.localizedDescription])
+                              message: "ProfileImageService: Ошибка парсинга изображения профиля",
+                              metadata: ["❌": errorMessage])
             return nil
         }
     }
@@ -74,7 +75,7 @@ extension ProfileImageService: NetworkService {
                                                         userInfo: ["URL": profileImageURL])
                         DispatchQueue.main.async {
                             Logger.shared.log(.debug,
-                                              message: "ProfileImageService: URL изображения профиля успешно получен",
+                                              message: "ProfileImageService: URL изображения профиля успешно получены",
                                               metadata: ["✅ URL": profileImageURL])
                             completion(.success(profileImageURL))
                         }
@@ -88,9 +89,10 @@ extension ProfileImageService: NetworkService {
                     }
                 case .failure(let error):
                     DispatchQueue.main.async {
-                        Logger.shared.log(.error, 
+                        let errorMessage = NetworkErrorHandler.errorMessage(from: error)
+                        Logger.shared.log(.error,
                                           message: "ProfileImageService: Не удалось получить URL изображения профиля",
-                                          metadata: ["❌": error.localizedDescription])
+                                          metadata: ["❌": errorMessage])
                         completion(.failure(error))
                     }
                 }

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2475FF482C32B0B900E83C55 /* GenericNetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2475FF472C32B0B900E83C55 /* GenericNetworkService.swift */; };
 		247966002BE8C58000E53C29 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 247965FF2BE8C58000E53C29 /* AppDelegate.swift */; };
 		247966022BE8C58000E53C29 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 247966012BE8C58000E53C29 /* SceneDelegate.swift */; };
 		247966042BE8C58000E53C29 /* ImagesListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 247966032BE8C58000E53C29 /* ImagesListViewController.swift */; };
@@ -43,6 +44,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		2475FF472C32B0B900E83C55 /* GenericNetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenericNetworkService.swift; sourceTree = "<group>"; };
 		247965FC2BE8C58000E53C29 /* ImageFeed.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ImageFeed.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		247965FF2BE8C58000E53C29 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		247966012BE8C58000E53C29 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -168,6 +170,7 @@
 			children = (
 				24C0429F2C20990900746C39 /* NetworkService.swift */,
 				24C0427C2C0F0B1200746C39 /* NetworkErrorHandler.swift */,
+				2475FF472C32B0B900E83C55 /* GenericNetworkService.swift */,
 			);
 			path = Network;
 			sourceTree = "<group>";
@@ -316,6 +319,7 @@
 				24C042A02C20990900746C39 /* NetworkService.swift in Sources */,
 				247966042BE8C58000E53C29 /* ImagesListViewController.swift in Sources */,
 				247966342BEA3B9500E53C29 /* ImagesListCell.swift in Sources */,
+				2475FF482C32B0B900E83C55 /* GenericNetworkService.swift in Sources */,
 				24FDC44C2C2D547600C9C9CA /* Photos.swift in Sources */,
 				24C042932C1C585C00746C39 /* ProfileResult.swift in Sources */,
 				24C042A52C20B3CE00746C39 /* AlertModel.swift in Sources */,
