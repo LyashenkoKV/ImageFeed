@@ -23,7 +23,9 @@ final class ImagesListService {
     private let synchronizationQueue = DispatchQueue(label: "ImagesListService.serialQueue")
     private let semaphore = DispatchSemaphore(value: 1)
     
-    private init() {}
+    private init() {
+        loadLikes()
+    }
     
     private func addPhotos(_ newPhotos: [Photos]) {
         let startIndex = photos.count
@@ -38,6 +40,22 @@ final class ImagesListService {
 
 // MARK: - NetworkService for Likes
 extension ImagesListService {
+    
+    private func saveLikes() {
+        let likes = photos.map { [$0.id: $0.isLiked] }
+        UserDefaults.standard.set(likes, forKey: "photoLikes")
+    }
+    
+    private func loadLikes() {
+        guard let likes = UserDefaults.standard.array(forKey: "photoLikes") as? [[String: Bool]] else { return }
+        for like in likes {
+            if let id = like.keys.first, let isLiked = like.values.first {
+                if let index = photos.firstIndex(where: { $0.id == id }) {
+                    photos[index].isLiked = isLiked
+                }
+            }
+        }
+    }
     
     func changeLike(photoId: String, isLike: Bool, _ completion: @escaping (Result<VoidModel, Error>) -> Void) {
         let method = isLike ? "POST" : "DELETE"
@@ -65,6 +83,12 @@ extension ImagesListService {
                                       message: "ImagesListService: Лайк снят",
                                       metadata: ["✅": ""])
                 }
+                
+                if let index = self.photos.firstIndex(where: { $0.id == photoId }) {
+                    self.photos[index].isLiked = isLike
+                    self.saveLikes()
+                }
+                
                 completion(.success(VoidModel()))
             case .failure(let error):
                 completion(.failure(error))

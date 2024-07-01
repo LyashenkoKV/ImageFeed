@@ -195,7 +195,7 @@ extension ImagesListViewController {
                         cell.isLiked = shouldLike
                     }
                 case .failure(let error):
-                    print("Error changing like: \(error.localizedDescription)")
+                    let errorMessage = NetworkErrorHandler.errorMessage(from: error)
                 }
             }
         }
