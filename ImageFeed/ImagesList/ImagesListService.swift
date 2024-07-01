@@ -32,7 +32,7 @@ final class ImagesListService {
         photos.append(contentsOf: newPhotos)
         let endIndex = photos.count - 1
         
-        NotificationCenter.default.post(name: ImagesListService.didChangeNotification, 
+        NotificationCenter.default.post(name: ImagesListService.didChangeNotification,
                                         object: nil,
                                         userInfo: ["startIndex": startIndex, "endIndex": endIndex])
     }
@@ -58,44 +58,49 @@ extension ImagesListService {
     }
     
     func changeLike(photoId: String, isLike: Bool, _ completion: @escaping (Result<VoidModel, Error>) -> Void) {
-        let method = isLike ? "POST" : "DELETE"
-        let url = "\(APIEndpoints.Photos.photos)/\(photoId)/like"
-        
-        guard let token = OAuth2TokenStorage.shared.token, !token.isEmpty else {
-            completion(.failure(NetworkError.errorFetchingAccessToken))
-            Logger.shared.log(.error,
-                              message: "ImagesListService: Токен доступа недоступен или пуст",
-                              metadata: ["❌": ""])
-            return
-        }
-        
-        likeNetworkService.fetch(parameters: ["token": token],
-                                 method: method,
-                                 url: url) { result in
-            switch result {
-            case .success(_):
-                if isLike {
-                    Logger.shared.log(.debug,
-                                      message: "ImagesListService: Лайк поставлен",
-                                      metadata: ["✅": ""])
-                } else {
-                    Logger.shared.log(.debug,
-                                      message: "ImagesListService: Лайк снят",
-                                      metadata: ["✅": ""])
-                }
-                
-                if let index = self.photos.firstIndex(where: { $0.id == photoId }) {
-                    self.photos[index].isLiked = isLike
-                    self.saveLikes()
-                }
-                
-                completion(.success(VoidModel()))
-            case .failure(let error):
-                completion(.failure(error))
-                let errorMessage = NetworkErrorHandler.errorMessage(from: error)
+        synchronizationQueue.async {
+            self.semaphore.wait()
+            defer { self.semaphore.signal() }
+            
+            let method = isLike ? "POST" : "DELETE"
+            let url = "\(APIEndpoints.Photos.photos)/\(photoId)/like"
+            
+            guard let token = OAuth2TokenStorage.shared.token, !token.isEmpty else {
+                completion(.failure(NetworkError.errorFetchingAccessToken))
                 Logger.shared.log(.error,
-                                  message: "ImagesListService: Ошибка при изменении состояния лайка",
-                                  metadata: ["❌": errorMessage])
+                                  message: "ImagesListService: Токен доступа недоступен или пуст",
+                                  metadata: ["❌": ""])
+                return
+            }
+            
+            self.likeNetworkService.fetch(parameters: ["token": token],
+                                          method: method,
+                                          url: url) { result in
+                switch result {
+                case .success(_):
+                    if isLike {
+                        Logger.shared.log(.debug,
+                                          message: "ImagesListService: Лайк поставлен",
+                                          metadata: ["✅": ""])
+                    } else {
+                        Logger.shared.log(.debug,
+                                          message: "ImagesListService: Лайк снят",
+                                          metadata: ["✅": ""])
+                    }
+                    
+                    if let index = self.photos.firstIndex(where: { $0.id == photoId }) {
+                        self.photos[index].isLiked = isLike
+                        self.saveLikes()
+                    }
+                    
+                    completion(.success(VoidModel()))
+                case .failure(let error):
+                    completion(.failure(error))
+                    let errorMessage = NetworkErrorHandler.errorMessage(from: error)
+                    Logger.shared.log(.error,
+                                      message: "ImagesListService: Ошибка при изменении состояния лайка",
+                                      metadata: ["❌": errorMessage])
+                }
             }
         }
     }
@@ -130,9 +135,10 @@ extension ImagesListService {
                     
                     NotificationCenter.default.post(name: ImagesListService.didChangeNotification, object: nil)
                 case .failure(let error):
+                    let errorMessage = NetworkErrorHandler.errorMessage(from: error)
                     Logger.shared.log(.error,
                                       message: "ImagesListService: Не удалось получить изображения",
-                                      metadata: ["❌": error.localizedDescription])
+                                      metadata: ["❌": errorMessage])
                 }
             }
         }

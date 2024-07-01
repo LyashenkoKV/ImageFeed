@@ -123,15 +123,18 @@ private extension SingleImageViewController {
 // MARK: - Configure Image
 extension SingleImageViewController {
     func configure(withImageURL imageURL: URL) {
+        
         imageView.kf.setImage(with: imageURL,
                               placeholder: UIImage(named: "Stub"),
                               options: [
                                 .transition(.fade(0.1)),
                                 .cacheOriginalImage]) { [weak self] result in
                                     guard let self else { return }
+                                    UIBlockingProgressHUD.show()
                                     
                                     switch result {
                                     case .success(let value):
+                                        UIBlockingProgressHUD.dismiss()
                                         self.imageView.image = value.image
                                         self.imageView.frame.size = value.image.size
                                         self.rescaleAndCenterImageInScrollView()
@@ -163,9 +166,10 @@ extension SingleImageViewController {
         
         activityViewController.completionWithItemsHandler = { _, success, _, error in
             if let error = error {
+                let errorMessage = NetworkErrorHandler.errorMessage(from: error)
                 Logger.shared.log(.error,
                                   message: "ImagesListService: Не удалось расшарить изображения",
-                                  metadata: ["❌": error.localizedDescription])
+                                  metadata: ["❌": errorMessage])
             } else if success {
                 Logger.shared.log(.debug,
                                   message: "SingleImageViewController: Изображения успешно расшарено",

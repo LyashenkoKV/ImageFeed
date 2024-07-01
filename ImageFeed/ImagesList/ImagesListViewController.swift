@@ -187,7 +187,8 @@ extension ImagesListViewController {
         cell.configure(withImageURL: imageURL, text: dateText, isLiked: photo.isLiked, photoId: photo.id)
         
         cell.likeButtonAction = { [weak self] (photoId, shouldLike) in
-            self?.imagesListService.changeLike(photoId: photoId, isLike: shouldLike) { result in
+            guard let self else { return }
+            self.imagesListService.changeLike(photoId: photoId, isLike: shouldLike) { result in
                 switch result {
                 case .success:
                     DispatchQueue.main.async {

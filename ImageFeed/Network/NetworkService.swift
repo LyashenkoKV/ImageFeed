@@ -48,13 +48,16 @@ extension NetworkService {
                     fulfillCompletionOnTheMainThread(.success(model))
                 } else {
                     let error = NetworkErrorHandler.handleErrorResponse(statusCode: response.statusCode)
-                    Logger.shared.log(.error, message: "NetworkService: Ошибка парсинга",
+                    Logger.shared.log(.error, 
+                                      message: "NetworkService: Ошибка парсинга",
                                       metadata: ["❌": error.localizedDescription])
                     fulfillCompletionOnTheMainThread(.failure(error))
                 }
             } else {
                 let error = NetworkErrorHandler.handleErrorResponse(statusCode: response.statusCode)
-                Logger.shared.log(.error, message: "NetworkService: Некорректный статус-код ответа: \(response.statusCode) - \(error)",
+                let errorMassage = NetworkErrorHandler.errorMessage(from: error)
+                Logger.shared.log(.error,
+                                  message: "NetworkService: Некорректный статус-код ответа: \(response.statusCode) - \(errorMassage)",
                                   metadata: ["❌": ""])
                 fulfillCompletionOnTheMainThread(.failure(error))
             }
