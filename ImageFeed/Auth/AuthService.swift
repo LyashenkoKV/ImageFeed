@@ -85,13 +85,6 @@ extension AuthService: WKNavigationDelegate {
                           metadata: ["❌": errorMessage])
     }
     
-    // Ловлю алерт при удачной авторизации
-    
-//    func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
-//        showErrorAlert(with: NetworkErrorHandler.errorMessage(from: error))
-//        print("Ошибка при загрузке: \(error.localizedDescription)")
-//    }
-    
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         Logger.shared.log(.debug,
                           message: "AuthService: Загрузка завершена:",

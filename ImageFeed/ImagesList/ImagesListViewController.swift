@@ -195,7 +195,7 @@ extension ImagesListViewController {
                         cell.isLiked = shouldLike
                     }
                 case .failure(let error):
-                    let errorMessage = NetworkErrorHandler.errorMessage(from: error)
+                    _ = NetworkErrorHandler.errorMessage(from: error)
                 }
             }
         }

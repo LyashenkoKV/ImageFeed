@@ -28,13 +28,11 @@ extension NetworkService {
         }
         
         guard let request = makeRequest(parameters: parameters, method: method, url: url) else {
-            
             fulfillCompletionOnTheMainThread(.failure(NetworkError.unableToConstructURL))
             return
         }
         
         let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
-            
             if let error = error {
                 fulfillCompletionOnTheMainThread(.failure(error))
                 return
@@ -56,7 +54,7 @@ extension NetworkService {
                 }
             } else {
                 let error = NetworkErrorHandler.handleErrorResponse(statusCode: response.statusCode)
-                Logger.shared.log(.error, message: "NetworkService: Некорректный статус-код ответа: \(response.statusCode)", 
+                Logger.shared.log(.error, message: "NetworkService: Некорректный статус-код ответа: \(response.statusCode) - \(error)",
                                   metadata: ["❌": ""])
                 fulfillCompletionOnTheMainThread(.failure(error))
             }
