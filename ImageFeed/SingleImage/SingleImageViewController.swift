@@ -126,18 +126,16 @@ extension SingleImageViewController {
             
             switch result {
             case .success(_):
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                    UIBlockingProgressHUD.dismiss()
-                    
-                    UIView.animate(withDuration: 0.3,
-                                   delay: 0,
-                                   options: [.curveEaseOut],
-                                   animations: {
-                        self.imageView.transform = CGAffineTransform.identity
-                        self.imageView.alpha = 1
-                        self.rescaleAndCenterImageInScrollView()
-                    })
-                }
+                UIBlockingProgressHUD.dismiss()
+                
+                UIView.animate(withDuration: 0.3,
+                               delay: 0,
+                               options: [.curveEaseOut],
+                               animations: {
+                    self.imageView.transform = CGAffineTransform.identity
+                    self.imageView.alpha = 1
+                    self.rescaleAndCenterImageInScrollView()
+                })
             case .failure(let error):
                 UIBlockingProgressHUD.dismiss()
                 let errorMessage = NetworkErrorHandler.errorMessage(from: error)

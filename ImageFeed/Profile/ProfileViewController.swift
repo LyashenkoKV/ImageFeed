@@ -114,10 +114,7 @@ final class ProfileViewController: UIViewController {
 // MARK: - Button Action
 private extension ProfileViewController {
     @objc private func exitButtonPressed() {
-        //TODO: process code
-        let keychainService = KeychainService.shared // ❌
-        let tokenKey = "OAuth2Token" // ❌
-        _ = keychainService.delete(valueFor: tokenKey) // ❌
+        ProfileLogoutService.shared.logout()
     }
 }
 

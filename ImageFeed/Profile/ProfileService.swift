@@ -20,6 +20,13 @@ final class ProfileService {
     var isProfileLoaded: Bool {
         return profile != nil
     }
+    
+    func clearProfileData() {
+        profile = nil
+        Logger.shared.log(.debug,
+                          message: "ProfileService: Данные профиля успешно удалены",
+                          metadata: ["✅": ""])
+    }
 }
 // MARK: - NetworkService
 extension ProfileService: NetworkService {

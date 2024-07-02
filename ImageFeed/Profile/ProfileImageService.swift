@@ -16,6 +16,13 @@ final class ProfileImageService {
     private(set) var avatarURL: String?
     
     private init() {}
+    
+    func clearProfileImage() {
+        avatarURL = nil
+        Logger.shared.log(.debug,
+                          message: "ProfileImageService: Изображение профиля успешно удалено",
+                          metadata: ["✅": ""])
+    }
 }
 
 // MARK: - NetworkService

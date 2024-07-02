@@ -36,6 +36,14 @@ final class ImagesListService {
                                         object: nil,
                                         userInfo: ["startIndex": startIndex, "endIndex": endIndex])
     }
+    
+    func clearImagesList() {
+        photos = []
+        lastLoadedPage = nil
+        Logger.shared.log(.debug,
+                          message: "ImagesListService: Массив изображений пуст",
+                          metadata: ["✅": ""])
+    }
 }
 
 // MARK: - NetworkService for Likes
