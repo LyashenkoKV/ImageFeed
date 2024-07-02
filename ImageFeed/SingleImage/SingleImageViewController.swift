@@ -87,7 +87,7 @@ final class SingleImageViewController: UIViewController {
     
     private func rescaleAndCenterImageInScrollView() {
         guard let image = imageView.image else { return }
-        
+
         let minZoomScale = scrollView.minimumZoomScale
         let maxZoomScale = scrollView.maximumZoomScale
         view.layoutIfNeeded()
@@ -97,15 +97,10 @@ final class SingleImageViewController: UIViewController {
         let vScale = visibleRectSize.height / imageSize.height
         let scale = min(maxZoomScale, max(minZoomScale, min(hScale, vScale)))
         scrollView.setZoomScale(scale, animated: false)
-        scrollView.layoutIfNeeded()
-        centerImage()
-    }
-    
-    private func centerImage() {
-        let scrollViewSize = scrollView.bounds.size
-        let imageSize = imageView.frame.size
-        let horizontalPadding = max(0, (scrollViewSize.width - imageSize.width) / 2)
-        let verticalPadding = max(0, (scrollViewSize.height - imageSize.height) / 2)
+        
+        let imageViewSize = CGSize(width: imageSize.width * scale, height: imageSize.height * scale)
+        let horizontalPadding = max(0, (visibleRectSize.width - imageViewSize.width) / 2)
+        let verticalPadding = max(0, (visibleRectSize.height - imageViewSize.height) / 2)
         scrollView.contentInset = UIEdgeInsets(top: verticalPadding,
                                                left: horizontalPadding,
                                                bottom: verticalPadding,
@@ -123,6 +118,10 @@ private extension SingleImageViewController {
 // MARK: - Configure Image
 extension SingleImageViewController {
     func configure(withImageURL imageURL: URL) {
+        imageView.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
+        imageView.alpha = 0
+        
+        UIBlockingProgressHUD.show()
         
         imageView.kf.setImage(with: imageURL,
                               placeholder: UIImage(named: "Stub"),
@@ -130,11 +129,18 @@ extension SingleImageViewController {
                                 .transition(.fade(0.1)),
                                 .cacheOriginalImage]) { [weak self] result in
                                     guard let self else { return }
-                                    UIBlockingProgressHUD.show()
+                                    UIBlockingProgressHUD.dismiss()
                                     
+                                    UIView.animate(withDuration: 0.3,
+                                                   delay: 0,
+                                                   options: [.curveEaseOut],
+                                                   animations: {
+                                        self.imageView.transform = CGAffineTransform.identity
+                                        self.imageView.alpha = 1
+                                        self.rescaleAndCenterImageInScrollView()
+                                    })
                                     switch result {
                                     case .success(let value):
-                                        UIBlockingProgressHUD.dismiss()
                                         self.imageView.image = value.image
                                         self.imageView.frame.size = value.image.size
                                         self.rescaleAndCenterImageInScrollView()
@@ -150,10 +156,6 @@ extension SingleImageViewController {
 extension SingleImageViewController: UIScrollViewDelegate {
     func viewForZooming(in scrollView: UIScrollView) -> UIView? {
         return imageView
-    }
-    
-    func scrollViewDidZoom(_ scrollView: UIScrollView) {
-        centerImage()
     }
 }
 

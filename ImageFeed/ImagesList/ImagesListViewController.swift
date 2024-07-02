@@ -182,7 +182,7 @@ extension ImagesListViewController {
         cell.selectionStyle = .none
         
         var photo = imagesListService.photos[indexPath.row]
-        let imageURL = URL(string: photo.thumbImageURL)
+        let imageURL = URL(string: photo.regularImageURL)
         let dateText = dateFormatter.string(from: photo.createdAt ?? Date())
         cell.configure(withImageURL: imageURL, text: dateText, isLiked: photo.isLiked, photoId: photo.id)
         

@@ -29,7 +29,7 @@ struct PhotoResult: Decodable {
 
 struct UrlsResult: Decodable {
     let full: String
-    let thumb: String
+    let regular: String
 }
 
 struct VoidModel: Decodable {}

@@ -156,7 +156,7 @@ extension ImagesListService {
                                    height: photoResult.height),
                       createdAt: date,
                       welcomeDescription: photoResult.description,
-                      thumbImageURL: photoResult.urls.thumb,
+                      regularImageURL: photoResult.urls.regular,
                       largeImageURL: photoResult.urls.full,
                       isLiked: photoResult.likedByUser)
     }
