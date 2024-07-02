@@ -21,7 +21,7 @@ final class ProfileImageService {
         avatarURL = nil
         Logger.shared.log(.debug,
                           message: "ProfileImageService: Изображение профиля успешно удалено",
-                          metadata: ["✅": ""])
+                          metadata: ["❎": ""])
     }
 }
 

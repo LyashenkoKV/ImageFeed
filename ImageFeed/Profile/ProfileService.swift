@@ -25,7 +25,7 @@ final class ProfileService {
         profile = nil
         Logger.shared.log(.debug,
                           message: "ProfileService: Данные профиля успешно удалены",
-                          metadata: ["✅": ""])
+                          metadata: ["❎": ""])
     }
 }
 // MARK: - NetworkService

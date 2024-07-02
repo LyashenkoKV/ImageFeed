@@ -37,7 +37,7 @@ final class OAuth2TokenStorage {
     func logout() {
         _ = keychainService.delete(valueFor: tokenKey)
         Logger.shared.log(.debug,
-                          message: "OAuth2TokenStorage: Токен успешно успешно удален из KeychainService",
-                          metadata: ["✅": ""])
+                          message: "OAuth2TokenStorage: Токен успешно удален из KeychainService",
+                          metadata: ["❎": ""])
     }
 }

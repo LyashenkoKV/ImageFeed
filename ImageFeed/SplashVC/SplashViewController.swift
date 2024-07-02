@@ -22,7 +22,9 @@ final class SplashViewController: UIViewController {
     
     private func switchToTabBarController() {
         guard let window = UIApplication.shared.windows.first else {
-            assertionFailure("Invalid window configuration")
+            Logger.shared.log(.error,
+                              message: "SplashViewController: неверная конфигурация window",
+                              metadata: ["❌": ""])
             return
         }
         

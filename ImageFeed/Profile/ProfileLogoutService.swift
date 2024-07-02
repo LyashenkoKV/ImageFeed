@@ -40,7 +40,9 @@ final class ProfileLogoutService {
         DispatchQueue.main.async {
             guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
                   let window = windowScene.windows.first else {
-                assertionFailure("Не удалось получить windowScene или window")
+                Logger.shared.log(.error,
+                                  message: "SplashViewController: неверная конфигурация window",
+                                  metadata: ["❌": ""])
                 return
             }
             let splashViewController = SplashViewController()

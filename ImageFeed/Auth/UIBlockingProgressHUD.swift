@@ -16,10 +16,10 @@ protocol UIBlockingProgressHUDProtocol {
 final class UIBlockingProgressHUD {
     private static var window: UIWindow? {
         if #available(iOS 15.0, *) {
-            return UIApplication.shared.connectedScenes
-                .compactMap { $0 as? UIWindowScene }
-                .flatMap { $0.windows }
-                .first { $0.isKeyWindow }
+            guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene else {
+                return nil
+            }
+            return windowScene.windows.first
         } else {
             return UIApplication.shared.windows.first
         }
@@ -28,26 +28,12 @@ final class UIBlockingProgressHUD {
 // MARK: - UIBlockingProgressHUDProtocol
 extension UIBlockingProgressHUD: UIBlockingProgressHUDProtocol {
     static func show() {
-            guard let window = window else {
-                Logger.shared.log(.error,
-                                  message: "UIBlockingProgressHUD: window недоступно",
-                                  metadata: ["❌": ""])
-                return
-            }
-            
-            window.isUserInteractionEnabled = false
-            ProgressHUD.animate()
-        }
-        
-        static func dismiss() {
-            guard let window = window else {
-                Logger.shared.log(.error,
-                                  message: "UIBlockingProgressHUD: window недоступно",
-                                  metadata: ["❌": ""])
-                return
-            }
-            
-            window.isUserInteractionEnabled = true
-            ProgressHUD.dismiss()
-        }
+        window?.isUserInteractionEnabled = false
+        ProgressHUD.animate()
+    }
+    
+    static func dismiss() {
+        window?.isUserInteractionEnabled = true
+        ProgressHUD.dismiss()
+    }
 }

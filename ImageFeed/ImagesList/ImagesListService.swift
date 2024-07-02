@@ -42,7 +42,7 @@ final class ImagesListService {
         lastLoadedPage = nil
         Logger.shared.log(.debug,
                           message: "ImagesListService: Массив изображений пуст",
-                          metadata: ["✅": ""])
+                          metadata: ["❎": ""])
     }
 }
 

@@ -119,7 +119,9 @@ extension SingleImageViewController {
         imageView.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
         imageView.alpha = 0
         
-        UIBlockingProgressHUD.show()
+        DispatchQueue.main.async {
+            UIBlockingProgressHUD.show()
+        }
         
         imageView.kf.setImage(with: imageURL) { [weak self] result in
             guard let self else { return }
