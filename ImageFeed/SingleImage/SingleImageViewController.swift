@@ -51,9 +51,7 @@ final class SingleImageViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .ypBlack
-        
         setupViews()
-        rescaleAndCenterImageInScrollView()
     }
     
     private func setupViews() {
@@ -123,32 +121,29 @@ extension SingleImageViewController {
         
         UIBlockingProgressHUD.show()
         
-        imageView.kf.setImage(with: imageURL,
-                              placeholder: UIImage(named: "Stub"),
-                              options: [
-                                .transition(.fade(0.1)),
-                                .cacheOriginalImage]) { [weak self] result in
-                                    guard let self else { return }
-                                    UIBlockingProgressHUD.dismiss()
-                                    
-                                    UIView.animate(withDuration: 0.3,
-                                                   delay: 0,
-                                                   options: [.curveEaseOut],
-                                                   animations: {
-                                        self.imageView.transform = CGAffineTransform.identity
-                                        self.imageView.alpha = 1
-                                        self.rescaleAndCenterImageInScrollView()
-                                    })
-                                    switch result {
-                                    case .success(let value):
-                                        self.imageView.image = value.image
-                                        self.imageView.frame.size = value.image.size
-                                        self.rescaleAndCenterImageInScrollView()
-                                    case .failure(let error):
-                                        let errorMessage = NetworkErrorHandler.errorMessage(from: error)
-                                        print("Ошибка загрузки изображения: \(errorMessage)")
-                                    }
-                                }
+        imageView.kf.setImage(with: imageURL) { [weak self] result in
+            guard let self else { return }
+            
+            switch result {
+            case .success(_):
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                    UIBlockingProgressHUD.dismiss()
+                    
+                    UIView.animate(withDuration: 0.3,
+                                   delay: 0,
+                                   options: [.curveEaseOut],
+                                   animations: {
+                        self.imageView.transform = CGAffineTransform.identity
+                        self.imageView.alpha = 1
+                        self.rescaleAndCenterImageInScrollView()
+                    })
+                }
+            case .failure(let error):
+                UIBlockingProgressHUD.dismiss()
+                let errorMessage = NetworkErrorHandler.errorMessage(from: error)
+                print("Ошибка загрузки изображения: \(errorMessage)")
+            }
+        }
     }
 }
 

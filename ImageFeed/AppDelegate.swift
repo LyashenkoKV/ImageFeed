@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import ProgressHUD
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -21,6 +22,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         if KeychainService.shared.get(valueFor: "redirectURI") == nil {
             _ = KeychainService.shared.set(value: "urn:ietf:wg:oauth:2.0:oob", for: "redirectURI")
         }
+        
+        ProgressHUD.animationType = .activityIndicator
+        ProgressHUD.colorHUD = .black
+        ProgressHUD.colorAnimation = .lightGray
         
         return true
     }
