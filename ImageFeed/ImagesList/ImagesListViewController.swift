@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import SkeletonView
 
 final class ImagesListViewController: UIViewController {
     

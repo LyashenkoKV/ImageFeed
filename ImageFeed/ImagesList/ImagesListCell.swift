@@ -59,7 +59,6 @@ final class ImagesListCell: UITableViewCell {
         super.layoutSubviews()
         setupViews()
         configureSubviews()
-        showSkeletons()
     }
     
     override func prepareForReuse() {
@@ -76,10 +75,16 @@ final class ImagesListCell: UITableViewCell {
     }
     
     private func addGradientView() {
-        let gradientView = UIView(frame: CGRect(x: 0.0, y: customContentView.frame.height - 30.0, width: customImageView.bounds.width, height: 30.0))
+        let gradientView = UIView(frame: CGRect(
+            x: 0.0,
+            y: customContentView.frame.height - 30.0,
+            width: customImageView.bounds.width,
+            height: 30.0)
+        )
         let gradientLayer = CAGradientLayer()
         gradientLayer.frame = gradientView.bounds
-        gradientLayer.colors = [UIColor.clear.cgColor, UIColor.ypBlack.withAlphaComponent(0.4).cgColor]
+        gradientLayer.colors = [UIColor.clear.cgColor, 
+                                UIColor.ypBlack.withAlphaComponent(0.4).cgColor]
         gradientLayer.locations = [0.0, 1.0]
         gradientView.layer.addSublayer(gradientLayer)
         customContentView.addSubview(gradientView)
@@ -130,8 +135,10 @@ private extension ImagesListCell {
     }
 
     private func hideSkeletons() {
-        customImageView.hideSkeleton()
-        customImageView.isSkeletonable = false
+        DispatchQueue.main.async {
+            self.customImageView.hideSkeleton()
+            self.customImageView.isSkeletonable = false
+        }
     }
 }
 
@@ -143,6 +150,7 @@ extension ImagesListCell {
         self.isLiked = isLiked
         
         customImageView.contentMode = .center
+        showSkeletons()
         
         if let imageURL = imageURL {
             customImageView.kf.setImage(with: imageURL,

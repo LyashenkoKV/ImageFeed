@@ -82,7 +82,10 @@ final class SingleImageViewController: UIViewController {
             shareButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: 17)
         ])
     }
-    
+}
+
+// MARK: - Setting scrollView
+private extension SingleImageViewController {
     private func rescaleAndCenterImageInScrollView() {
         guard let image = imageView.image else { return }
 
@@ -155,7 +158,7 @@ extension SingleImageViewController: UIScrollViewDelegate {
 }
 
 // MARK: - Share
-extension SingleImageViewController {
+private extension SingleImageViewController {
     @objc private func shareButtonTapped() {
         guard let image = imageView.image else { return }
         let activityViewController = UIActivityViewController(activityItems: [image], applicationActivities: nil)

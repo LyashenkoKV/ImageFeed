@@ -12,6 +12,8 @@ import Kingfisher
 // MARK: - Object
 final class ProfileViewController: UIViewController {
     
+    private lazy var profileLoadingView = ProfileLoadingView()
+    
     private var profileImageServiceObserver: NSObjectProtocol?
     
     private lazy var profileImage: UIImageView = {
@@ -21,9 +23,6 @@ final class ProfileViewController: UIViewController {
         imageView.tintColor = .ypGray
         imageView.layer.cornerRadius = 35
         imageView.clipsToBounds = true
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.isSkeletonable = true
-        imageView.skeletonCornerRadius = 35
         return imageView
     }()
     
@@ -32,7 +31,6 @@ final class ProfileViewController: UIViewController {
         button.setImage(UIImage(systemName: "ipad.and.arrow.forward"), for: .normal)
         button.tintColor = .ypRed
         button.addTarget(self, action: #selector(exitButtonPressed), for: .touchUpInside)
-        button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
@@ -40,9 +38,6 @@ final class ProfileViewController: UIViewController {
         let label = UILabel()
         label.textColor = .ypWhite
         label.font = UIFont.boldSystemFont(ofSize: 23)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.isSkeletonable = true
-        label.skeletonCornerRadius = 15
         return label
     }()
     
@@ -50,9 +45,6 @@ final class ProfileViewController: UIViewController {
         let label = UILabel()
         label.textColor = .ypGray
         label.font = UIFont.systemFont(ofSize: 13)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.isSkeletonable = true
-        label.skeletonCornerRadius = 15
         return label
     }()
     
@@ -61,10 +53,22 @@ final class ProfileViewController: UIViewController {
         label.textColor = .ypWhite
         label.font = UIFont.systemFont(ofSize: 13)
         label.numberOfLines = 0
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.isSkeletonable = true
-        label.skeletonCornerRadius = 15
         return label
+    }()
+    
+    private lazy var horizontalStackView: UIStackView = {
+        let stackView = UIStackView(arrangedSubviews: [profileImage, exitButton])
+        stackView.axis = .horizontal
+        stackView.alignment = .center
+        stackView.distribution = .equalSpacing
+        return stackView
+    }()
+    
+    private lazy var verticalStackView: UIStackView = {
+        let stackView = UIStackView(arrangedSubviews: [horizontalStackView, nameLabel, loginNameLabel, descriptionLabel])
+        stackView.axis = .vertical
+        stackView.spacing = 10
+        return stackView
     }()
     
     override func viewDidLoad() {
@@ -77,37 +81,42 @@ final class ProfileViewController: UIViewController {
     }
     
     private func setupUI() {
-        view.addSubview(profileImage)
-        view.addSubview(nameLabel)
-        view.addSubview(loginNameLabel)
-        view.addSubview(descriptionLabel)
-        view.addSubview(exitButton)
+        view.addSubview(profileLoadingView)
+        profileLoadingView.frame = view.bounds
+        profileLoadingView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        profileLoadingView.startAnimating()
     }
     
     private func setupConstraints() {
+        [profileImage, exitButton, nameLabel, loginNameLabel, descriptionLabel].forEach {
+            $0.translatesAutoresizingMaskIntoConstraints = false
+        }
+        
+        verticalStackView.translatesAutoresizingMaskIntoConstraints = false
+        profileLoadingView.translatesAutoresizingMaskIntoConstraints = false
+        
+        view.addSubview(verticalStackView)
+        view.addSubview(profileLoadingView)
+        
         NSLayoutConstraint.activate([
+            verticalStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
+            verticalStackView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
+            verticalStackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
+            
             profileImage.widthAnchor.constraint(equalToConstant: 70),
             profileImage.heightAnchor.constraint(equalTo: profileImage.widthAnchor),
-            profileImage.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
-            profileImage.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 32),
             
-            nameLabel.topAnchor.constraint(equalTo: profileImage.bottomAnchor, constant: 8),
-            nameLabel.leadingAnchor.constraint(equalTo: profileImage.leadingAnchor),
-            nameLabel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
+            exitButton.widthAnchor.constraint(equalToConstant: 42),
+            exitButton.heightAnchor.constraint(equalTo: exitButton.widthAnchor),
             
-            loginNameLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 8),
-            loginNameLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
-            loginNameLabel.trailingAnchor.constraint(equalTo: nameLabel.trailingAnchor),
-            
-            descriptionLabel.topAnchor.constraint(equalTo: loginNameLabel.bottomAnchor, constant: 8),
-            descriptionLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
-            descriptionLabel.trailingAnchor.constraint(equalTo: nameLabel.trailingAnchor),
-            
-            exitButton.widthAnchor.constraint(equalToConstant: 44),
-            exitButton.heightAnchor.constraint(equalToConstant: 44),
-            exitButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
-            exitButton.centerYAnchor.constraint(equalTo: profileImage.centerYAnchor)
+            profileLoadingView.topAnchor.constraint(equalTo: view.topAnchor),
+            profileLoadingView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            profileLoadingView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            profileLoadingView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
+        
+        profileImage.layer.cornerRadius = 35
+        profileImage.layer.masksToBounds = true
     }
 }
 
@@ -125,9 +134,9 @@ private extension ProfileViewController {
         let profileService = ProfileService.shared
         if let profile = profileService.profile {
             updateProfileDetails(profile: profile)
-            hideProfileSkeletons()
+            profileLoadingView.removeFromSuperview()
         } else {
-            showSkeletonsProfile()
+            profileLoadingView.startAnimating()
         }
     }
     
@@ -150,14 +159,10 @@ private extension ProfileViewController {
             
             if let userInfo = notification.userInfo, let profileImageURL = userInfo["URL"] as? String {
                 self.loadImage(from: profileImageURL)
-            } else {
-                self.showSkeletonsImage()
             }
         })
         if let profileImageURL = ProfileImageService.shared.avatarURL {
             loadImage(from: profileImageURL)
-        } else {
-            showSkeletonsImage()
         }
     }
     
@@ -171,44 +176,10 @@ private extension ProfileViewController {
             guard let self else { return }
             switch result {
             case .success(_):
-                self.hideImageSkeleton()
+                self.profileLoadingView.removeFromSuperview()
             case .failure(let error):
                 print("Не удалось загрузить Image: \(error.localizedDescription)")
             }
         }
-    }
-}
-
-// MARK: - SkeletonView
-private extension ProfileViewController {
-    
-    private func showSkeletonsProfile() {
-        DispatchQueue.main.async {
-            self.profileImage.showAnimatedGradientSkeleton(usingGradient: .init(baseColor: .darkGray))
-            self.nameLabel.showAnimatedGradientSkeleton(usingGradient: .init(baseColor: .darkGray))
-            self.loginNameLabel.showAnimatedGradientSkeleton(usingGradient: .init(baseColor: .darkGray))
-            self.descriptionLabel.showAnimatedGradientSkeleton(usingGradient: .init(baseColor: .darkGray))
-        }
-    }
-    
-    private func showSkeletonsImage() {
-        DispatchQueue.main.async {
-            self.profileImage.showAnimatedGradientSkeleton(usingGradient: .init(baseColor: .darkGray))
-        }
-    }
-
-    private func hideProfileSkeletons() {
-        nameLabel.hideSkeleton()
-        loginNameLabel.hideSkeleton()
-        descriptionLabel.hideSkeleton()
-        
-        nameLabel.isSkeletonable = false
-        loginNameLabel.isSkeletonable = false
-        descriptionLabel.isSkeletonable = false
-    }
-    
-    private func hideImageSkeleton() {
-        profileImage.hideSkeleton()
-        profileImage.isSkeletonable = false
     }
 }

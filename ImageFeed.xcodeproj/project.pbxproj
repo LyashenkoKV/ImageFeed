@@ -11,6 +11,7 @@
 		2475FF4F2C34639D00E83C55 /* ProgressHUD in Frameworks */ = {isa = PBXBuildFile; productRef = 2475FF4E2C34639D00E83C55 /* ProgressHUD */; };
 		2475FF512C3463A800E83C55 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 2475FF502C3463A800E83C55 /* Kingfisher */; };
 		2476C95D2C34949400AA4DE0 /* ProfileLogoutService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2476C95C2C34949400AA4DE0 /* ProfileLogoutService.swift */; };
+		2476C95F2C35AD5600AA4DE0 /* ProfileLoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2476C95E2C35AD5600AA4DE0 /* ProfileLoadingView.swift */; };
 		247966002BE8C58000E53C29 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 247965FF2BE8C58000E53C29 /* AppDelegate.swift */; };
 		247966022BE8C58000E53C29 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 247966012BE8C58000E53C29 /* SceneDelegate.swift */; };
 		247966042BE8C58000E53C29 /* ImagesListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 247966032BE8C58000E53C29 /* ImagesListViewController.swift */; };
@@ -47,6 +48,7 @@
 /* Begin PBXFileReference section */
 		2475FF472C32B0B900E83C55 /* GenericNetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenericNetworkService.swift; sourceTree = "<group>"; };
 		2476C95C2C34949400AA4DE0 /* ProfileLogoutService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileLogoutService.swift; sourceTree = "<group>"; };
+		2476C95E2C35AD5600AA4DE0 /* ProfileLoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileLoadingView.swift; sourceTree = "<group>"; };
 		247965FC2BE8C58000E53C29 /* ImageFeed.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ImageFeed.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		247965FF2BE8C58000E53C29 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		247966012BE8C58000E53C29 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -194,6 +196,7 @@
 				24C042902C1C579D00746C39 /* ProfileService.swift */,
 				24C0429A2C20206200746C39 /* ProfileImageService.swift */,
 				2476C95C2C34949400AA4DE0 /* ProfileLogoutService.swift */,
+				2476C95E2C35AD5600AA4DE0 /* ProfileLoadingView.swift */,
 			);
 			path = Profile;
 			sourceTree = "<group>";
@@ -340,6 +343,7 @@
 				24C042912C1C579D00746C39 /* ProfileService.swift in Sources */,
 				24C042A32C20B37C00746C39 /* AlertPresenter.swift in Sources */,
 				24C042832C106BD200746C39 /* OAuth2TokenStorage.swift in Sources */,
+				2476C95F2C35AD5600AA4DE0 /* ProfileLoadingView.swift in Sources */,
 				24C0429B2C20206200746C39 /* ProfileImageService.swift in Sources */,
 				24C042772C09DF7E00746C39 /* WebViewViewController.swift in Sources */,
 				2476C95D2C34949400AA4DE0 /* ProfileLogoutService.swift in Sources */,
