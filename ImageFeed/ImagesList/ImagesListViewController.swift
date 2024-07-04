@@ -80,6 +80,7 @@ final class ImagesListViewController: UIViewController {
     }
     
     @objc private func refreshTableView() {
+        fetchPhotos()
         tableView.reloadData()
         refreshControl.endRefreshing()
     }

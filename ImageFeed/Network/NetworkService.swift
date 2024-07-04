@@ -11,15 +11,22 @@ import Foundation
 protocol NetworkService {
     associatedtype Model: Decodable
     
-    func makeRequest(parameters: [String: String], method: String, url: String) -> URLRequest?
+    func makeRequest(parameters: [String: String], 
+                     method: String,
+                     url: String) -> URLRequest?
     func parse(data: Data) -> Model?
-    func fetch(parameters: [String: String], method: String, url: String, completion: @escaping (Result<Model, Error>) -> Void)
-    
+    func fetch(parameters: [String: String], 
+               method: String,
+               url: String,
+               completion: @escaping (Result<Model, Error>) -> Void)
 }
 
 // MARK: - Extension
 extension NetworkService {
-    func fetch(parameters: [String: String], method: String, url: String, completion: @escaping (Result<Model, Error>) -> Void) {
+    func fetch(parameters: [String: String], 
+               method: String,
+               url: String,
+               completion: @escaping (Result<Model, Error>) -> Void) {
         
         let fulfillCompletionOnTheMainThread: (Result<Model, Error>) -> Void = { result in
             DispatchQueue.main.async {
@@ -43,7 +50,7 @@ extension NetworkService {
                 return
             }
             
-            if [200, 201].contains(response.statusCode), let data = data {
+            if [200, 201].contains(response.statusCode), let data {
                 if let model = self.parse(data: data) {
                     fulfillCompletionOnTheMainThread(.success(model))
                 } else {
