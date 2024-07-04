@@ -11,8 +11,9 @@ import Kingfisher
 // MARK: - Object
 final class ProfileViewController: UIViewController {
     
-    private lazy var profileLoadingView = ProfileLoadingView()
     private var profileImageServiceObserver: NSObjectProtocol?
+    
+    private lazy var profileLoadingView = ProfileLoadingView()
     
     private lazy var profileImage: UIImageView = {
         let imageView = UIImageView()
@@ -200,7 +201,10 @@ private extension ProfileViewController {
             case .success(_):
                 self.profileLoadingView.removeFromSuperview()
             case .failure(let error):
-                print("Не удалось загрузить Image: \(error.localizedDescription)")
+                let errorMessage = NetworkErrorHandler.errorMessage(from: error)
+                Logger.shared.log(.error,
+                                  message: "ProfileViewController: Не удалось загрузить Image",
+                                  metadata: ["❌": errorMessage])
             }
         }
     }
