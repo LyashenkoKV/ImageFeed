@@ -133,7 +133,19 @@ final class ProfileViewController: UIViewController {
 // MARK: - Button Action
 private extension ProfileViewController {
     @objc private func exitButtonPressed() {
-        ProfileLogoutService.shared.logout()
+        
+        let alertModel = AlertModel(
+            title: "Выход из аккаунта",
+            message: "Вы уверены, что хотите выйти из акканта?",
+            buttons: [
+                AlertButton(title: "Отмена", style: .cancel, handler: nil),
+                AlertButton(title: "Выход", style: .destructive, handler: {
+                    ProfileLogoutService.shared.logout()
+                })
+            ],
+            context: .back
+        )
+        AlertPresenter.showAlert(with: alertModel, delegate: self)
     }
 }
 
@@ -191,5 +203,12 @@ private extension ProfileViewController {
                 print("Не удалось загрузить Image: \(error.localizedDescription)")
             }
         }
+    }
+}
+
+// MARK: - AlertPresenterDelegate
+extension ProfileViewController: AlertPresenterDelegate {
+    func presentAlert(_ alert: UIAlertController) {
+        present(alert, animated: true, completion: nil)
     }
 }
