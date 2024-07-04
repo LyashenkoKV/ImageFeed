@@ -179,11 +179,18 @@ extension ImagesListViewController {
         
         var photo = imagesListService.photos[indexPath.row]
         let imageURL = URL(string: photo.regularImageURL)
-        let dateText = dateFormatter.string(from: photo.createdAt ?? Date())
+        
+        var dateText: String
+        if let createdAt = photo.createdAt {
+            dateText = dateFormatter.string(from: createdAt)
+        } else {
+            dateText = "Дата неизвестна"
+        }
+        
         cell.configure(withImageURL: imageURL, text: dateText, isLiked: photo.isLiked, photoId: photo.id)
         
         cell.likeButtonAction = { [weak self] (photoId, shouldLike) in
-            guard let self else { return }
+            guard let self = self else { return }
             self.imagesListService.changeLike(photoId: photoId, isLike: shouldLike) { result in
                 switch result {
                 case .success:

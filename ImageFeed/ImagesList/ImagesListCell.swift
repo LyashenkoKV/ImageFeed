@@ -68,9 +68,9 @@ final class ImagesListCell: UITableViewCell {
     
     private func setupViews() {
         contentView.addSubview(customContentView)
-        customContentView.addSubview(customImageView)
-        customContentView.addSubview(likeButton)
-        customContentView.addSubview(customTextLabel)
+        [customImageView, likeButton, customTextLabel].forEach {
+            customContentView.addSubview($0)
+        }
         addGradientView()
     }
     
