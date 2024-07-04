@@ -25,13 +25,11 @@ class WebViewViewController: UIViewController {
     
     private lazy var webView: WKWebView = {
         let webView = WKWebView()
-        webView.translatesAutoresizingMaskIntoConstraints = false
         return webView
     }()
     
     private lazy var progressView: UIProgressView = {
         let progressView = UIProgressView()
-        progressView.translatesAutoresizingMaskIntoConstraints = false
         progressView.progressTintColor = .ypBlack
         return progressView
     }()
@@ -60,9 +58,10 @@ class WebViewViewController: UIViewController {
     }
     
     private func setupUI() {
+        [progressView, webView].forEach {
+            view.addSubview($0)
+        }
         configureBackButton()
-        view.addSubview(progressView)
-        view.addSubview(webView)
         setupConstraints()
     }
     
@@ -71,6 +70,10 @@ class WebViewViewController: UIViewController {
     }
     
     private func setupConstraints() {
+        [webView, progressView].forEach {
+            $0.translatesAutoresizingMaskIntoConstraints = false
+        }
+        
         NSLayoutConstraint.activate([
             progressView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             progressView.leadingAnchor.constraint(equalTo: view.leadingAnchor),

@@ -15,28 +15,37 @@ final class ProfileLoadingView: UIView {
     private lazy var loginNameLabel = buildAnimatedViews()
     private lazy var descriptionLabel = buildAnimatedViews()
     
-    private lazy var exitButton: UIButton = {
-        let button = UIButton()
-        button.setImage(UIImage(systemName: "ipad.and.arrow.forward"), for: .normal)
-        button.tintColor = .ypRed
-        return button
-    }()
-    
-    private lazy var horizontalStackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [profileImage,
-                                                       exitButton])
-        stackView.axis = .horizontal
-        stackView.alignment = .center
-        stackView.distribution = .equalSpacing
-        stackView.isSkeletonable = true
-        return stackView
+    private lazy var horizontalStacks: [UIStackView] = {
+        let hImageStack = UIStackView()
+        let hNameStack = UIStackView()
+        let hLoginNameStack = UIStackView()
+        let hDescriptionStack = UIStackView()
+        let stackArray = [hImageStack, hNameStack, hLoginNameStack, hDescriptionStack]
+        
+        stackArray.forEach {
+            $0.axis = .horizontal
+            $0.alignment = .center
+            $0.distribution = .equalSpacing
+            $0.isSkeletonable = true
+        }
+        
+        [profileImage, UIView()].forEach {
+            hImageStack.addArrangedSubview($0)
+        }
+        [nameLabel, UIView()].forEach {
+            hNameStack.addArrangedSubview($0)
+        }
+        [loginNameLabel, UIView()].forEach {
+            hLoginNameStack.addArrangedSubview($0)
+        }
+        [descriptionLabel, UIView()].forEach {
+            hDescriptionStack.addArrangedSubview($0)
+        }
+        return stackArray
     }()
     
     private lazy var verticalStackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [horizontalStackView, 
-                                                       nameLabel,
-                                                       loginNameLabel,
-                                                       descriptionLabel])
+        let stackView = UIStackView(arrangedSubviews: horizontalStacks)
         stackView.axis = .vertical
         stackView.spacing = 10
         stackView.isSkeletonable = true
@@ -56,13 +65,15 @@ final class ProfileLoadingView: UIView {
     
     private func setupConstraints() {
         addSubview(verticalStackView)
-        [profileImage, 
+        [profileImage,
          nameLabel,
          loginNameLabel,
          descriptionLabel,
-         exitButton,
-         horizontalStackView,
          verticalStackView].forEach {
+            $0.translatesAutoresizingMaskIntoConstraints = false
+        }
+        
+        horizontalStacks.forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
         }
         
@@ -75,18 +86,19 @@ final class ProfileLoadingView: UIView {
             profileImage.widthAnchor.constraint(equalToConstant: 70),
             profileImage.heightAnchor.constraint(equalTo: profileImage.widthAnchor),
             
-            exitButton.widthAnchor.constraint(equalToConstant: 42),
-            exitButton.heightAnchor.constraint(equalTo: exitButton.widthAnchor),
+            nameLabel.widthAnchor.constraint(equalToConstant: 223),
+            loginNameLabel.widthAnchor.constraint(equalToConstant: 89),
+            descriptionLabel.widthAnchor.constraint(equalToConstant: 67),
             
-            nameLabel.heightAnchor.constraint(equalToConstant: 20),
-            loginNameLabel.heightAnchor.constraint(equalToConstant: 20),
-            descriptionLabel.heightAnchor.constraint(equalToConstant: 20)
+            nameLabel.heightAnchor.constraint(equalToConstant: 18),
+            loginNameLabel.heightAnchor.constraint(equalToConstant: 18),
+            descriptionLabel.heightAnchor.constraint(equalToConstant: 18)
         ])
         
         profileImage.layer.cornerRadius = 35
-        nameLabel.layer.cornerRadius = 10
-        loginNameLabel.layer.cornerRadius = 10
-        descriptionLabel.layer.cornerRadius = 10
+        nameLabel.layer.cornerRadius = 9
+        loginNameLabel.layer.cornerRadius = 9
+        descriptionLabel.layer.cornerRadius = 9
         
         profileImage.layer.masksToBounds = true
         nameLabel.layer.masksToBounds = true
@@ -96,9 +108,15 @@ final class ProfileLoadingView: UIView {
     
     func startAnimating() {
         verticalStackView.showAnimatedGradientSkeleton(usingGradient: .init(baseColor: .darkGray))
-        horizontalStackView.showAnimatedGradientSkeleton(usingGradient: .init(baseColor: .darkGray))
         
-        [profileImage, nameLabel, loginNameLabel, descriptionLabel].forEach {
+        horizontalStacks.forEach {
+            $0.showAnimatedGradientSkeleton(usingGradient: .init(baseColor: .darkGray))
+        }
+        
+        [profileImage, 
+         nameLabel,
+         loginNameLabel,
+         descriptionLabel].forEach {
             $0.showAnimatedGradientSkeleton(usingGradient: .init(baseColor: .darkGray))
         }
     }

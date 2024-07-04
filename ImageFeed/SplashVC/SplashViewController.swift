@@ -61,8 +61,10 @@ final class SplashViewController: UIViewController {
         let imagesNavigationController = UINavigationController(rootViewController: imagesListViewController)
         let profileNavigationController = UINavigationController(rootViewController: profileViewController)
         
-        tabBarController.viewControllers = [imagesNavigationController, profileNavigationController]
-        
+        tabBarController.viewControllers = [
+            imagesNavigationController,
+            profileNavigationController
+        ]
         return tabBarController
     }
 }

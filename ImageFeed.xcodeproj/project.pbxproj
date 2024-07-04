@@ -97,6 +97,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2476C9602C35C95900AA4DE0 /* WebViewVC */ = {
+			isa = PBXGroup;
+			children = (
+				24C042762C09DF7E00746C39 /* WebViewViewController.swift */,
+			);
+			path = WebViewVC;
+			sourceTree = "<group>";
+		};
 		247965F32BE8C57F00E53C29 = {
 			isa = PBXGroup;
 			children = (
@@ -120,10 +128,12 @@
 				247966012BE8C58000E53C29 /* SceneDelegate.swift */,
 				24C042722C08C5F000746C39 /* Constants.swift */,
 				24C042AC2C243D2500746C39 /* Logger.swift */,
+				24C0428E2C1C3DEA00746C39 /* UIBlockingProgressHUD.swift */,
 				24C042A12C20B35F00746C39 /* Alert */,
 				24C0429E2C2098DD00746C39 /* Network */,
 				24C042842C107E4300746C39 /* SplashVC */,
 				24C496E82BFB406900109D90 /* Auth */,
+				2476C9602C35C95900AA4DE0 /* WebViewVC */,
 				247966352BEA3F2600E53C29 /* ImagesList */,
 				24C496E92BFB408F00109D90 /* SingleImage */,
 				24C496E72BFB401D00109D90 /* Profile */,
@@ -206,11 +216,9 @@
 			children = (
 				24C042972C1C643A00746C39 /* Model */,
 				24C042742C09D03700746C39 /* AuthViewController.swift */,
-				24C042762C09DF7E00746C39 /* WebViewViewController.swift */,
 				24C0427E2C0F315D00746C39 /* AuthService.swift */,
 				24C0427A2C0F053500746C39 /* OAuth2Service.swift */,
 				24C042892C11E1CE00746C39 /* KeychainService.swift */,
-				24C0428E2C1C3DEA00746C39 /* UIBlockingProgressHUD.swift */,
 			);
 			path = Auth;
 			sourceTree = "<group>";

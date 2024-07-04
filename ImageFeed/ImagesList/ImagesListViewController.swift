@@ -15,13 +15,11 @@ final class ImagesListViewController: UIViewController {
     
     private lazy var stubImageView: UIImageView = {
         let image = UIImageView(image: UIImage(named: "Stub"))
-        image.translatesAutoresizingMaskIntoConstraints = false
         return image
     }()
     
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
-        tableView.translatesAutoresizingMaskIntoConstraints = false
         return tableView
     }()
     
@@ -35,7 +33,6 @@ final class ImagesListViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         view.backgroundColor = .ypBlack
         
         if let tabBarItem = self.tabBarItem {
@@ -45,7 +42,7 @@ final class ImagesListViewController: UIViewController {
         refreshControl.addTarget(self, action: #selector(refreshTableView), for: .valueChanged)
         
         configureTableView()
-        configureStubImageView()
+        setupConstraints()
         setupNotifications()
         fetchPhotos()
     }
@@ -55,26 +52,26 @@ final class ImagesListViewController: UIViewController {
     }
     
     private func configureTableView() {
-        view.addSubview(tableView)
         tableView.delegate = self
         tableView.dataSource = self
         tableView.separatorStyle = .none
         tableView.backgroundColor = .ypBlack
         tableView.addSubview(refreshControl)
         tableView.register(ImagesListCell.self, forCellReuseIdentifier: ImagesListCell.reuseIdentifier)
+    }
+    
+    private func setupConstraints() {
+        [tableView, stubImageView].forEach {
+            $0.translatesAutoresizingMaskIntoConstraints = false
+            view.addSubview($0)
+        }
         
         NSLayoutConstraint.activate([
             tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
-        ])
-    }
-    
-    private func configureStubImageView() {
-        view.addSubview(stubImageView)
-        
-        NSLayoutConstraint.activate([
+            tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            
             stubImageView.widthAnchor.constraint(equalToConstant: 83),
             stubImageView.heightAnchor.constraint(equalToConstant: 75),
             stubImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),

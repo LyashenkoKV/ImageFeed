@@ -22,13 +22,11 @@ final class AuthViewController: UIViewController {
     private lazy var image: UIImageView = {
         let imageView = UIImageView()
         imageView.image = UIImage(named: "VectorAuth")
-        imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
     
     private lazy var loginButton: UIButton = {
         let button = UIButton()
-        button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle("Войти", for: .normal)
         button.setTitleColor(.ypBlack, for: .normal)
         button.titleLabel?.font = .boldSystemFont(ofSize: 17)
@@ -46,12 +44,17 @@ final class AuthViewController: UIViewController {
     }
     
     private func setupUI() {
-        view.addSubview(image)
-        view.addSubview(loginButton)
+        [image, loginButton].forEach {
+            view.addSubview($0)
+        }
         setupConstraints()
     }
     
     private func setupConstraints() {
+        [image, loginButton].forEach {
+            $0.translatesAutoresizingMaskIntoConstraints = false
+        }
+        
         NSLayoutConstraint.activate([
             image.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             image.centerYAnchor.constraint(equalTo: view.centerYAnchor),

@@ -6,14 +6,12 @@
 //
 
 import UIKit
-import SkeletonView
 import Kingfisher
 
 // MARK: - Object
 final class ProfileViewController: UIViewController {
     
     private lazy var profileLoadingView = ProfileLoadingView()
-    
     private var profileImageServiceObserver: NSObjectProtocol?
     
     private lazy var profileImage: UIImageView = {
@@ -57,7 +55,8 @@ final class ProfileViewController: UIViewController {
     }()
     
     private lazy var horizontalStackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [profileImage, exitButton])
+        let stackView = UIStackView(arrangedSubviews: [profileImage, 
+                                                       exitButton])
         stackView.axis = .horizontal
         stackView.alignment = .center
         stackView.distribution = .equalSpacing
@@ -65,7 +64,10 @@ final class ProfileViewController: UIViewController {
     }()
     
     private lazy var verticalStackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [horizontalStackView, nameLabel, loginNameLabel, descriptionLabel])
+        let stackView = UIStackView(arrangedSubviews: [horizontalStackView, 
+                                                       nameLabel,
+                                                       loginNameLabel,
+                                                       descriptionLabel])
         stackView.axis = .vertical
         stackView.spacing = 10
         return stackView
@@ -83,25 +85,33 @@ final class ProfileViewController: UIViewController {
     private func setupUI() {
         view.addSubview(profileLoadingView)
         profileLoadingView.frame = view.bounds
-        profileLoadingView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        profileLoadingView.autoresizingMask = [
+            .flexibleWidth,
+            .flexibleHeight
+        ]
         profileLoadingView.startAnimating()
     }
     
     private func setupConstraints() {
-        [profileImage, exitButton, nameLabel, loginNameLabel, descriptionLabel].forEach {
+        [profileImage, 
+         exitButton,
+         nameLabel,
+         loginNameLabel,
+         descriptionLabel,
+         verticalStackView,
+         profileLoadingView].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
         }
         
-        verticalStackView.translatesAutoresizingMaskIntoConstraints = false
-        profileLoadingView.translatesAutoresizingMaskIntoConstraints = false
-        
         view.addSubview(verticalStackView)
-        view.addSubview(profileLoadingView)
         
         NSLayoutConstraint.activate([
-            verticalStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
-            verticalStackView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
-            verticalStackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
+            verticalStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor,
+                                                   constant: 16),
+            verticalStackView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor,
+                                                       constant: 16),
+            verticalStackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor,
+                                                        constant: -16),
             
             profileImage.widthAnchor.constraint(equalToConstant: 70),
             profileImage.heightAnchor.constraint(equalTo: profileImage.widthAnchor),
@@ -109,12 +119,12 @@ final class ProfileViewController: UIViewController {
             exitButton.widthAnchor.constraint(equalToConstant: 42),
             exitButton.heightAnchor.constraint(equalTo: exitButton.widthAnchor),
             
-            profileLoadingView.topAnchor.constraint(equalTo: view.topAnchor),
+            profileLoadingView.topAnchor.constraint(
+                equalTo: view.topAnchor),
             profileLoadingView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             profileLoadingView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             profileLoadingView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
-        
         profileImage.layer.cornerRadius = 35
         profileImage.layer.masksToBounds = true
     }

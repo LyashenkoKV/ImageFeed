@@ -15,7 +15,6 @@ final class SingleImageViewController: UIViewController {
         scrollView.maximumZoomScale = 1.25
         scrollView.delegate = self
         scrollView.backgroundColor = .ypBlack
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
         return scrollView
     }()
     
@@ -24,7 +23,6 @@ final class SingleImageViewController: UIViewController {
         imageView.contentMode = .scaleAspectFit
         imageView.backgroundColor = .ypBlack
         imageView.clipsToBounds = true
-        imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
     
@@ -33,7 +31,6 @@ final class SingleImageViewController: UIViewController {
         button.setImage(UIImage(systemName: "chevron.backward"), for: .normal)
         button.tintColor = .ypWhite
         button.addTarget(self, action: #selector(backButtonTapped), for: .touchUpInside)
-        button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
@@ -44,7 +41,6 @@ final class SingleImageViewController: UIViewController {
         button.layer.cornerRadius = 25
         button.backgroundColor = .ypBlack
         button.addTarget(self, action: #selector(shareButtonTapped), for: .touchUpInside)
-        button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
@@ -55,10 +51,17 @@ final class SingleImageViewController: UIViewController {
     }
     
     private func setupViews() {
-        view.addSubview(scrollView)
+        [scrollView, backButton, shareButton].forEach {
+            view.addSubview($0)
+        }
         scrollView.addSubview(imageView)
-        view.addSubview(backButton)
-        view.addSubview(shareButton)
+        
+        [scrollView,
+         imageView,
+         backButton,
+         shareButton].forEach {
+            $0.translatesAutoresizingMaskIntoConstraints = false
+        }
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
