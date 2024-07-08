@@ -136,11 +136,11 @@ private extension ProfileViewController {
     @objc private func exitButtonPressed() {
         
         let alertModel = AlertModel(
-            title: "Выход из аккаунта",
-            message: "Вы уверены, что хотите выйти из акканта?",
+            title: "Пока, пока!",
+            message: "Уверены что хотите выйти?",
             buttons: [
-                AlertButton(title: "Отмена", style: .cancel, handler: nil),
-                AlertButton(title: "Выход", style: .destructive, handler: {
+                AlertButton(title: "Нет", style: .default, handler: nil),
+                AlertButton(title: "Да", style: .cancel, handler: {
                     ProfileLogoutService.shared.logout()
                 })
             ],

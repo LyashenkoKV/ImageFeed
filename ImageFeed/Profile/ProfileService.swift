@@ -64,8 +64,9 @@ extension ProfileService: NetworkService {
     }
     
     func fetchProfile(_ token: String, completion: @escaping (Result<Profile, Error>) -> Void) {
-        serialQueue.async {
-            self.fetch(parameters: ["token": token], 
+        serialQueue.async { [weak self] in
+            guard let self else { return }
+            self.fetch(parameters: ["token": token],
                        method: "GET",
                        url: APIEndpoints.Profile.me) { (result: Result<Profile, Error>) in
                 switch result {

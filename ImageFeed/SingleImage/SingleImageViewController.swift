@@ -126,7 +126,7 @@ extension SingleImageViewController {
         imageView.alpha = 0
         
         DispatchQueue.main.async {
-            UIBlockingProgressHUD.show()
+            UIBlockingProgressHUD.show() // тут анимация показалась и и счезла, не вижу смысла ослаблять ссылку
         }
         
         imageView.kf.setImage(with: imageURL) { [weak self] result in
@@ -167,7 +167,9 @@ private extension SingleImageViewController {
         let activityViewController = UIActivityViewController(activityItems: [image], applicationActivities: nil)
         activityViewController.popoverPresentationController?.sourceView = self.view
         
-        activityViewController.completionWithItemsHandler = { _, success, _, error in
+        activityViewController.completionWithItemsHandler = { [weak self] _, success, _, error in
+            guard let self else { return }
+            
             if let error = error {
                 let errorMessage = NetworkErrorHandler.errorMessage(from: error)
                 Logger.shared.log(.error,

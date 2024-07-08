@@ -52,7 +52,8 @@ final class AuthService: NSObject {
                           message: "AuthService: Запрос создан:",
                           metadata: ["✅": "\(request)"])
         
-        DispatchQueue.main.async {
+        DispatchQueue.main.async { [weak self] in // не вижу целеобразности использования тут weak т.к. self будет жить столько же сколько и webView
+            guard let self else { return }
             self.webView.load(request)
         }
     }

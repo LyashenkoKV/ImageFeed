@@ -62,50 +62,75 @@ extension OAuth2Service: NetworkService {
         }
     }
     
-    func fetchOAuthToken(code: String, 
+    func fetchOAuthToken(code: String,
                          completion: @escaping (Result<String, Error>) -> Void) {
-        serialQueue.async {
-            
-            if self.activeRequests[code] != nil {
-                self.activeRequests[code]?.append(completion)
+        serialQueue.async { [weak self] in
+            guard let self else { return }
+
+            if self.isActiveRequest(for: code, completion: completion) {
                 return
-            } else {
-                self.activeRequests[code] = [completion]
             }
+
+            let parameters = self.createOAuthParameters(with: code)
             
-            let parameters = [
-                "client_id": Constants.accessKey,
-                "client_secret": Constants.secretKey,
-                "redirect_uri": Constants.redirectURI,
-                "code": code,
-                "grant_type": "authorization_code"
-            ]
-            
-            Logger.shared.log(.debug, 
+            Logger.shared.log(.debug,
                               message: "OAuth2Service: Получение токена OAuth с кодом:",
                               metadata: ["✅": code])
             
-            self.fetch(parameters: parameters, 
-                       method: "POST",
-                       url: APIEndpoints.OAuth.token) { (result: Result<OAuthTokenResponseBody, Error>) in
-                self.serialQueue.async {
-                    let completions = self.activeRequests.removeValue(forKey: code) ?? []
-                    for completion in completions {
-                        DispatchQueue.main.async {
-                            switch result {
-                            case .success(let response):
-                                Logger.shared.log(.debug, 
-                                                  message: "OAuth2Service: Токен OAuth успешно получен",
-                                                  metadata: ["✅": response.accessToken])
-                                completion(.success(response.accessToken))
-                            case .failure(let error):
-                                let errorMessage = NetworkErrorHandler.errorMessage(from: error)
-                                Logger.shared.log(.error,
-                                                  message: "OAuth2Service: Не удалось получить токен OAuth",
-                                                  metadata: ["❌": errorMessage])
-                                completion(.failure(error))
-                            }
-                        }
+            self.performOAuthRequest(with: parameters, for: code)
+        }
+    }
+
+    private func isActiveRequest(for code: String,
+                                 completion: @escaping (Result<String, Error>) -> Void) -> Bool {
+        if activeRequests[code] != nil {
+            activeRequests[code]?.append(completion)
+            return true
+        } else {
+            activeRequests[code] = [completion]
+            return false
+        }
+    }
+
+    private func createOAuthParameters(with code: String) -> [String: String] {
+        return [
+            "client_id": Constants.accessKey,
+            "client_secret": Constants.secretKey,
+            "redirect_uri": Constants.redirectURI,
+            "code": code,
+            "grant_type": "authorization_code"
+        ]
+    }
+
+    private func performOAuthRequest(with parameters: [String: String], for code: String) {
+        fetch(parameters: parameters,
+              method: "POST",
+              url: APIEndpoints.OAuth.token) { [weak self] (result: Result<OAuthTokenResponseBody, Error>) in
+            guard let self else { return }
+
+            self.handleOAuthResponse(result, for: code)
+        }
+    }
+
+    private func handleOAuthResponse(_ result: Result<OAuthTokenResponseBody, Error>, for code: String) {
+        serialQueue.async { [weak self] in
+            guard let self else { return }
+            
+            let completions = self.activeRequests.removeValue(forKey: code) ?? []
+            for completion in completions {
+                DispatchQueue.main.async {
+                    switch result {
+                    case .success(let response):
+                        Logger.shared.log(.debug,
+                                          message: "OAuth2Service: Токен OAuth успешно получен",
+                                          metadata: ["✅": response.accessToken])
+                        completion(.success(response.accessToken))
+                    case .failure(let error):
+                        let errorMessage = NetworkErrorHandler.errorMessage(from: error)
+                        Logger.shared.log(.error,
+                                          message: "OAuth2Service: Не удалось получить токен OAuth",
+                                          metadata: ["❌": errorMessage])
+                        completion(.failure(error))
                     }
                 }
             }

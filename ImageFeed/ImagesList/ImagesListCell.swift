@@ -129,13 +129,13 @@ private extension ImagesListCell {
 // MARK: - SkeletonView
 private extension ImagesListCell {
     private func showSkeletons() {
-        DispatchQueue.main.async {
+        DispatchQueue.main.async { // анимация показалась и исчезла, не вижу смысла ослаблять ссылку
             self.customImageView.showAnimatedGradientSkeleton(usingGradient: .init(baseColor: .darkGray))
         }
     }
 
     private func hideSkeletons() {
-        DispatchQueue.main.async {
+        DispatchQueue.main.async { // тут тем более
             self.customImageView.hideSkeleton()
             self.customImageView.isSkeletonable = false
         }

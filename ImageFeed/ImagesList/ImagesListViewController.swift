@@ -106,9 +106,11 @@ private extension ImagesListViewController {
         }
         let indexPaths = (startIndex...endIndex).map { IndexPath(row: $0, section: 0) }
 
-        UIView.performWithoutAnimation {
-            tableView.performBatchUpdates({
-                tableView.insertRows(at: indexPaths, with: .none)
+        UIView.performWithoutAnimation { [weak self] in
+            guard let self else { return }
+            
+            self.tableView.performBatchUpdates({
+                self.tableView.insertRows(at: indexPaths, with: .none)
             }, completion: { _ in
                 self.stubImageView.isHidden = !self.imagesListService.photos.isEmpty
             })
@@ -129,6 +131,8 @@ extension ImagesListViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        guard indexPath.row < imagesListService.photos.count else { return 0 }
+        
         let photo = imagesListService.photos[indexPath.row]
         
         let insets = UIEdgeInsets(top: 4, left: 16, bottom: 4, right: 16)
@@ -151,13 +155,15 @@ extension ImagesListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let singleImageViewController = SingleImageViewController()
         
+        guard indexPath.row < imagesListService.photos.count else { return }
+        
         let photo = imagesListService.photos[indexPath.row]
         guard let imageURL = URL(string: photo.largeImageURL) else { return }
         
         singleImageViewController.configure(withImageURL: imageURL)
         singleImageViewController.modalPresentationStyle = .fullScreen
         
-        DispatchQueue.main.async {
+        DispatchQueue.main.async { // тут цикл исключен
             self.present(singleImageViewController, animated: true, completion: nil)
         }
     }
@@ -168,7 +174,8 @@ extension ImagesListViewController {
     
     private func fetchPhotos() {
         if let token = storage.token {
-            DispatchQueue.main.async {
+            DispatchQueue.main.async { [weak self] in
+                guard let self else { return }
                 self.imagesListService.fetchPhotosNextPage(with: token)
             }
         }
@@ -177,6 +184,8 @@ extension ImagesListViewController {
     private func configCell(_ cell: ImagesListCell, for indexPath: IndexPath) {
         cell.backgroundColor = .ypBlack
         cell.selectionStyle = .none
+        
+        guard indexPath.row < imagesListService.photos.count else { return }
         
         var photo = imagesListService.photos[indexPath.row]
         let imageURL = URL(string: photo.regularImageURL)
@@ -191,7 +200,7 @@ extension ImagesListViewController {
         cell.configure(withImageURL: imageURL, text: dateText, isLiked: photo.isLiked, photoId: photo.id)
         
         cell.likeButtonAction = { [weak self] (photoId, shouldLike) in
-            guard let self = self else { return }
+            guard let self else { return }
             self.imagesListService.changeLike(photoId: photoId, isLike: shouldLike) { result in
                 switch result {
                 case .success:
