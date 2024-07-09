@@ -13,10 +13,7 @@ final class ImagesListViewController: UIViewController {
     private let imagesListService = ImagesListService.shared
     private let refreshControl = UIRefreshControl()
     
-    private lazy var stubImageView: UIImageView = {
-        let image = UIImageView(image: UIImage(named: "Stub"))
-        return image
-    }()
+    private lazy var stubImageView = UIImageView(image: UIImage(named: "Stub"))
     
     private lazy var tableView: UITableView = {
         let tableView = UITableView()

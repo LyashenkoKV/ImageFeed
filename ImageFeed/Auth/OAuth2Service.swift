@@ -93,7 +93,7 @@ extension OAuth2Service: NetworkService {
     }
 
     private func createOAuthParameters(with code: String) -> [String: String] {
-        return [
+        [
             "client_id": Constants.accessKey,
             "client_secret": Constants.secretKey,
             "redirect_uri": Constants.redirectURI,

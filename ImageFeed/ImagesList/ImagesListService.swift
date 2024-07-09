@@ -18,15 +18,12 @@ final class ImagesListService {
     
     private (set) var photos = [Photo]()
     private var lastLoadedPage: Int?
-    private var isLoading: Bool = false
+    private var isLoading = false
     
     private let synchronizationQueue = DispatchQueue(label: "ImagesListService.serialQueue")
     private let semaphore = DispatchSemaphore(value: 1)
     
-    private let dateFormatter: ISO8601DateFormatter = {
-        let formatter = ISO8601DateFormatter()
-        return formatter
-    }()
+    private let dateFormatter = ISO8601DateFormatter()
     
     private init() {
         loadLikes()

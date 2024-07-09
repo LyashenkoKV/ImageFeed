@@ -168,7 +168,7 @@ private extension SingleImageViewController {
         activityViewController.popoverPresentationController?.sourceView = self.view
         
         activityViewController.completionWithItemsHandler = { [weak self] _, success, _, error in
-            guard let self else { return }
+            guard self != nil else { return }
             
             if let error = error {
                 let errorMessage = NetworkErrorHandler.errorMessage(from: error)
