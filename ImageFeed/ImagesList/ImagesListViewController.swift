@@ -14,11 +14,8 @@ final class ImagesListViewController: UIViewController {
     private let refreshControl = UIRefreshControl()
     
     private lazy var stubImageView = UIImageView(image: UIImage(named: "Stub"))
-    
-    private lazy var tableView: UITableView = {
-        let tableView = UITableView()
-        return tableView
-    }()
+    private lazy var tableView = UITableView()
+
     
     private lazy var dateFormatter: DateFormatter = {
         let dateFormatter = DateFormatter()
@@ -41,6 +38,12 @@ final class ImagesListViewController: UIViewController {
         configureTableView()
         setupConstraints()
         setupNotifications()
+        
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
         fetchPhotos()
     }
     
