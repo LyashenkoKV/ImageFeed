@@ -20,7 +20,10 @@ final class ProfileLoadingView: UIView {
         let hNameStack = UIStackView()
         let hLoginNameStack = UIStackView()
         let hDescriptionStack = UIStackView()
-        let stackArray = [hImageStack, hNameStack, hLoginNameStack, hDescriptionStack]
+        let stackArray = [hImageStack, 
+                          hNameStack,
+                          hLoginNameStack,
+                          hDescriptionStack]
         
         stackArray.forEach {
             $0.axis = .horizontal
