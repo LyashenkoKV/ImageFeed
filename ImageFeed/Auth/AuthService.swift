@@ -18,6 +18,7 @@ protocol AuthServiceDelegate: AnyObject {
 
 protocol AuthServiceProtocol: AnyObject {
     func didUpdateProgressValue(_ newValue: Double)
+    func code(from navigationAction: WKNavigationAction) -> String?
 }
 
 // MARK: - object
@@ -74,37 +75,27 @@ extension AuthService: WKNavigationDelegate {
         Logger.shared.log(.debug,
                           message: "AuthService: Загрузка завершена:",
                           metadata: ["✅": ""])
+        // Обновляем прогресс, когда загрузка завершена
         delegate?.authService(self, didUpdateProgressValue: 1.0)
     }
     
     func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+        // Обновляем прогресс на начало загрузки
         delegate?.authService(self, didUpdateProgressValue: webView.estimatedProgress)
     }
     
     func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
+        // Обновляем прогресс при начале навигации
         delegate?.authService(self, didUpdateProgressValue: webView.estimatedProgress)
     }
     
     func webView(_ webView: WKWebView, didReceiveServerRedirectFor navigation: WKNavigation!) {
+        // Обновляем прогресс при получении редиректа
         delegate?.authService(self, didUpdateProgressValue: webView.estimatedProgress)
     }
 }
 
-// MARK: - code method
-extension AuthService {
-    private func code(from navigationAction: WKNavigationAction) -> String? {
-        if let url = navigationAction.request.url,
-            let urlComponents = URLComponents(string: url.absoluteString),
-            urlComponents.path == Constants.authRedirectPath,
-            let items = urlComponents.queryItems,
-            let codeItem = items.first(where: { $0.name == "code" }) {
-            return codeItem.value
-        } else {
-            return nil
-        }
-    }
-}
-
+// MARK: - WebViewViewControllerProtocol
 extension AuthService: WebViewViewControllerProtocol {
     
     func loadAuthView() {
@@ -129,8 +120,21 @@ extension AuthService: WebViewViewControllerProtocol {
     }
 }
 
+// MARK: - AuthServiceProtocol
 extension AuthService: AuthServiceProtocol {
     func didUpdateProgressValue(_ newValue: Double) {
         delegate?.authService(self, didUpdateProgressValue: newValue)
+    }
+    
+    func code(from navigationAction: WKNavigationAction) -> String? {
+        if let url = navigationAction.request.url,
+            let urlComponents = URLComponents(string: url.absoluteString),
+            urlComponents.path == Constants.authRedirectPath,
+            let items = urlComponents.queryItems,
+            let codeItem = items.first(where: { $0.name == "code" }) {
+            return codeItem.value
+        } else {
+            return nil
+        }
     }
 }

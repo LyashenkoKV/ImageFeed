@@ -18,7 +18,8 @@
 		247966092BE8C58100E53C29 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 247966082BE8C58100E53C29 /* Assets.xcassets */; };
 		2479660C2BE8C58100E53C29 /* Base in Resources */ = {isa = PBXBuildFile; fileRef = 2479660B2BE8C58100E53C29 /* Base */; };
 		247966342BEA3B9500E53C29 /* ImagesListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 247966332BEA3B9500E53C29 /* ImagesListCell.swift */; };
-		24C042732C08C5F000746C39 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24C042722C08C5F000746C39 /* Constants.swift */; };
+		248EAF7E2C4540F1002FEF84 /* AuthHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 248EAF7D2C4540F1002FEF84 /* AuthHelper.swift */; };
+		24C042732C08C5F000746C39 /* AuthConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24C042722C08C5F000746C39 /* AuthConfiguration.swift */; };
 		24C042752C09D03700746C39 /* AuthViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24C042742C09D03700746C39 /* AuthViewController.swift */; };
 		24C042772C09DF7E00746C39 /* WebViewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24C042762C09DF7E00746C39 /* WebViewViewController.swift */; };
 		24C0427B2C0F053500746C39 /* OAuth2Service.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24C0427A2C0F053500746C39 /* OAuth2Service.swift */; };
@@ -57,7 +58,8 @@
 		2479660B2BE8C58100E53C29 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		2479660D2BE8C58100E53C29 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		247966332BEA3B9500E53C29 /* ImagesListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagesListCell.swift; sourceTree = "<group>"; };
-		24C042722C08C5F000746C39 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		248EAF7D2C4540F1002FEF84 /* AuthHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthHelper.swift; sourceTree = "<group>"; };
+		24C042722C08C5F000746C39 /* AuthConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthConfiguration.swift; sourceTree = "<group>"; };
 		24C042742C09D03700746C39 /* AuthViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewController.swift; sourceTree = "<group>"; };
 		24C042762C09DF7E00746C39 /* WebViewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewViewController.swift; sourceTree = "<group>"; };
 		24C0427A2C0F053500746C39 /* OAuth2Service.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OAuth2Service.swift; sourceTree = "<group>"; };
@@ -126,7 +128,7 @@
 			children = (
 				247965FF2BE8C58000E53C29 /* AppDelegate.swift */,
 				247966012BE8C58000E53C29 /* SceneDelegate.swift */,
-				24C042722C08C5F000746C39 /* Constants.swift */,
+				24C042722C08C5F000746C39 /* AuthConfiguration.swift */,
 				24C042AC2C243D2500746C39 /* Logger.swift */,
 				24C0428E2C1C3DEA00746C39 /* UIBlockingProgressHUD.swift */,
 				24C042A12C20B35F00746C39 /* Alert */,
@@ -216,9 +218,10 @@
 			children = (
 				24C042972C1C643A00746C39 /* Model */,
 				24C042742C09D03700746C39 /* AuthViewController.swift */,
-				24C0427E2C0F315D00746C39 /* AuthService.swift */,
 				24C0427A2C0F053500746C39 /* OAuth2Service.swift */,
 				24C042892C11E1CE00746C39 /* KeychainService.swift */,
+				24C0427E2C0F315D00746C39 /* AuthService.swift */,
+				248EAF7D2C4540F1002FEF84 /* AuthHelper.swift */,
 			);
 			path = Auth;
 			sourceTree = "<group>";
@@ -344,7 +347,7 @@
 				24C042752C09D03700746C39 /* AuthViewController.swift in Sources */,
 				24C0427F2C0F315D00746C39 /* AuthService.swift in Sources */,
 				24C0427D2C0F0B1200746C39 /* NetworkErrorHandler.swift in Sources */,
-				24C042732C08C5F000746C39 /* Constants.swift in Sources */,
+				24C042732C08C5F000746C39 /* AuthConfiguration.swift in Sources */,
 				24C0429D2C20210300746C39 /* UserResult.swift in Sources */,
 				24C042812C1062DC00746C39 /* OAuthTokenResponseBody.swift in Sources */,
 				24C496EC2BFB431F00109D90 /* SingleImageViewController.swift in Sources */,
@@ -359,6 +362,7 @@
 				24C0428A2C11E1CE00746C39 /* KeychainService.swift in Sources */,
 				247966022BE8C58000E53C29 /* SceneDelegate.swift in Sources */,
 				24FDC44A2C2D52E300C9C9CA /* ImagesListService.swift in Sources */,
+				248EAF7E2C4540F1002FEF84 /* AuthHelper.swift in Sources */,
 				24C042862C107E7900746C39 /* SplashViewController.swift in Sources */,
 				24C0428F2C1C3DEA00746C39 /* UIBlockingProgressHUD.swift in Sources */,
 			);
