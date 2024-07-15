@@ -8,11 +8,15 @@
 import UIKit
 import WebKit
 
-// MARK: - protocol
+// MARK: - protocols
 protocol WebViewViewControllerDelegate: AnyObject {
     func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String)
     func webViewViewControllerDidCancel(_ vc: WebViewViewController)
     func webViewViewController(_ vc: WebViewViewController, didFailWithError error: Error)
+}
+
+protocol WebViewViewControllerProtocol: AnyObject {
+    func loadAuthView()
 }
 
 // MARK: - UIViewController
@@ -23,11 +27,7 @@ class WebViewViewController: UIViewController {
     private var authService: AuthService?
     private var estimatedProgressObservation: NSKeyValueObservation?
     
-    private lazy var webView: WKWebView = {
-        let webView = WKWebView()
-        return webView
-    }()
-    
+    private lazy var webView = WKWebView()
     private lazy var progressView: UIProgressView = {
         let progressView = UIProgressView()
         progressView.progressTintColor = .ypBlack
@@ -49,7 +49,6 @@ class WebViewViewController: UIViewController {
         setupUI()
         authService = AuthService(webView: webView)
         authService?.delegate = self
-        updateProgress()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -94,14 +93,14 @@ private extension WebViewViewController {
         estimatedProgressObservation = webView.observe(\.estimatedProgress, changeHandler: { [weak self] _, _ in
             guard let self else { return }
             
-            self.updateProgress()
+            let progressValue = Float(self.webView.estimatedProgress)
+            self.authService?.didUpdateProgressValue(Double(progressValue))
         })
         authService?.loadAuthView()
     }
     
-    private func updateProgress() {
-        progressView.progress = Float(webView.estimatedProgress)
-        progressView.isHidden = fabs(webView.estimatedProgress - 1.0) <= 0.0001
+    func shouldHideProgress(for value: Float) -> Bool {
+        abs(value - 1.0) <= 0.0001
     }
 }
 
@@ -127,6 +126,14 @@ private extension WebViewViewController {
 
 // MARK: - AuthServiceDelegate
 extension WebViewViewController: AuthServiceDelegate {
+    func authService(_ authService: AuthService, didUpdateProgressValue newValue: Double) {
+        let newProgressValue = Float(newValue)
+        progressView.progress = newProgressValue
+        
+        let shouldHideProgress = shouldHideProgress(for: newProgressValue)
+        progressView.isHidden = shouldHideProgress
+    }
+    
     func authService(_ authService: AuthService, didAuthenticateWithCode code: String) {
         delegate?.webViewViewController(self, didAuthenticateWithCode: code)
     }

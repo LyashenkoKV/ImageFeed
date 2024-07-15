@@ -135,7 +135,7 @@ private extension ImagesListCell {
     }
 
     private func hideSkeletons() {
-        DispatchQueue.main.async { // аналогично
+        DispatchQueue.main.async {
             self.customImageView.hideSkeleton()
             self.customImageView.isSkeletonable = false
         }

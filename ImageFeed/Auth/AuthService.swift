@@ -8,11 +8,16 @@
 
 import Foundation
 import WebKit
-// MARK: - protocol
+// MARK: - protocols
 protocol AuthServiceDelegate: AnyObject {
     func authService(_ authService: AuthService, didAuthenticateWithCode code: String)
     func authServiceDidCancel(_ authService: AuthService)
     func authService(_ authService: AuthService, didFailWithError error: Error)
+    func authService(_ authService: AuthService, didUpdateProgressValue newValue: Double)
+}
+
+protocol AuthServiceProtocol: AnyObject {
+    func didUpdateProgressValue(_ newValue: Double)
 }
 
 // MARK: - object
@@ -35,27 +40,6 @@ final class AuthService: NSObject {
             URLQueryItem(name: "scope", value: Constants.accessScope)
         ]
         return urlComponents?.url?.absoluteString
-    }
-    
-    func loadAuthView() {
-        guard let urlString = authURL(), let url = URL(string: urlString) else {
-            delegate?.authService(self, didFailWithError: NetworkError.invalidURLString)
-            Logger.shared.log(.error, 
-                              message: "AuthService: Неверная строка URL",
-                              metadata: ["❌": ""])
-            return
-        }
-        
-        let request = URLRequest(url: url)
-        
-        Logger.shared.log(.debug, 
-                          message: "AuthService: Запрос создан:",
-                          metadata: ["✅": "\(request)"])
-        
-        DispatchQueue.main.async { [weak self] in
-            guard let self else { return }
-            self.webView.load(request)
-        }
     }
     
     private func showErrorAlert(with message: String) {
@@ -90,6 +74,19 @@ extension AuthService: WKNavigationDelegate {
         Logger.shared.log(.debug,
                           message: "AuthService: Загрузка завершена:",
                           metadata: ["✅": ""])
+        delegate?.authService(self, didUpdateProgressValue: 1.0)
+    }
+    
+    func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+        delegate?.authService(self, didUpdateProgressValue: webView.estimatedProgress)
+    }
+    
+    func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
+        delegate?.authService(self, didUpdateProgressValue: webView.estimatedProgress)
+    }
+    
+    func webView(_ webView: WKWebView, didReceiveServerRedirectFor navigation: WKNavigation!) {
+        delegate?.authService(self, didUpdateProgressValue: webView.estimatedProgress)
     }
 }
 
@@ -105,5 +102,35 @@ extension AuthService {
         } else {
             return nil
         }
+    }
+}
+
+extension AuthService: WebViewViewControllerProtocol {
+    
+    func loadAuthView() {
+        guard let urlString = authURL(), let url = URL(string: urlString) else {
+            delegate?.authService(self, didFailWithError: NetworkError.invalidURLString)
+            Logger.shared.log(.error,
+                              message: "AuthService: Неверная строка URL",
+                              metadata: ["❌": ""])
+            return
+        }
+        
+        let request = URLRequest(url: url)
+        
+        Logger.shared.log(.debug,
+                          message: "AuthService: Запрос создан:",
+                          metadata: ["✅": "\(request)"])
+        
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            self.webView.load(request)
+        }
+    }
+}
+
+extension AuthService: AuthServiceProtocol {
+    func didUpdateProgressValue(_ newValue: Double) {
+        delegate?.authService(self, didUpdateProgressValue: newValue)
     }
 }

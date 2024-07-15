@@ -104,17 +104,28 @@ extension ImagesListService {
         return token
     }
     
-    private func performLikeRequest(token: String, method: String, url: String, isLike: Bool, photoId: String, completion: @escaping (Result<VoidModel, Error>) -> Void) {
+    private func performLikeRequest(token: String, 
+                                    method: String,
+                                    url: String,
+                                    isLike: Bool,
+                                    photoId: String,
+                                    completion: @escaping (Result<VoidModel, Error>) -> Void) {
         self.likeNetworkService.fetch(parameters: ["token": token],
                                       method: method,
                                       url: url) { [weak self] result in
             guard let self else { return }
             
-            self.handleLikeResponse(result, isLike: isLike, photoId: photoId, completion: completion)
+            self.handleLikeResponse(result, 
+                                    isLike: isLike,
+                                    photoId: photoId,
+                                    completion: completion)
         }
     }
     
-    private func handleLikeResponse(_ result: Result<VoidModel, Error>, isLike: Bool, photoId: String, completion: @escaping (Result<VoidModel, Error>) -> Void) {
+    private func handleLikeResponse(_ result: Result<VoidModel, Error>, 
+                                    isLike: Bool,
+                                    photoId: String,
+                                    completion: @escaping (Result<VoidModel, Error>) -> Void) {
         switch result {
         case .success(_):
             self.handleLikeSuccess(isLike: isLike, photoId: photoId)
@@ -141,7 +152,8 @@ extension ImagesListService {
         }
     }
     
-    private func handleLikeFailure(error: Error, completion: @escaping (Result<VoidModel, Error>) -> Void) {
+    private func handleLikeFailure(error: Error, 
+                                   completion: @escaping (Result<VoidModel, Error>) -> Void) {
         completion(.failure(error))
         let errorMessage = NetworkErrorHandler.errorMessage(from: error)
         Logger.shared.log(.error,
@@ -155,7 +167,7 @@ extension ImagesListService {
 extension ImagesListService {
     
     func fetchPhotosNextPage(with token: String) {
-        synchronizationQueue.async { [weak self] in // тут я вообзе не понимаю зачем ослаблять ссылку, если при вызове я и так это делаю
+        synchronizationQueue.async { [weak self] in
             guard let self else { return }
             
             self.semaphore.wait()
@@ -171,7 +183,9 @@ extension ImagesListService {
     
     private func performFetchPhotosRequest(page: Int, token: String) {
         let parameters = ["page": "\(page)", "per_page": "10", "token": token]
-        self.photosNetworkService.fetch(parameters: parameters, method: "GET", url: APIEndpoints.Photos.photos) { [weak self] result in
+        self.photosNetworkService.fetch(parameters: parameters, 
+                                        method: "GET",
+                                        url: APIEndpoints.Photos.photos) { [weak self] result in
             guard let self else { return }
             self.isLoading = false
             self.handleFetchPhotosResponse(result, page: page)
