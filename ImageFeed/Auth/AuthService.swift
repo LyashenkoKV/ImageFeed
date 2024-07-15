@@ -18,29 +18,20 @@ protocol AuthServiceDelegate: AnyObject {
 
 protocol AuthServiceProtocol: AnyObject {
     func didUpdateProgressValue(_ newValue: Double)
-    func code(from navigationAction: WKNavigationAction) -> String?
+    func code(from url: URL) -> String?
 }
 
 // MARK: - object
 final class AuthService: NSObject {
     weak var delegate: AuthServiceDelegate?
     private let webView: WKWebView
+    var authHelper: AuthHelperProtocol
 
-    init(webView: WKWebView) {
+    init(webView: WKWebView, authHelper: AuthHelperProtocol) {
         self.webView = webView
+        self.authHelper = authHelper
         super.init()
         self.webView.navigationDelegate = self
-    }
-    
-    private func authURL() -> String? {
-        var urlComponents = URLComponents(string: Constants.unsplashAuthorizeURLString)
-        urlComponents?.queryItems = [
-            URLQueryItem(name: "client_id", value: Constants.accessKey),
-            URLQueryItem(name: "redirect_uri", value: Constants.redirectURI),
-            URLQueryItem(name: "response_type", value: "code"),
-            URLQueryItem(name: "scope", value: Constants.accessScope)
-        ]
-        return urlComponents?.url?.absoluteString
     }
     
     private func showErrorAlert(with message: String) {
@@ -55,7 +46,13 @@ extension AuthService: WKNavigationDelegate {
     func webView(_ webView: WKWebView, 
                  decidePolicyFor navigationAction: WKNavigationAction,
                  decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-        if let code = code(from: navigationAction) {
+        guard let url = navigationAction.request.url else {
+            Logger.shared.log(.error,
+                              message: "AuthService: Ошибка получения кода",
+                              metadata: ["❌": ""])
+            return
+        }
+        if let code = code(from: url) {
             self.delegate?.authService(self, didAuthenticateWithCode: code)
             decisionHandler(.cancel)
         } else {
@@ -99,22 +96,14 @@ extension AuthService: WKNavigationDelegate {
 extension AuthService: WebViewViewControllerProtocol {
     
     func loadAuthView() {
-        guard let urlString = authURL(), let url = URL(string: urlString) else {
+        guard let request = authHelper.authRequest() else {
             delegate?.authService(self, didFailWithError: NetworkError.invalidURLString)
-            Logger.shared.log(.error,
-                              message: "AuthService: Неверная строка URL",
-                              metadata: ["❌": ""])
             return
         }
         
-        let request = URLRequest(url: url)
-        
-        Logger.shared.log(.debug,
-                          message: "AuthService: Запрос создан:",
-                          metadata: ["✅": "\(request)"])
-        
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
+            
             self.webView.load(request)
         }
     }
@@ -126,15 +115,7 @@ extension AuthService: AuthServiceProtocol {
         delegate?.authService(self, didUpdateProgressValue: newValue)
     }
     
-    func code(from navigationAction: WKNavigationAction) -> String? {
-        if let url = navigationAction.request.url,
-            let urlComponents = URLComponents(string: url.absoluteString),
-            urlComponents.path == Constants.authRedirectPath,
-            let items = urlComponents.queryItems,
-            let codeItem = items.first(where: { $0.name == "code" }) {
-            return codeItem.value
-        } else {
-            return nil
-        }
+    func code(from url: URL) -> String? {
+        authHelper.code(from: url)
     }
 }

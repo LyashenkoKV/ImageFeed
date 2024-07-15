@@ -47,7 +47,7 @@ class WebViewViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .ypWhite
         setupUI()
-        authService = AuthService(webView: webView)
+        authService = AuthService(webView: webView, authHelper: AuthHelper())
         authService?.delegate = self
     }
     
