@@ -78,6 +78,7 @@ private extension AuthViewController {
         let webViewPresenter = AuthPresenter(authHelper: authHelper)
         webViewViewController.presenter = webViewPresenter
         webViewPresenter.view = webViewViewController
+        webViewViewController.delegate = self
         navigationController?.pushViewController(webViewViewController, animated: true)
     }
 }

@@ -8,7 +8,7 @@
 
 import UIKit
 import WebKit
-
+// MARK: - Protocols
 protocol WebViewViewControllerDelegate: AnyObject {
     func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String)
     func webViewViewControllerDidCancel(_ vc: WebViewViewController)
@@ -25,7 +25,8 @@ protocol WebViewViewControllerProtocol: AnyObject {
     func didCancel()
 }
 
-class WebViewViewController: UIViewController, WebViewViewControllerProtocol {
+// MARK: - Object
+class WebViewViewController: UIViewController {
     
     weak var delegate: WebViewViewControllerDelegate?
     var presenter: AuthPresenterProtocol?
@@ -52,6 +53,7 @@ class WebViewViewController: UIViewController, WebViewViewControllerProtocol {
         super.viewDidLoad()
         view.backgroundColor = .white
         setupUI()
+        webView.navigationDelegate = self
         
         presenter?.viewDidLoad()
     }
@@ -71,7 +73,10 @@ class WebViewViewController: UIViewController, WebViewViewControllerProtocol {
         webView.removeObserver(self, forKeyPath: #keyPath(WKWebView.estimatedProgress), context: nil)
     }
 
-    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+    override func observeValue(forKeyPath keyPath: String?, 
+                               of object: Any?,
+                               change: [NSKeyValueChangeKey : Any]?,
+                               context: UnsafeMutableRawPointer?) {
         if keyPath == #keyPath(WKWebView.estimatedProgress) {
             presenter?.didUpdateProgressValue(webView.estimatedProgress)
         } else {
@@ -103,7 +108,10 @@ class WebViewViewController: UIViewController, WebViewViewControllerProtocol {
             webView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
     }
-    
+}
+
+// MARK: - WebViewViewControllerProtocol
+extension WebViewViewController: WebViewViewControllerProtocol {
     func loadAuthView(request: URLRequest) {
         webView.load(request)
     }
@@ -134,7 +142,10 @@ class WebViewViewController: UIViewController, WebViewViewControllerProtocol {
     func didCancel() {
         delegate?.webViewViewControllerDidCancel(self)
     }
-    
+}
+
+// MARK: - Button Action
+extension WebViewViewController {
     @objc private func backButtonPressed() {
         let alertModel = AlertModel(
             title: "Выход из авторизации",
@@ -152,12 +163,14 @@ class WebViewViewController: UIViewController, WebViewViewControllerProtocol {
     }
 }
 
+// MARK: - AlertPresenterDelegate
 extension WebViewViewController: AlertPresenterDelegate {
     func presentAlert(_ alert: UIAlertController) {
         present(alert, animated: true)
     }
 }
 
+// MARK: - WKNavigationDelegate
 extension WebViewViewController: WKNavigationDelegate {
     func webView(_ webView: WKWebView,
                  decidePolicyFor navigationAction: WKNavigationAction,

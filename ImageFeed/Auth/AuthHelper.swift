@@ -37,7 +37,7 @@ final class AuthHelper: AuthHelperProtocol {
         return URLRequest(url: url)
     }
     
-    private func authURL() -> String? {
+    func authURL() -> String? {
         var urlComponents = URLComponents(string: Constants.unsplashAuthorizeURLString)
         urlComponents?.queryItems = [
             URLQueryItem(name: "client_id", value: Constants.accessKey),

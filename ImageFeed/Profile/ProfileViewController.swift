@@ -8,11 +8,18 @@
 import UIKit
 import Kingfisher
 
+protocol ProfileViewControllerProtocol: AnyObject {
+    func showProfileDetails(profile: Profile)
+    func showLoading()
+    func hideLoading()
+    func showError(_ message: String)
+    func updateProfileImage(with image: UIImage)
+}
+
 // MARK: - Object
 final class ProfileViewController: UIViewController {
     
-    private var profileImageServiceObserver: NSObjectProtocol?
-    
+    var presenter: ProfilePresenterProtocol?
     private lazy var profileLoadingView = ProfileLoadingView()
     
     private lazy var profileImage: UIImageView = {
@@ -79,8 +86,8 @@ final class ProfileViewController: UIViewController {
         view.backgroundColor = .ypBlack
         setupUI()
         setupConstraints()
-        addObserver()
-        tryShowProfileDetails()
+        presenter = ProfilePresenter(view: self)
+        presenter?.viewDidLoad()
     }
     
     private func setupUI() {
@@ -90,7 +97,6 @@ final class ProfileViewController: UIViewController {
             .flexibleWidth,
             .flexibleHeight
         ]
-        profileLoadingView.startAnimating()
     }
     
     private func setupConstraints() {
@@ -131,82 +137,42 @@ final class ProfileViewController: UIViewController {
     }
 }
 
-// MARK: - Button Action
-private extension ProfileViewController {
-    @objc private func exitButtonPressed() {
-        
+
+extension ProfileViewController: ProfileViewControllerProtocol {
+    func showLoading() {
+        profileLoadingView.startAnimating()
+    }
+    
+    func hideLoading() {
+        profileLoadingView.removeFromSuperview()
+    }
+    
+    func showError(_ message: String) {
+        let errorMessage = NetworkErrorHandler.errorMessage(from: message as! Error)
         let alertModel = AlertModel(
-            title: "Пока, пока!",
-            message: "Уверены что хотите выйти?",
-            buttons: [
-                AlertButton(title: "Нет", style: .default, handler: nil),
-                AlertButton(title: "Да", style: .cancel, handler: {
-                    ProfileLogoutService.shared.logout()
-                })
-            ],
-            context: .back
+            title: "Что-то пошло не так(",
+            message: errorMessage,
+            buttons: [AlertButton(title: "OK", style: .cancel, handler: nil)],
+            context: .error
         )
         AlertPresenter.showAlert(with: alertModel, delegate: self)
     }
-}
-
-// MARK: - Update Profile Details
-private extension ProfileViewController {
     
-    private func tryShowProfileDetails() {
-        let profileService = ProfileService.shared
-        if let profile = profileService.profile {
-            updateProfileDetails(profile: profile)
-            profileLoadingView.removeFromSuperview()
-        } else {
-            profileLoadingView.startAnimating()
-        }
-    }
-    
-    private func updateProfileDetails(profile: Profile) {
+    func showProfileDetails(profile: Profile) {
         nameLabel.text = profile.name
         loginNameLabel.text = profile.loginName
         descriptionLabel.text = profile.bio
     }
+    
+    func updateProfileImage(with image: UIImage) {
+        profileImage.image = image
+    }
 }
 
-
-// MARK: - Load Image & Observer
+// MARK: - Button Action
 private extension ProfileViewController {
-    private func addObserver() {
-        profileImageServiceObserver = NotificationCenter.default.addObserver(forName: ProfileImageService.didChangeNotification,
-                                                                             object: nil,
-                                                                             queue: .main,
-                                                                             using: { [weak self] notification in
-            guard let self else { return }
-            
-            if let userInfo = notification.userInfo, let profileImageURL = userInfo["URL"] as? String {
-                self.loadImage(from: profileImageURL)
-            }
-        })
-        if let profileImageURL = ProfileImageService.shared.avatarURL {
-            loadImage(from: profileImageURL)
-        }
-    }
-    
-    private func loadImage(from urlString: String) {
-        guard let url = URL(string: urlString) else { return }
-        
-        profileImage.kf.indicatorType = .activity
-        profileImage.kf.setImage(with: url,
-                                 placeholder: UIImage(systemName: "person.crop.circle.fill"),
-                                 options: [.transition(.fade(0.2))]) { [weak self] result in
-            guard let self else { return }
-            switch result {
-            case .success(_):
-                self.profileLoadingView.removeFromSuperview()
-            case .failure(let error):
-                let errorMessage = NetworkErrorHandler.errorMessage(from: error)
-                Logger.shared.log(.error,
-                                  message: "ProfileViewController: Не удалось загрузить Image",
-                                  metadata: ["❌": errorMessage])
-            }
-        }
+    @objc private func exitButtonPressed() {
+        presenter?.exitButtonPressed()
     }
 }
 
