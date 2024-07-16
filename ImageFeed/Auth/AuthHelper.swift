@@ -14,6 +14,12 @@ protocol AuthHelperProtocol {
 
 final class AuthHelper: AuthHelperProtocol {
     
+    let configuration: AuthConfiguration
+
+    init(configuration: AuthConfiguration = .standard) {
+        self.configuration = configuration
+    }
+    
     func authRequest() -> URLRequest? {
         guard let urlString = authURL(), let url = URL(string: urlString) else {
             Logger.shared.log(.error,
@@ -52,11 +58,5 @@ final class AuthHelper: AuthHelperProtocol {
         } else {
             return nil
         }
-    }
-    
-    let configuration: AuthConfiguration
-
-    init(configuration: AuthConfiguration = .standard) {
-        self.configuration = configuration
     }
 }

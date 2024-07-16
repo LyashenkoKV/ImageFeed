@@ -74,7 +74,10 @@ final class AuthViewController: UIViewController {
 private extension AuthViewController {
     @objc private func loginButtonPressed() {
         let webViewViewController = WebViewViewController()
-        webViewViewController.delegate = self
+        let authHelper = AuthHelper()
+        let webViewPresenter = AuthPresenter(authHelper: authHelper)
+        webViewViewController.presenter = webViewPresenter
+        webViewPresenter.view = webViewViewController
         navigationController?.pushViewController(webViewViewController, animated: true)
     }
 }

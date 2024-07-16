@@ -17,6 +17,7 @@ protocol WebViewViewControllerDelegate: AnyObject {
 
 protocol WebViewViewControllerProtocol: AnyObject {
     var presenter: AuthPresenterProtocol? { get set }
+    func loadAuthView(request: URLRequest)
     func setProgressValue(_ newValue: Float)
     func setProgressHidden(_ isHidden: Bool)
     func didAuthenticateWithCode(_ code: String)
@@ -34,6 +35,7 @@ class WebViewViewController: UIViewController, WebViewViewControllerProtocol {
     private lazy var progressView: UIProgressView = {
         let progressView = UIProgressView()
         progressView.progressTintColor = .black
+        progressView.progress = 0.0
         return progressView
     }()
     
@@ -51,8 +53,6 @@ class WebViewViewController: UIViewController, WebViewViewControllerProtocol {
         view.backgroundColor = .white
         setupUI()
         
-        let authHelper = AuthHelper()
-        presenter = AuthPresenter(viewController: self, authHelper: authHelper, webView: webView)
         presenter?.viewDidLoad()
     }
     
@@ -102,6 +102,10 @@ class WebViewViewController: UIViewController, WebViewViewControllerProtocol {
             webView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             webView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
+    }
+    
+    func loadAuthView(request: URLRequest) {
+        webView.load(request)
     }
     
     func setProgressValue(_ newValue: Float) {
@@ -154,3 +158,40 @@ extension WebViewViewController: AlertPresenterDelegate {
     }
 }
 
+extension WebViewViewController: WKNavigationDelegate {
+    func webView(_ webView: WKWebView,
+                 decidePolicyFor navigationAction: WKNavigationAction,
+                 decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        
+        if let code = code(from: navigationAction) {
+            didAuthenticateWithCode(code)
+            decisionHandler(.cancel)
+        } else {
+            decisionHandler(.allow)
+        }
+    }
+    
+    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+        let errorMessage = NetworkErrorHandler.errorMessage(from: error)
+        
+        let error = NetworkError.emptyData
+        didFailWithError(error)
+        Logger.shared.log(.error,
+                          message: "AuthService: Ошибка при загрузке данных WebView",
+                          metadata: ["❌": errorMessage])
+    }
+    
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        Logger.shared.log(.debug,
+                          message: "AuthService: Загрузка завершена:",
+                          metadata: ["✅": ""])
+        presenter?.didUpdateProgressValue(1.0)
+    }
+    
+    private func code(from navigationAction: WKNavigationAction) -> String? {
+        if let url = navigationAction.request.url {
+            return presenter?.code(from: url)
+        }
+        return nil
+    }
+}
