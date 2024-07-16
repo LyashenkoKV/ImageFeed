@@ -6,20 +6,18 @@
 //
 
 import UIKit
-import Kingfisher
 
 protocol ProfileViewControllerProtocol: AnyObject {
     func showProfileDetails(profile: Profile)
     func showLoading()
     func hideLoading()
-    func showError(_ message: String)
     func updateProfileImage(with image: UIImage)
 }
 
 // MARK: - Object
 final class ProfileViewController: UIViewController {
     
-    var presenter: ProfilePresenterProtocol?
+    private var presenter: ProfilePresenterProtocol?
     private lazy var profileLoadingView = ProfileLoadingView()
     
     private lazy var profileImage: UIImageView = {
@@ -137,7 +135,7 @@ final class ProfileViewController: UIViewController {
     }
 }
 
-
+// MARK: - ProfileViewControllerProtocol
 extension ProfileViewController: ProfileViewControllerProtocol {
     func showLoading() {
         profileLoadingView.startAnimating()
@@ -145,17 +143,6 @@ extension ProfileViewController: ProfileViewControllerProtocol {
     
     func hideLoading() {
         profileLoadingView.removeFromSuperview()
-    }
-    
-    func showError(_ message: String) {
-        let errorMessage = NetworkErrorHandler.errorMessage(from: message as! Error)
-        let alertModel = AlertModel(
-            title: "Что-то пошло не так(",
-            message: errorMessage,
-            buttons: [AlertButton(title: "OK", style: .cancel, handler: nil)],
-            context: .error
-        )
-        AlertPresenter.showAlert(with: alertModel, delegate: self)
     }
     
     func showProfileDetails(profile: Profile) {
@@ -179,6 +166,6 @@ private extension ProfileViewController {
 // MARK: - AlertPresenterDelegate
 extension ProfileViewController: AlertPresenterDelegate {
     func presentAlert(_ alert: UIAlertController) {
-        present(alert, animated: true, completion: nil)
+        present(alert, animated: true)
     }
 }

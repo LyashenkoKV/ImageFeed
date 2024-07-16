@@ -7,27 +7,30 @@
 
 import UIKit
 
-final class ImagesListViewController: UIViewController {
+protocol ImagesListViewControllerProtocol: AnyObject {
+    func updateImagesList(startIndex: Int, endIndex: Int)
+    func reloadTableView()
+    func showStubImageView(_ isHidden: Bool)
+}
+
+final class ImagesListViewController: UIViewController, ImagesListViewControllerProtocol {
     
+    private var presenter: ImagesListPresenterProtocol?
+    
+    private let refreshControl = UIRefreshControl()
     private let storage = OAuth2TokenStorage.shared
     private let imagesListService = ImagesListService.shared
-    private let refreshControl = UIRefreshControl()
     
     private lazy var stubImageView = UIImageView(image: UIImage(named: "Stub"))
     private lazy var tableView = UITableView()
-
-    
-    private lazy var dateFormatter: DateFormatter = {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateStyle = .long
-        dateFormatter.timeStyle = .none
-        dateFormatter.locale = Locale(identifier: "ru_RU")
-        return dateFormatter
-    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .ypBlack
+        
+        presenter = ImagesListPresenter(view: self,
+                                             imagesListService: imagesListService,
+                                             storage: storage)
         
         if let tabBarItem = self.tabBarItem {
             let imageInset = UIEdgeInsets(top: 13, left: 0, bottom: -13, right: 0)
@@ -37,14 +40,11 @@ final class ImagesListViewController: UIViewController {
         
         configureTableView()
         setupConstraints()
-        setupNotifications()
-        
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        
-        fetchPhotos()
+        presenter?.fetchPhotos()
     }
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -80,60 +80,47 @@ final class ImagesListViewController: UIViewController {
     }
     
     @objc private func refreshTableView() {
-        fetchPhotos()
+        presenter?.fetchPhotos()
         tableView.reloadData()
         refreshControl.endRefreshing()
     }
-}
-
-// MARK: - Observer
-private extension ImagesListViewController {
     
-    private func setupNotifications() {
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(handleImagesListServiceDidChangeNotification(_:)),
-                                               name: ImagesListService.didChangeNotification,
-                                               object: nil)
-    }
-    
-    @objc private func handleImagesListServiceDidChangeNotification(_ notification: Notification) {
-        guard let userInfo = notification.userInfo,
-              let startIndex = userInfo["startIndex"] as? Int,
-              let endIndex = userInfo["endIndex"] as? Int else {
-            tableView.reloadData()
-            stubImageView.isHidden = !imagesListService.photos.isEmpty
-            return
-        }
+    func updateImagesList(startIndex: Int, endIndex: Int) {
         let indexPaths = (startIndex...endIndex).map { IndexPath(row: $0, section: 0) }
-
         UIView.performWithoutAnimation { [weak self] in
-            guard let self else { return }
-            
-            self.tableView.performBatchUpdates({
-                self.tableView.insertRows(at: indexPaths, with: .none)
-            }, completion: { _ in
-                self.stubImageView.isHidden = !self.imagesListService.photos.isEmpty
+            self?.tableView.performBatchUpdates({
+                self?.tableView.insertRows(at: indexPaths, with: .none)
             })
         }
+    }
+    
+    func reloadTableView() {
+        tableView.reloadData()
+    }
+    
+    func showStubImageView(_ isHidden: Bool) {
+        stubImageView.isHidden = isHidden
     }
 }
 
 // MARK: - UITableViewDataSource
 extension ImagesListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return imagesListService.photos.count
+        guard let numbersOfPhotos = presenter?.numberOfPhotos() else { return 0 }
+        return numbersOfPhotos
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: ImagesListCell.reuseIdentifier, for: indexPath) as! ImagesListCell
-        configCell(cell, for: indexPath)
+        if let photo = presenter?.photo(at: indexPath.row),
+           let dateText = presenter?.format(date: photo.createdAt), let presenter = presenter as? ImagesListPresenter {
+            cell.configure(with: photo, dateText: dateText, presenter: presenter)
+        }
         return cell
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        guard indexPath.row < imagesListService.photos.count else { return 0 }
-        
-        let photo = imagesListService.photos[indexPath.row]
+        guard let photo = presenter?.photo(at: indexPath.row) else { return 0 }
         
         let insets = UIEdgeInsets(top: 4, left: 16, bottom: 4, right: 16)
         let imageViewWidth = tableView.bounds.width - insets.left - insets.right
@@ -144,8 +131,9 @@ extension ImagesListViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        if indexPath.row == imagesListService.photos.count - 1 {
-            fetchPhotos()
+        guard let numbersOfPhotos = presenter?.numberOfPhotos() else { return }
+        if indexPath.row == numbersOfPhotos - 1 {
+            presenter?.fetchPhotos()
         }
     }
 }
@@ -155,63 +143,14 @@ extension ImagesListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let singleImageViewController = SingleImageViewController()
         
-        guard indexPath.row < imagesListService.photos.count else { return }
-        
-        let photo = imagesListService.photos[indexPath.row]
-        guard let imageURL = URL(string: photo.largeImageURL) else { return }
+        guard let photo = presenter?.photo(at: indexPath.row),
+              let imageURL = URL(string: photo.largeImageURL) else { return }
         
         singleImageViewController.configure(withImageURL: imageURL)
         singleImageViewController.modalPresentationStyle = .fullScreen
         
-        DispatchQueue.main.async { // тут цикл исключен
+        DispatchQueue.main.async {
             self.present(singleImageViewController, animated: true, completion: nil)
-        }
-    }
-}
-
-// MARK: - Configure Images
-extension ImagesListViewController {
-    
-    private func fetchPhotos() {
-        if let token = storage.token {
-            DispatchQueue.main.async { [weak self] in
-                guard let self else { return }
-                self.imagesListService.fetchPhotosNextPage(with: token)
-            }
-        }
-    }
-    
-    private func configCell(_ cell: ImagesListCell, for indexPath: IndexPath) {
-        cell.backgroundColor = .ypBlack
-        cell.selectionStyle = .none
-        
-        guard indexPath.row < imagesListService.photos.count else { return }
-        
-        var photo = imagesListService.photos[indexPath.row]
-        let imageURL = URL(string: photo.regularImageURL)
-        
-        var dateText: String
-        if let createdAt = photo.createdAt {
-            dateText = dateFormatter.string(from: createdAt)
-        } else {
-            dateText = "Дата неизвестна"
-        }
-        
-        cell.configure(withImageURL: imageURL, text: dateText, isLiked: photo.isLiked, photoId: photo.id)
-        
-        cell.likeButtonAction = { [weak self] (photoId, shouldLike) in
-            guard let self else { return }
-            self.imagesListService.changeLike(photoId: photoId, isLike: shouldLike) { result in
-                switch result {
-                case .success:
-                    DispatchQueue.main.async {
-                        photo.isLiked = shouldLike
-                        cell.isLiked = shouldLike
-                    }
-                case .failure(let error):
-                    _ = NetworkErrorHandler.errorMessage(from: error)
-                }
-            }
         }
     }
 }

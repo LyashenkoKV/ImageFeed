@@ -8,6 +8,12 @@
 import Foundation
 import Kingfisher
 
+protocol ImagesListServiceProtocol {
+    var photos: [Photo] { get }
+    func fetchPhotosNextPage(with token: String)
+    func changeLike(photoId: String, isLike: Bool, _ completion: @escaping (Result<VoidModel, Error>) -> Void)
+}
+
 final class ImagesListService {
     
     static let shared = ImagesListService()
@@ -64,28 +70,6 @@ extension ImagesListService {
                     photos[index].isLiked = isLiked
                 }
             }
-        }
-    }
-    
-    func changeLike(photoId: String, isLike: Bool, _ completion: @escaping (Result<VoidModel, Error>) -> Void) {
-        synchronizationQueue.async { [weak self] in
-            guard let self else { return }
-            
-            self.semaphore.wait()
-            defer { self.semaphore.signal() }
-            
-            let method = self.getMethod(for: isLike)
-            let url = self.getLikeURL(for: photoId)
-            
-            guard let token = self.getToken() else {
-                completion(.failure(NetworkError.errorFetchingAccessToken))
-                Logger.shared.log(.error,
-                                  message: "ImagesListService: Токен доступа недоступен или пуст",
-                                  metadata: ["❌": ""])
-                return
-            }
-            
-            self.performLikeRequest(token: token, method: method, url: url, isLike: isLike, photoId: photoId, completion: completion)
         }
     }
     
@@ -166,21 +150,6 @@ extension ImagesListService {
 // MARK: - NetworkService for Image
 extension ImagesListService {
     
-    func fetchPhotosNextPage(with token: String) {
-        synchronizationQueue.async { [weak self] in
-            guard let self else { return }
-            
-            self.semaphore.wait()
-            defer { self.semaphore.signal() }
-            
-            guard !self.isLoading else { return }
-            self.isLoading = true
-            let nextPage = (self.lastLoadedPage ?? 0) + 1
-            
-            self.performFetchPhotosRequest(page: nextPage, token: token)
-        }
-    }
-    
     private func performFetchPhotosRequest(page: Int, token: String) {
         let parameters = ["page": "\(page)", "per_page": "10", "token": token]
         self.photosNetworkService.fetch(parameters: parameters, 
@@ -234,5 +203,51 @@ extension ImagesListService {
                      regularImageURL: photoResult.urls.regular,
                      largeImageURL: photoResult.urls.full,
                      isLiked: photoResult.likedByUser)
+    }
+}
+
+// MARK: - ImagesListServiceProtocol
+extension ImagesListService: ImagesListServiceProtocol {
+   
+    func changeLike(photoId: String, isLike: Bool, _ completion: @escaping (Result<VoidModel, Error>) -> Void) {
+        synchronizationQueue.async { [weak self] in
+            guard let self else { return }
+            
+            self.semaphore.wait()
+            defer { self.semaphore.signal() }
+            
+            let method = self.getMethod(for: isLike)
+            let url = self.getLikeURL(for: photoId)
+            
+            guard let token = self.getToken() else {
+                completion(.failure(NetworkError.errorFetchingAccessToken))
+                Logger.shared.log(.error,
+                                  message: "ImagesListService: Токен доступа недоступен или пуст",
+                                  metadata: ["❌": ""])
+                return
+            }
+            
+            self.performLikeRequest(token: token, 
+                                    method: method,
+                                    url: url, isLike:
+                                        isLike, photoId:
+                                        photoId,
+                                    completion: completion)
+        }
+    }
+    
+    func fetchPhotosNextPage(with token: String) {
+        synchronizationQueue.async { [weak self] in
+            guard let self else { return }
+            
+            self.semaphore.wait()
+            defer { self.semaphore.signal() }
+            
+            guard !self.isLoading else { return }
+            self.isLoading = true
+            let nextPage = (self.lastLoadedPage ?? 0) + 1
+            
+            self.performFetchPhotosRequest(page: nextPage, token: token)
+        }
     }
 }

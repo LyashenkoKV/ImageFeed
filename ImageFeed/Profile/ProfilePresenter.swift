@@ -18,6 +18,7 @@ final class ProfilePresenter: ProfilePresenterProtocol {
    
     weak var view: ProfileViewControllerProtocol?
     private var profileImageServiceObserver: NSObjectProtocol?
+    private var alertPresenter = AlertPresenter()
     
     init(view: ProfileViewControllerProtocol) {
         self.view = view
@@ -64,7 +65,7 @@ final class ProfilePresenter: ProfilePresenterProtocol {
         imageView.kf.setImage(with: url,
                               placeholder: UIImage(systemName: "person.crop.circle.fill"),
                               options: [.transition(.fade(0.2))]) { [weak self] result in
-            guard let self = self else { return }
+            guard let self else { return }
             switch result {
             case .success(let value):
                 self.view?.updateProfileImage(with: value.image)
@@ -96,3 +97,4 @@ final class ProfilePresenter: ProfilePresenterProtocol {
         }
     }
 }
+
