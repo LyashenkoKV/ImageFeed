@@ -7,7 +7,7 @@
 
 import UIKit
 import SkeletonView
-
+// MARK: - Object
 final class ImagesListCell: UITableViewCell {
     static let reuseIdentifier = "ImagesListCell"
     

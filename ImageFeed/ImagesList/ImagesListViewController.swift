@@ -6,13 +6,14 @@
 //
 
 import UIKit
-
+// MARK: - Protocols
 protocol ImagesListViewControllerProtocol: AnyObject {
     func updateImagesList(startIndex: Int, endIndex: Int)
     func reloadTableView()
     func showStubImageView(_ isHidden: Bool)
 }
 
+// MARK: - Object
 final class ImagesListViewController: UIViewController, ImagesListViewControllerProtocol {
     
     private var presenter: ImagesListPresenterProtocol?

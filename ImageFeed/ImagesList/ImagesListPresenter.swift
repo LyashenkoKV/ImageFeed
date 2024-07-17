@@ -6,7 +6,7 @@
 //
 
 import Foundation
-
+// MARK: - Protocols
 protocol ImagesListPresenterProtocol {
     var view: ImagesListViewControllerProtocol? { get set }
     func fetchPhotos()
@@ -16,7 +16,8 @@ protocol ImagesListPresenterProtocol {
     func changeLike(photoId: String, isLike: Bool, completion: @escaping (Result<VoidModel, Error>) -> Void)
 }
 
-final class ImagesListPresenter: ImagesListPresenterProtocol {
+// MARK: - Object
+final class ImagesListPresenter {
     
     weak var view: ImagesListViewControllerProtocol?
     private let imagesListService: ImagesListServiceProtocol
@@ -52,7 +53,10 @@ final class ImagesListPresenter: ImagesListPresenterProtocol {
         }
         view?.updateImagesList(startIndex: startIndex, endIndex: endIndex)
     }
-    
+}
+
+// MARK: - ImagesListPresenterProtocol
+extension ImagesListPresenter: ImagesListPresenterProtocol {
     func fetchPhotos() {
         if let token = storage.token {
             DispatchQueue.main.async { [weak self] in

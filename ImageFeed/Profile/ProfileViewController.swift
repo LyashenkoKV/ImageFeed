@@ -18,9 +18,9 @@ protocol ProfileViewControllerProtocol: AnyObject {
 final class ProfileViewController: UIViewController {
     
     private var presenter: ProfilePresenterProtocol?
-    private lazy var profileLoadingView = ProfileLoadingView()
+    lazy var profileLoadingView = ProfileLoadingView()
     
-    private lazy var profileImage: UIImageView = {
+    lazy var profileImage: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFit
         imageView.image = UIImage(systemName: "person.crop.circle.fill")
@@ -38,21 +38,21 @@ final class ProfileViewController: UIViewController {
         return button
     }()
     
-    private lazy var nameLabel: UILabel = {
+    lazy var nameLabel: UILabel = {
         let label = UILabel()
         label.textColor = .ypWhite
         label.font = UIFont.boldSystemFont(ofSize: 23)
         return label
     }()
     
-    private lazy var loginNameLabel: UILabel = {
+    lazy var loginNameLabel: UILabel = {
         let label = UILabel()
         label.textColor = .ypGray
         label.font = UIFont.systemFont(ofSize: 13)
         return label
     }()
     
-    private lazy var descriptionLabel: UILabel = {
+    lazy var descriptionLabel: UILabel = {
         let label = UILabel()
         label.textColor = .ypWhite
         label.font = UIFont.systemFont(ofSize: 13)
@@ -84,8 +84,13 @@ final class ProfileViewController: UIViewController {
         view.backgroundColor = .ypBlack
         setupUI()
         setupConstraints()
-        presenter = ProfilePresenter(view: self)
+        
         presenter?.viewDidLoad()
+    }
+    
+    func configure(_ presenter: ProfilePresenterProtocol) {
+        self.presenter = presenter
+        self.presenter?.view = self
     }
     
     private func setupUI() {
@@ -157,8 +162,8 @@ extension ProfileViewController: ProfileViewControllerProtocol {
 }
 
 // MARK: - Button Action
-private extension ProfileViewController {
-    @objc private func exitButtonPressed() {
+extension ProfileViewController {
+    @objc func exitButtonPressed() {
         presenter?.exitButtonPressed()
     }
 }
