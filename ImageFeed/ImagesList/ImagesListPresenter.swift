@@ -9,6 +9,7 @@ import Foundation
 // MARK: - Protocols
 protocol ImagesListPresenterProtocol {
     var view: ImagesListViewControllerProtocol? { get set }
+    func viewDidLoad()
     func fetchPhotos()
     func numberOfPhotos() -> Int
     func photo(at index: Int) -> Photo?
@@ -31,7 +32,9 @@ final class ImagesListPresenter {
         self.imagesListService = imagesListService
         self.storage = storage
         self.dateFormatter = DateFormatter.longDateFormatter
-        
+    }
+    
+    func viewDidLoad() {
         setupNotifications()
     }
     

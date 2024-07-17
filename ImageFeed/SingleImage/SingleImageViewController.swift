@@ -7,6 +7,10 @@
 
 import UIKit
 
+protocol SingleImageViewControllerProtocol {
+    func configure(withImageURL imageURL: URL)
+}
+
 final class SingleImageViewController: UIViewController {
     
     private lazy var scrollView: UIScrollView = {
@@ -119,8 +123,8 @@ private extension SingleImageViewController {
     }
 }
 
-// MARK: - Configure Image
-extension SingleImageViewController {
+// MARK: - SingleImageViewControllerProtocol
+extension SingleImageViewController: SingleImageViewControllerProtocol {
     func configure(withImageURL imageURL: URL) {
         imageView.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
         imageView.alpha = 0

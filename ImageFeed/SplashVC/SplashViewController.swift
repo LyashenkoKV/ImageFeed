@@ -48,6 +48,9 @@ final class SplashViewController: UIViewController {
         let imagesListViewController = ImagesListViewController()
         let profileViewController = ProfileViewController()
         profileViewController.configure(ProfilePresenter(view: profileViewController))
+        imagesListViewController.configure(ImagesListPresenter(view: imagesListViewController,
+                                                               imagesListService: imagesListService,
+                                                               storage: storage))
         
         imagesListViewController.tabBarItem = UITabBarItem(title: nil, image: UIImage(systemName: "square.stack.fill"), tag: 0)
         profileViewController.tabBarItem = UITabBarItem(title: nil, image: UIImage(systemName: "person.crop.circle.fill"), tag: 1)

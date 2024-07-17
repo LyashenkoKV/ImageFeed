@@ -16,31 +16,25 @@ protocol ImagesListViewControllerProtocol: AnyObject {
 // MARK: - Object
 final class ImagesListViewController: UIViewController, ImagesListViewControllerProtocol {
     
-    private var presenter: ImagesListPresenterProtocol?
+    var presenter: ImagesListPresenterProtocol?
     
-    private let refreshControl = UIRefreshControl()
-    private let storage = OAuth2TokenStorage.shared
-    private let imagesListService = ImagesListService.shared
+    let refreshControl = UIRefreshControl()
     
-    private lazy var stubImageView = UIImageView(image: UIImage(named: "Stub"))
-    private lazy var tableView = UITableView()
+    lazy var stubImageView = UIImageView(image: UIImage(named: "Stub"))
+    lazy var tableView = UITableView()
+    
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return .lightContent
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .ypBlack
-        
-        presenter = ImagesListPresenter(view: self,
-                                             imagesListService: imagesListService,
-                                             storage: storage)
-        
-        if let tabBarItem = self.tabBarItem {
-            let imageInset = UIEdgeInsets(top: 13, left: 0, bottom: -13, right: 0)
-            tabBarItem.imageInsets = imageInset
-        }
         refreshControl.addTarget(self, action: #selector(refreshTableView), for: .valueChanged)
         
         configureTableView()
         setupConstraints()
+        presenter?.viewDidLoad()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -48,8 +42,9 @@ final class ImagesListViewController: UIViewController, ImagesListViewController
         presenter?.fetchPhotos()
     }
     
-    override var preferredStatusBarStyle: UIStatusBarStyle {
-        return .lightContent
+    func configure(_ presenter: ImagesListPresenterProtocol) {
+        self.presenter = presenter
+        self.presenter?.view = self
     }
     
     private func configureTableView() {
@@ -80,7 +75,7 @@ final class ImagesListViewController: UIViewController, ImagesListViewController
         ])
     }
     
-    @objc private func refreshTableView() {
+    @objc func refreshTableView() {
         presenter?.fetchPhotos()
         tableView.reloadData()
         refreshControl.endRefreshing()
@@ -102,6 +97,13 @@ final class ImagesListViewController: UIViewController, ImagesListViewController
     func showStubImageView(_ isHidden: Bool) {
         stubImageView.isHidden = isHidden
     }
+    
+    func makeSingleImageViewController(with imageURL: URL) -> SingleImageViewController {
+        let singleImageViewController = SingleImageViewController()
+        singleImageViewController.configure(withImageURL: imageURL)
+        singleImageViewController.modalPresentationStyle = .fullScreen
+        return singleImageViewController
+    }
 }
 
 // MARK: - UITableViewDataSource
@@ -121,14 +123,12 @@ extension ImagesListViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        guard let photo = presenter?.photo(at: indexPath.row) else { return 0 }
-        
+        guard let photo = presenter?.photo(at: indexPath.row) else { return UITableView.automaticDimension }
         let insets = UIEdgeInsets(top: 4, left: 16, bottom: 4, right: 16)
         let imageViewWidth = tableView.bounds.width - insets.left - insets.right
         let imageWidth = CGFloat(photo.size.width)
         let scale = imageViewWidth / imageWidth
-        let cellHeight = CGFloat(photo.size.height) * scale + insets.top + insets.bottom
-        return cellHeight
+        return CGFloat(photo.size.height) * scale + insets.top + insets.bottom
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
@@ -142,16 +142,10 @@ extension ImagesListViewController: UITableViewDataSource {
 // MARK: - UITableViewDelegate
 extension ImagesListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let singleImageViewController = SingleImageViewController()
-        
         guard let photo = presenter?.photo(at: indexPath.row),
               let imageURL = URL(string: photo.largeImageURL) else { return }
         
-        singleImageViewController.configure(withImageURL: imageURL)
-        singleImageViewController.modalPresentationStyle = .fullScreen
-        
-        DispatchQueue.main.async {
-            self.present(singleImageViewController, animated: true, completion: nil)
-        }
+        let singleImageViewController = makeSingleImageViewController(with: imageURL)
+        present(singleImageViewController, animated: true, completion: nil)
     }
 }

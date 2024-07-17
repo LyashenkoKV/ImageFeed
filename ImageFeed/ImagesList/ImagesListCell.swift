@@ -36,7 +36,7 @@ final class ImagesListCell: UITableViewCell {
         return imageView
     }()
     
-    private lazy var customDateLabel: UILabel = {
+    lazy var customDateLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
         label.font = UIFont.systemFont(ofSize: 13, weight: .regular)
@@ -57,6 +57,7 @@ final class ImagesListCell: UITableViewCell {
     
     override func layoutSubviews() {
         super.layoutSubviews()
+        contentView.backgroundColor = .ypBlack
         setupViews()
         configureSubviews()
     }
