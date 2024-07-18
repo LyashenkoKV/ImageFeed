@@ -54,7 +54,7 @@ class WebViewViewController: UIViewController {
         view.backgroundColor = .white
         setupUI()
         webView.navigationDelegate = self
-        
+        webView.accessibilityIdentifier = "UnsplashWebView"
         presenter?.viewDidLoad()
     }
     

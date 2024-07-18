@@ -6,9 +6,9 @@
 //
 
 import Foundation
-
 import WebKit
 
+// MARK: - Object
 final class ProfileLogoutService {
     static let shared = ProfileLogoutService()
     

@@ -27,4 +27,6 @@ final class ProfilePresenterMock: ProfilePresenterProtocol {
         updateProfileImageCalled = true
         profileImageUrl = url
     }
+    
+    func tryShowProfileDetails() {}
 }

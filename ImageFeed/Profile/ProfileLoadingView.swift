@@ -7,7 +7,7 @@
 
 import UIKit
 import SkeletonView
-
+// MARK: - Object
 final class ProfileLoadingView: UIView {
     
     private lazy var profileImage = buildAnimatedViews()

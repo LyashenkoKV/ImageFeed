@@ -6,15 +6,17 @@
 //
 
 import UIKit
-
+// MARK: - Protocols
 protocol ProfilePresenterProtocol {
     var view: ProfileViewControllerProtocol? { get set }
     func viewDidLoad()
     func exitButtonPressed()
+    func tryShowProfileDetails()
     func updateProfileImage(with url: String)
 }
 
-final class ProfilePresenter: ProfilePresenterProtocol {
+// MARK: - Object
+final class ProfilePresenter {
    
     weak var view: ProfileViewControllerProtocol?
     private var profileImageServiceObserver: NSObjectProtocol?
@@ -29,6 +31,27 @@ final class ProfilePresenter: ProfilePresenterProtocol {
         addObserver()
         tryShowProfileDetails()
     }
+    
+    private func addObserver() {
+        profileImageServiceObserver = NotificationCenter.default.addObserver(forName: ProfileImageService.didChangeNotification,
+                                                                             object: nil,
+                                                                             queue: .main,
+                                                                             using: { [weak self] notification in
+            guard let self else { return }
+            
+            if let userInfo = notification.userInfo, let profileImageURL = userInfo["URL"] as? String {
+                updateProfileImage(with: profileImageURL)
+            }
+        })
+        
+        if let profileImageURL = ProfileImageService.shared.avatarURL {
+            updateProfileImage(with: profileImageURL)
+        }
+    }
+}
+
+// MARK: - ProfilePresenterProtocol
+extension ProfilePresenter: ProfilePresenterProtocol {
     
     func exitButtonPressed() {
         let alertModel = AlertModel(
@@ -45,7 +68,7 @@ final class ProfilePresenter: ProfilePresenterProtocol {
         AlertPresenter.showAlert(with: alertModel, delegate: view as? AlertPresenterDelegate)
     }
     
-    private func tryShowProfileDetails() {
+    func tryShowProfileDetails() {
         let profileService = ProfileService.shared
         if let profile = profileService.profile {
             view?.hideLoading()
@@ -79,22 +102,4 @@ final class ProfilePresenter: ProfilePresenterProtocol {
             }
         }
     }
-    
-    private func addObserver() {
-        profileImageServiceObserver = NotificationCenter.default.addObserver(forName: ProfileImageService.didChangeNotification,
-                                                                             object: nil,
-                                                                             queue: .main,
-                                                                             using: { [weak self] notification in
-            guard let self else { return }
-            
-            if let userInfo = notification.userInfo, let profileImageURL = userInfo["URL"] as? String {
-                updateProfileImage(with: profileImageURL)
-            }
-        })
-        
-        if let profileImageURL = ProfileImageService.shared.avatarURL {
-            updateProfileImage(with: profileImageURL)
-        }
-    }
 }
-
