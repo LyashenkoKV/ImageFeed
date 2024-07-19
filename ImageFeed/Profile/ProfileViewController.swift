@@ -32,6 +32,7 @@ final class ProfileViewController: UIViewController {
     
     private lazy var exitButton: UIButton = {
         let button = UIButton()
+        button.accessibilityIdentifier = "logoutButton"
         button.setImage(UIImage(systemName: "ipad.and.arrow.forward"), for: .normal)
         button.tintColor = .ypRed
         button.addTarget(self, action: #selector(exitButtonPressed), for: .touchUpInside)

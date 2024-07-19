@@ -58,8 +58,8 @@ extension ProfilePresenter: ProfilePresenterProtocol {
             title: "Пока, пока!",
             message: "Уверены что хотите выйти?",
             buttons: [
-                AlertButton(title: "Нет", style: .default, handler: nil),
-                AlertButton(title: "Да", style: .cancel, handler: {
+                AlertButton(title: "Нет", style: .default, identifier: nil, handler: nil),
+                AlertButton(title: "Да", style: .cancel, identifier: "Yes", handler: {
                     ProfileLogoutService.shared.logout()
                 })
             ],

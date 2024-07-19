@@ -133,7 +133,7 @@ extension WebViewViewController: WebViewViewControllerProtocol {
         let alertModel = AlertModel(
             title: "Что-то пошло не так(",
             message: errorMessage,
-            buttons: [AlertButton(title: "OK", style: .cancel, handler: nil)],
+            buttons: [AlertButton(title: "OK", style: .cancel, identifier: nil, handler: nil)],
             context: .error
         )
         AlertPresenter.showAlert(with: alertModel, delegate: self)
@@ -151,9 +151,10 @@ extension WebViewViewController {
             title: "Выход из авторизации",
             message: "Вы уверены, что хотите покинуть страницу авторизации?",
             buttons: [
-                AlertButton(title: "Отмена", style: .cancel, handler: nil),
-                AlertButton(title: "Выход", style: .destructive, handler: { [weak self] in
+                AlertButton(title: "Отмена", style: .cancel, identifier: nil, handler: nil),
+                AlertButton(title: "Выход", style: .destructive, identifier: nil, handler: { [weak self] in
                     guard let self = self else { return }
+                    ProfileLogoutService.shared.logout()
                     self.delegate?.webViewViewControllerDidCancel(self)
                 })
             ],

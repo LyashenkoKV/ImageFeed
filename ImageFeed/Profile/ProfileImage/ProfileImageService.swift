@@ -28,11 +28,11 @@ final class ProfileImageService {
 // MARK: - NetworkService
 extension ProfileImageService: NetworkService {
     func makeRequest(parameters: [String: String], method: String, url: String) -> URLRequest? {
-        return RequestHelper.createRequest(urlString: url, method: method, token: parameters["token"] ?? "")
+        return ProfileImageRequestHelper.createRequest(urlString: url, method: method, token: parameters["token"] ?? "")
     }
 
     func parse(data: Data) -> UserResult? {
-        return ResponseHelper.parseUserResult(from: data)
+        return ProfileImageResponseHelper.parseUserResult(from: data)
     }
 
     func fetchProfileImageURL(username: String, token: String, completion: @escaping (Result<String, Error>) -> Void) {
@@ -57,7 +57,7 @@ extension ProfileImageService: NetworkService {
         case .success(let userResult):
             self.processUserResult(userResult, completion: completion)
         case .failure(let error):
-            ResponseHelper.handleFetchError(error, completion: completion)
+            ProfileImageResponseHelper.handleFetchError(error, completion: completion)
         }
     }
 

@@ -15,6 +15,7 @@ final class ImagesListCell: UITableViewCell {
     var isLiked: Bool = false {
         didSet {
             likeButton.tintColor = isLiked ? .ypRed : .ypWhite.withAlphaComponent(0.5)
+            likeButton.accessibilityIdentifier = isLiked ? "likeButtonOn" : "likeButtonOff"
         }
     }
     var likeButtonAction: ((String, Bool) -> Void)?
@@ -47,6 +48,7 @@ final class ImagesListCell: UITableViewCell {
     
     private lazy var likeButton: UIButton = {
         let button = UIButton(type: .custom)
+        button.accessibilityIdentifier = "likeButton"
         button.translatesAutoresizingMaskIntoConstraints = false
         button.tintColor = .ypGray
         let heartImage = UIImage(systemName: "heart.fill")?.withRenderingMode(.alwaysTemplate)

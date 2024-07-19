@@ -69,13 +69,13 @@ struct NetworkErrorHandler: NetworkErrorProtocol {
         case 401:
             return .errorFetchingAccessToken
         case 403:
-            return .unauthorized
+            return .tooManyRequests
         case 404:
             return .notFound
         case 422:
             return .unknownError
         case 429:
-            return .tooManyRequests
+            return .unauthorized
         case 500, 503:
             return .serviceUnavailable
         default:
