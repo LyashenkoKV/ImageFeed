@@ -23,7 +23,7 @@ final class ImagesListPresenter {
     weak var view: ImagesListViewControllerProtocol?
     private let imagesListService: ImagesListServiceProtocol
     private let storage: OAuth2TokenStorageProtocol
-    private var dateFormatter: DateFormatter?
+    private let dateFormatter = DateFormatter.longDateFormatter
     
     init(view: ImagesListViewControllerProtocol,
          imagesListService: ImagesListServiceProtocol,
@@ -31,7 +31,6 @@ final class ImagesListPresenter {
         self.view = view
         self.imagesListService = imagesListService
         self.storage = storage
-        self.dateFormatter = DateFormatter.longDateFormatter
     }
     
     func viewDidLoad() {
@@ -79,7 +78,8 @@ extension ImagesListPresenter: ImagesListPresenterProtocol {
     }
     
     func format(date: Date?) -> String {
-        guard let date = date, let formatDate = dateFormatter?.string(from: date) else { return "Дата неизвестна" }
+        guard let date = date else { return "Дата неизвестна" }
+        let formatDate = dateFormatter.string(from: date)
         return formatDate
     }
     

@@ -23,8 +23,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             _ = KeychainService.shared.set(value: "urn:ietf:wg:oauth:2.0:oob", for: "redirectURI")
         }
         
-        
-        
         ProgressHUD.animationType = .activityIndicator
         ProgressHUD.colorHUD = .black
         ProgressHUD.colorAnimation = .lightGray

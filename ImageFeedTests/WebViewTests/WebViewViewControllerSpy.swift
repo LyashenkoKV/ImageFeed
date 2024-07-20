@@ -8,7 +8,7 @@
 @testable import ImageFeed
 import WebKit
 
-class WebViewViewControllerSpy: WebViewViewControllerProtocol {
+final class WebViewViewControllerSpy: WebViewViewControllerProtocol {
     
     var presenter: AuthPresenterProtocol?
     var loadAuthViewCalled = false

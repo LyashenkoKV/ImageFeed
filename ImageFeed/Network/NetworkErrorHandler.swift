@@ -14,20 +14,6 @@ protocol NetworkErrorProtocol {
     static func handleErrorResponse(statusCode: Int) -> NetworkError
 }
 
-enum NetworkError: Error {
-    case invalidURLString
-    case unableToConstructURL
-    case noInternetConnection
-    case requestTimedOut
-    case emptyData
-    case tooManyRequests
-    case unknownError
-    case serviceUnavailable
-    case errorFetchingAccessToken
-    case unauthorized
-    case notFound
-}
-
 struct NetworkErrorHandler: NetworkErrorProtocol {
     
     static func errorMessage(from error: Error) -> String {

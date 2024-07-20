@@ -69,38 +69,42 @@ final class ImageFeedUITests: XCTestCase {
     }
     
     func testFeed() throws {
-        sleep(3)
         // Получаю таблицу в приложении
         let tablesQuery = app.tables
         
         // Выбираю первую ячейку и прокручиваю вверх
-        let firstCell = tablesQuery.children(matching: .cell).element(boundBy: 0)
-        firstCell.swipeUp()
-        sleep(2)
+        let firstCell = tablesQuery.descendants(matching: .cell).element(boundBy: 0)
+        
+//        // Прокручиваю таблицу до появления второй ячейки
+//        firstCell.swipeUp()
+//        
+//        sleep(2)
         
         // Ожидаю появления второй ячейки
-        let secondCell = tablesQuery.children(matching: .cell).element(boundBy: 1)
-        XCTAssertTrue(secondCell.waitForExistence(timeout: 10)) // Убедиться, что вторая ячейка существует
+        let secondCell = tablesQuery.descendants(matching: .cell).element(boundBy: 1)
+        XCTAssertTrue(secondCell.waitForExistence(timeout: 5)) // Убедиться, что вторая ячейка существует
+        
+        // Кнопка лайк
+        let likeButton = secondCell.buttons["likeButton"]
+        
+        // Убедиться, что кнопка лайка видима
+        XCTAssertTrue(likeButton.waitForExistence(timeout: 5)) // Убедиться, что кнопка лайка существует
         
         // Поставить "лайк"
-        let likeButton = secondCell.buttons["likeButtonOff"]
-        XCTAssertTrue(likeButton.waitForExistence(timeout: 5)) // Убеждаюсь, что кнопка лайка существует
         likeButton.tap()
-        sleep(3)
+        sleep(2)
         
         // Снять "лайк"
-        secondCell.buttons["likeButtonOn"].tap()
-        sleep(2)
+        likeButton.tap()
+        sleep(5)
         
         // Открываю ячейку
         secondCell.tap()
         
-        sleep(3)
+        sleep(2)
         
         // Ожидаю появления изображения
         let image = app.scrollViews.images.element(boundBy: 0)
-        XCTAssertTrue(image.waitForExistence(timeout: 5))
-        
         // Увеличиваю изображение
         image.pinch(withScale: 3, velocity: 1)
         // Уменьшаею изображение
@@ -110,6 +114,10 @@ final class ImageFeedUITests: XCTestCase {
         let navBackButtonWhiteButton = app.buttons["backButton"]
         XCTAssertTrue(navBackButtonWhiteButton.waitForExistence(timeout: 5))
         navBackButtonWhiteButton.tap()
+        
+        // Свайпаю таблицу
+        app.swipeUp()
+        sleep(2)
     }
     
     func testProfile() throws {

@@ -17,7 +17,7 @@ final class OAuth2ParserHelper: OAuth2ParserHelperProtocol {
     func parse(data: Data) -> OAuthTokenResponseBody? {
         do {
             let tokenResponse = try JSONDecoder().decode(OAuthTokenResponseBody.self, from: data)
-            OAuth2Service.shared.oAuth2TokenStorage.token = tokenResponse.accessToken
+            OAuth2TokenStorage.shared.token = tokenResponse.accessToken
             Logger.shared.log(.debug,
                               message: "OAuth2ParserHelper: Access token сохранен",
                               metadata: ["✅": tokenResponse.accessToken])

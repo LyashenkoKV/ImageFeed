@@ -8,7 +8,7 @@
 import XCTest
 import UIKit
 
-class ProfileViewControllerTests: XCTestCase {
+final class ProfileViewControllerTests: XCTestCase {
     
     var viewController: ProfileViewController!
     var presenterMock: ProfilePresenterMock!

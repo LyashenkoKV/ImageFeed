@@ -14,14 +14,10 @@ final class OAuth2Service {
     
     private let serialQueue = DispatchQueue(label: "OAuth2Service.serialQueue")
     private var activeRequests: [String: [(Result<String, Error>) -> Void]] = [:]
-    private let oAuth2RequestHelper: OAuth2RequestHelperProtocol
-    private let oAuth2ParserHelper: OAuth2ParserHelperProtocol
-    let oAuth2TokenStorage = OAuth2TokenStorage.shared
+    private let oAuth2RequestHelper = OAuth2RequestHelper()
+    private let oAuth2ParserHelper = OAuth2ParserHelper()
     
-    private init() {
-        oAuth2RequestHelper = OAuth2RequestHelper()
-        oAuth2ParserHelper = OAuth2ParserHelper()
-    }
+    private init() {}
 }
 
 // MARK: - NetworkService
@@ -34,7 +30,7 @@ extension OAuth2Service: NetworkService {
         oAuth2ParserHelper.parse(data: data)
     }
     
-    func createOAuthParameters(with code: String) -> [String: String] {
+    private func createOAuthParameters(with code: String) -> [String: String] {
         [
             "client_id": Constants.accessKey,
             "client_secret": Constants.secretKey,

@@ -16,7 +16,7 @@ protocol AuthPresenterProtocol {
 }
 
 // MARK: - Object
-class AuthPresenter: NSObject {
+final class AuthPresenter: NSObject {
     weak var view: WebViewViewControllerProtocol?
     private let authHelper: AuthHelperProtocol
 

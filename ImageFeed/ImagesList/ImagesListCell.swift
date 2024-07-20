@@ -15,10 +15,9 @@ final class ImagesListCell: UITableViewCell {
     var isLiked: Bool = false {
         didSet {
             likeButton.tintColor = isLiked ? .ypRed : .ypWhite.withAlphaComponent(0.5)
-            likeButton.accessibilityIdentifier = isLiked ? "likeButtonOn" : "likeButtonOff"
         }
     }
-    var likeButtonAction: ((String, Bool) -> Void)?
+    private var likeButtonAction: ((String, Bool) -> Void)?
     
     private lazy var customContentView: UIView = {
         let view = UIView()
