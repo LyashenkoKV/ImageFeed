@@ -6,6 +6,10 @@
 //
 
 import UIKit
+// MARK: - Protocol
+protocol ProfileImageServiceProtocol {
+    func fetchProfileImageURL(username: String, token: String, completion: @escaping (Result<String, Error>) -> Void)
+}
 
 // MARK: - Object
 final class ProfileImageService {
@@ -33,16 +37,6 @@ extension ProfileImageService: NetworkService {
 
     func parse(data: Data) -> UserResult? {
         return ProfileImageResponseHelper.parseUserResult(from: data)
-    }
-
-    func fetchProfileImageURL(username: String, token: String, completion: @escaping (Result<String, Error>) -> Void) {
-        serialQueue.async { [weak self] in
-            guard let self else { return }
-            self.fetchUserProfile(username: username, token: token) { [weak self] result in
-                guard let self = self else { return }
-                self.handleFetchUserProfileResult(result: result, completion: completion)
-            }
-        }
     }
 
     private func fetchUserProfile(username: String, token: String, completion: @escaping (Result<UserResult, Error>) -> Void) {
@@ -80,6 +74,20 @@ extension ProfileImageService: NetworkService {
                                   message: "ProfileImageService: URL-адрес изображения профиля не найден",
                                   metadata: ["❗️": ""])
                 completion(.success(""))
+            }
+        }
+    }
+}
+
+// MARK: - ProfileImageServiceProtocol
+extension ProfileImageService: ProfileImageServiceProtocol {
+    
+    func fetchProfileImageURL(username: String, token: String, completion: @escaping (Result<String, Error>) -> Void) {
+        serialQueue.async { [weak self] in
+            guard let self else { return }
+            self.fetchUserProfile(username: username, token: token) { [weak self] result in
+                guard let self = self else { return }
+                self.handleFetchUserProfileResult(result: result, completion: completion)
             }
         }
     }

@@ -18,15 +18,23 @@ protocol ImagesListPhotosHelperProtocol {
 final class ImagesListPhotosHelper: ImagesListPhotosHelperProtocol {
     private let photosNetworkService = GenericNetworkService<[PhotoResult]>()
     private let dateFormatter = ISO8601DateFormatter()
+    private var currentPage = 1
+    private let maxPages = 3
 
     func performFetchPhotosRequest(page: Int, token: String, completion: @escaping (Result<[Photo], Error>) -> Void) {
-        let parameters = ["page": "\(page)", "per_page": "10", "token": token]
+        guard currentPage <= maxPages else {
+            completion(.success([]))
+            return
+        }
+        
+        let parameters = ["page": "\(page)", "per_page": "5", "token": token]
         photosNetworkService.fetch(parameters: parameters,
                                    method: "GET",
                                    url: APIEndpoints.Photos.photos) { result in
             switch result {
             case .success(let photoResults):
                 let newPhotos = photoResults.compactMap { self.mapToPhotos(photoResult: $0) }
+                self.currentPage += 1
                 completion(.success(newPhotos))
             case .failure(let error):
                 self.handleFetchPhotosFailure(error, completion: completion)

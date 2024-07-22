@@ -6,11 +6,11 @@
 //
 
 import UIKit
-
+// MARK: - Protocol
 protocol SingleImageViewControllerProtocol {
     func configure(withImageURL imageURL: URL)
 }
-
+// MARK: - Object
 final class SingleImageViewController: UIViewController {
     
     private lazy var scrollView: UIScrollView = {
@@ -131,7 +131,7 @@ extension SingleImageViewController: SingleImageViewControllerProtocol {
         imageView.alpha = 0
         
         DispatchQueue.main.async {
-            UIBlockingProgressHUD.show() // тут анимация показалась и и счезла, не вижу смысла ослаблять ссылку
+            UIBlockingProgressHUD.show()
         }
         
         imageView.kf.setImage(with: imageURL) { [weak self] result in
@@ -148,7 +148,9 @@ extension SingleImageViewController: SingleImageViewControllerProtocol {
                     self.imageView.transform = CGAffineTransform.identity
                     self.imageView.alpha = 1
                     self.rescaleAndCenterImageInScrollView()
-                })
+                }) { _ in
+                    UIBlockingProgressHUD.dismiss()
+                }
             case .failure(let error):
                 UIBlockingProgressHUD.dismiss()
                 let errorMessage = NetworkErrorHandler.errorMessage(from: error)

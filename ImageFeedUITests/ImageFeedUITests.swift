@@ -9,7 +9,7 @@ import XCTest
 import WebKit
 
 final class ImageFeedUITests: XCTestCase {
-    private let app = XCUIApplication()
+    private var app = XCUIApplication()
     
     override func setUpWithError() throws {
         continueAfterFailure = false
@@ -33,7 +33,7 @@ final class ImageFeedUITests: XCTestCase {
         
         sleep(2)
         
-        loginTextField.clearAndEnterText(text: "lyashenkokv@gmail.com") // Очищаю поле (метод в экстеншене) и ввожу email
+        loginTextField.clearAndEnterText(text: "login") // Очищаю поле (метод в экстеншене) и ввожу email
         app.toolbars["Toolbar"].buttons["Done"].tap()
         webView.swipeUp() // Прокручиваю экран вверх, чтобы открыть поле для пароля
         
@@ -46,7 +46,7 @@ final class ImageFeedUITests: XCTestCase {
         passwordTextField.tap() // Выбрать поле
         
         // Копирую пароль в буфер обмена
-        UIPasteboard.general.string = "vaBqi7-bumvid-nogtad"
+        UIPasteboard.general.string = "password"
         
         // Вставляю пароль из буфера обмена
         passwordTextField.press(forDuration: 1.1)
@@ -67,94 +67,6 @@ final class ImageFeedUITests: XCTestCase {
         let firstCell = app.tables.cells.element(boundBy: 0)
         XCTAssertTrue(firstCell.waitForExistence(timeout: 10)) // Убеждаюсь, что первый элемент ленты существует
     }
-    
-//    func testFeed() throws {
-//        // Получаю таблицу в приложении
-//        let tablesQuery = app.tables
-//        
-//        // Выбираю первую ячейку и прокручиваю вверх
-//        //let firstCell = tablesQuery.descendants(matching: .cell).element(boundBy: 0)
-//        
-////        // Прокручиваю таблицу до появления второй ячейки
-////        firstCell.swipeUp()
-////        
-////        sleep(2)
-//        
-//        // Ожидаю появления второй ячейки
-//        let secondCell = tablesQuery.descendants(matching: .cell).element(boundBy: 1)
-//        XCTAssertTrue(secondCell.waitForExistence(timeout: 5)) // Убедиться, что вторая ячейка существует
-//        
-//        // Кнопка лайк
-//        let likeButton = secondCell.buttons["likeButton"]
-//        
-//        // Убедиться, что кнопка лайка видима
-//        XCTAssertTrue(likeButton.waitForExistence(timeout: 5)) // Убедиться, что кнопка лайка существует
-//        
-//        // Поставить "лайк"
-//        likeButton.tap()
-//        sleep(2)
-//        
-//        // Снять "лайк"
-//        likeButton.tap()
-//        sleep(5)
-//        
-//        // Открываю ячейку
-//        secondCell.tap()
-//        
-//        sleep(2)
-//        
-//        // Ожидаю появления изображения
-//        let image = app.scrollViews.images.element(boundBy: 0)
-//        // Увеличиваю изображение
-//        image.pinch(withScale: 3, velocity: 1)
-//        // Уменьшаею изображение
-//        image.pinch(withScale: 0.5, velocity: -1)
-//        
-//        // Нажимаю кнопку "назад" в nav
-//        let navBackButtonWhiteButton = app.buttons["backButton"]
-//        XCTAssertTrue(navBackButtonWhiteButton.waitForExistence(timeout: 5))
-//        navBackButtonWhiteButton.tap()
-//        
-//        // Свайпаю таблицу
-//        app.swipeUp()
-//        sleep(2)
-//    }
-    
-    func testFeed() throws {
-            sleep(5)
-            // Свайп вверх
-            app.swipeUp()
-            // Свайп вниз
-            sleep(5)
-            app.swipeDown()
-            
-            sleep(5)
-            // Получаю таблицу в приложении
-            let tablesQuery = app.tables
-            // Ожидаю появления второй ячейки
-            let cellToLike = tablesQuery.children(matching: .cell).element(boundBy: 1)
-            
-            // Нахожу кнопку и нажимаю
-            cellToLike.buttons.firstMatch.tap()
-            sleep(5)
-            cellToLike.buttons.firstMatch.tap()
-            
-            sleep(5)
-            // Нажимаю на ячейку
-            cellToLike.tap()
-            
-            // Ожидаю появления изображения
-            let image = app.scrollViews.images.element(boundBy: 0)
-            XCTAssertTrue(image.waitForExistence(timeout: 10)) // Подтверждаю появление изображения
-            // Увеличиваю изображение
-            image.pinch(withScale: 3, velocity: 1)
-            // Уменьшаею изображение
-            image.pinch(withScale: 0.5, velocity: -1)
-            
-            // Нажимаю кнопку "назад" в nav
-            let backNavigationButton = app.buttons["backButton"]
-            backNavigationButton.tap()
-        }
     
     func testProfile() throws {
         sleep(3)

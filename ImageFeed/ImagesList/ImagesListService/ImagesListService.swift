@@ -7,13 +7,13 @@
 
 import Foundation
 import Kingfisher
-
+// MARK: - Protocol
 protocol ImagesListServiceProtocol {
     var photos: [Photo] { get }
     func fetchPhotosNextPage(with token: String)
     func changeLike(photoId: String, isLike: Bool, _ completion: @escaping (Result<VoidModel, Error>) -> Void)
 }
-
+// MARK: - Object
 final class ImagesListService {
     
     static let shared = ImagesListService()

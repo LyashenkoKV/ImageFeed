@@ -50,6 +50,7 @@ final class ImagesListViewController: UIViewController, ImagesListViewController
     private func configureTableView() {
         tableView.delegate = self
         tableView.dataSource = self
+        tableView.accessibilityIdentifier = "ImagesListTableView"
         tableView.separatorStyle = .none
         tableView.backgroundColor = .ypBlack
         tableView.addSubview(refreshControl)
@@ -82,6 +83,7 @@ final class ImagesListViewController: UIViewController, ImagesListViewController
     }
     
     func updateImagesList(startIndex: Int, endIndex: Int) {
+        showStubImageView(true)
         let indexPaths = (startIndex...endIndex).map { IndexPath(row: $0, section: 0) }
         UIView.performWithoutAnimation { [weak self] in
             self?.tableView.performBatchUpdates({
@@ -118,6 +120,7 @@ extension ImagesListViewController: UITableViewDataSource {
         if let photo = presenter?.photo(at: indexPath.row),
            let dateText = presenter?.format(date: photo.createdAt), let presenter = presenter as? ImagesListPresenter {
             cell.configure(with: photo, dateText: dateText, presenter: presenter)
+            cell.accessibilityIdentifier = "cell_\(indexPath.row)"
         }
         return cell
     }
