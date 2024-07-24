@@ -23,6 +23,7 @@ final class AlertPresenter {
             let action = UIAlertAction(title: button.title, style: button.style) { _ in
                 button.handler?()
             }
+            action.accessibilityIdentifier = button.identifier
             alert.addAction(action)
         }
         
@@ -34,7 +35,6 @@ final class AlertPresenter {
         case .logout:
             alert.view.accessibilityIdentifier = "Logout"
         }
-        
         delegate?.presentAlert(alert)
     }
 }

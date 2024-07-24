@@ -6,25 +6,12 @@
 //
 
 import Foundation
+import UIKit
 
 // MARK: - protocol
 protocol NetworkErrorProtocol {
     static func errorMessage(from error: Error) -> String
     static func handleErrorResponse(statusCode: Int) -> NetworkError
-}
-
-enum NetworkError: Error {
-    case invalidURLString
-    case unableToConstructURL
-    case noInternetConnection
-    case requestTimedOut
-    case emptyData
-    case tooManyRequests
-    case unknownError
-    case serviceUnavailable
-    case errorFetchingAccessToken
-    case unauthorized
-    case notFound
 }
 
 struct NetworkErrorHandler: NetworkErrorProtocol {
@@ -68,13 +55,13 @@ struct NetworkErrorHandler: NetworkErrorProtocol {
         case 401:
             return .errorFetchingAccessToken
         case 403:
-            return .unauthorized
+            return .tooManyRequests
         case 404:
             return .notFound
         case 422:
             return .unknownError
         case 429:
-            return .tooManyRequests
+            return .unauthorized
         case 500, 503:
             return .serviceUnavailable
         default:

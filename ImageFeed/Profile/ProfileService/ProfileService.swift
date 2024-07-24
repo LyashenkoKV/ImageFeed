@@ -6,6 +6,12 @@
 //
 
 import UIKit
+// MARK: - Protocol
+protocol ProfileServiceProtocol {
+    var isProfileLoaded: Bool { get }
+    
+    func fetchProfile(_ token: String, completion: @escaping (Result<Profile, Error>) -> Void)
+}
 
 // MARK: - Object
 final class ProfileService {
@@ -62,6 +68,9 @@ extension ProfileService: NetworkService {
             return nil
         }
     }
+}
+// MARK: - ProfileServiceProtocol
+extension ProfileService: ProfileServiceProtocol {
     
     func fetchProfile(_ token: String, completion: @escaping (Result<Profile, Error>) -> Void) {
         serialQueue.async { [weak self] in
@@ -73,7 +82,7 @@ extension ProfileService: NetworkService {
                 case .success(let profile):
                     DispatchQueue.main.async {
                         self.profile = profile
-                        Logger.shared.log(.debug, 
+                        Logger.shared.log(.debug,
                                           message: "ProfileService: Данные профиля успешно получены",
                                           metadata: ["✅": ""])
                         completion(.success(profile))

@@ -27,6 +27,7 @@ final class AuthViewController: UIViewController {
     
     private lazy var loginButton: UIButton = {
         let button = UIButton()
+        button.accessibilityIdentifier = "Authenticate"
         button.setTitle("Войти", for: .normal)
         button.setTitleColor(.ypBlack, for: .normal)
         button.titleLabel?.font = .boldSystemFont(ofSize: 17)
@@ -74,6 +75,10 @@ final class AuthViewController: UIViewController {
 private extension AuthViewController {
     @objc private func loginButtonPressed() {
         let webViewViewController = WebViewViewController()
+        let authHelper = AuthHelper()
+        let webViewPresenter = AuthPresenter(authHelper: authHelper)
+        webViewViewController.presenter = webViewPresenter
+        webViewPresenter.view = webViewViewController
         webViewViewController.delegate = self
         navigationController?.pushViewController(webViewViewController, animated: true)
     }
@@ -129,7 +134,7 @@ private extension AuthViewController {
         let alertModel = AlertModel(
             title: "Что-то пошло не так(",
             message: "Не удалось войти в систему",
-            buttons: [AlertButton(title: "OK", style: .cancel, handler: nil)],
+            buttons: [AlertButton(title: "OK", style: .cancel, identifier: nil, handler: nil)],
             context: .error
         )
         AlertPresenter.showAlert(with: alertModel, delegate: self)

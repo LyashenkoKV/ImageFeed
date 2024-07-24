@@ -7,7 +7,7 @@
 
 import UIKit
 import SkeletonView
-
+// MARK: - Object
 final class ImagesListCell: UITableViewCell {
     static let reuseIdentifier = "ImagesListCell"
     
@@ -17,7 +17,7 @@ final class ImagesListCell: UITableViewCell {
             likeButton.tintColor = isLiked ? .ypRed : .ypWhite.withAlphaComponent(0.5)
         }
     }
-    var likeButtonAction: ((String, Bool) -> Void)?
+    private var likeButtonAction: ((String, Bool) -> Void)?
     
     private lazy var customContentView: UIView = {
         let view = UIView()
@@ -36,7 +36,7 @@ final class ImagesListCell: UITableViewCell {
         return imageView
     }()
     
-    private lazy var customTextLabel: UILabel = {
+    lazy var customDateLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
         label.font = UIFont.systemFont(ofSize: 13, weight: .regular)
@@ -47,6 +47,7 @@ final class ImagesListCell: UITableViewCell {
     
     private lazy var likeButton: UIButton = {
         let button = UIButton(type: .custom)
+        button.accessibilityIdentifier = "likeButton"
         button.translatesAutoresizingMaskIntoConstraints = false
         button.tintColor = .ypGray
         let heartImage = UIImage(systemName: "heart.fill")?.withRenderingMode(.alwaysTemplate)
@@ -57,6 +58,7 @@ final class ImagesListCell: UITableViewCell {
     
     override func layoutSubviews() {
         super.layoutSubviews()
+        contentView.backgroundColor = .ypBlack
         setupViews()
         configureSubviews()
     }
@@ -68,7 +70,7 @@ final class ImagesListCell: UITableViewCell {
     
     private func setupViews() {
         contentView.addSubview(customContentView)
-        [customImageView, likeButton, customTextLabel].forEach {
+        [customImageView, likeButton, customDateLabel].forEach {
             customContentView.addSubview($0)
         }
         addGradientView()
@@ -102,10 +104,10 @@ final class ImagesListCell: UITableViewCell {
             customImageView.leadingAnchor.constraint(equalTo: customContentView.leadingAnchor),
             customImageView.trailingAnchor.constraint(equalTo: customContentView.trailingAnchor),
             
-            customTextLabel.heightAnchor.constraint(equalToConstant: 18),
-            customTextLabel.bottomAnchor.constraint(equalTo: customContentView.bottomAnchor, constant: -8),
-            customTextLabel.leadingAnchor.constraint(equalTo: customContentView.leadingAnchor, constant: 8),
-            customTextLabel.trailingAnchor.constraint(equalTo: customContentView.trailingAnchor),
+            customDateLabel.heightAnchor.constraint(equalToConstant: 18),
+            customDateLabel.bottomAnchor.constraint(equalTo: customContentView.bottomAnchor, constant: -8),
+            customDateLabel.leadingAnchor.constraint(equalTo: customContentView.leadingAnchor, constant: 8),
+            customDateLabel.trailingAnchor.constraint(equalTo: customContentView.trailingAnchor),
             
             likeButton.topAnchor.constraint(equalTo: customContentView.topAnchor),
             likeButton.trailingAnchor.constraint(equalTo: customContentView.trailingAnchor),
@@ -129,13 +131,13 @@ private extension ImagesListCell {
 // MARK: - SkeletonView
 private extension ImagesListCell {
     private func showSkeletons() {
-        DispatchQueue.main.async { // анимация показалась и исчезла, не вижу смысла ослаблять ссылку
+        DispatchQueue.main.async { 
             self.customImageView.showAnimatedGradientSkeleton(usingGradient: .init(baseColor: .darkGray))
         }
     }
 
     private func hideSkeletons() {
-        DispatchQueue.main.async { // аналогично
+        DispatchQueue.main.async {
             self.customImageView.hideSkeleton()
             self.customImageView.isSkeletonable = false
         }
@@ -144,15 +146,16 @@ private extension ImagesListCell {
 
 // MARK: - Configure Image
 extension ImagesListCell {
-    func configure(withImageURL imageURL: URL?, text: String, isLiked: Bool, photoId: String) {
-        
-        self.photoId = photoId
-        self.isLiked = isLiked
+    
+    func configure(with photo: Photo, dateText: String, presenter: ImagesListPresenterProtocol) {
+        self.photoId = photo.id
+        self.isLiked = photo.isLiked
+        self.customDateLabel.text = dateText
         
         customImageView.contentMode = .center
         showSkeletons()
         
-        if let imageURL = imageURL {
+        if let imageURL = URL(string: photo.regularImageURL) {
             customImageView.kf.setImage(with: imageURL,
                                         placeholder: UIImage(named: "Stub"),
                                         options: [
@@ -170,6 +173,20 @@ extension ImagesListCell {
         } else {
             customImageView.image = nil
         }
-        customTextLabel.text = text
+        
+        likeButtonAction = { [weak self] (photoId, isLiked) in
+            presenter.changeLike(photoId: photoId, isLike: isLiked) { result in
+                guard let self else { return }
+                switch result {
+                case .success:
+                    self.isLiked = isLiked
+                case .failure(let error):
+                    let errorMessage = NetworkErrorHandler.errorMessage(from: error)
+                    Logger.shared.log(.error,
+                                      message: "ImagesListService: Не удалось изменить лайк",
+                                      metadata: ["❌": errorMessage])
+                }
+            }
+        }
     }
 }

@@ -14,8 +14,23 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         
+        let isUITesting = ProcessInfo.processInfo.arguments.contains("UITestMode")
+        
         let window = UIWindow(windowScene: windowScene)
-        let splashViewController = SplashViewController()
+        
+        let splashViewController: SplashViewController
+        
+        if isUITesting {
+            splashViewController = SplashViewController(
+                profileService: MockProfileService(),
+                storage: MockOAuth2TokenStorage(),
+                profileImageService: MockProfileImageService(),
+                imagesListService: MockImagesListService()
+            )
+        } else {
+            splashViewController = SplashViewController()
+            
+        }
         window.rootViewController = splashViewController
         window.makeKeyAndVisible()
         self.window = window

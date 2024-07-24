@@ -5,32 +5,38 @@
 //  Created by Konstantin Lyashenko on 31.05.2024.
 //
 
+
 import UIKit
 import WebKit
-
-// MARK: - protocol
+// MARK: - Protocols
 protocol WebViewViewControllerDelegate: AnyObject {
     func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String)
     func webViewViewControllerDidCancel(_ vc: WebViewViewController)
     func webViewViewController(_ vc: WebViewViewController, didFailWithError error: Error)
 }
 
-// MARK: - UIViewController
+protocol WebViewViewControllerProtocol: AnyObject {
+    var presenter: AuthPresenterProtocol? { get set }
+    func loadAuthView(request: URLRequest)
+    func setProgressValue(_ newValue: Float)
+    func setProgressHidden(_ isHidden: Bool)
+    func didAuthenticateWithCode(_ code: String)
+    func didFailWithError(_ error: Error)
+    func didCancel()
+}
+
+// MARK: - Object
 class WebViewViewController: UIViewController {
     
     weak var delegate: WebViewViewControllerDelegate?
+    var presenter: AuthPresenterProtocol?
     
-    private var authService: AuthService?
-    private var estimatedProgressObservation: NSKeyValueObservation?
-    
-    private lazy var webView: WKWebView = {
-        let webView = WKWebView()
-        return webView
-    }()
+    private lazy var webView = WKWebView()
     
     private lazy var progressView: UIProgressView = {
         let progressView = UIProgressView()
-        progressView.progressTintColor = .ypBlack
+        progressView.progressTintColor = .black
+        progressView.progress = 0.0
         return progressView
     }()
     
@@ -39,28 +45,47 @@ class WebViewViewController: UIViewController {
                                          style: .plain,
                                          target: self,
                                          action: #selector(backButtonPressed))
-        backButton.tintColor = .ypBlack
+        backButton.tintColor = .black
         return backButton
     }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .ypWhite
+        view.backgroundColor = .white
         setupUI()
-        authService = AuthService(webView: webView)
-        authService?.delegate = self
-        updateProgress()
+        webView.navigationDelegate = self
+        webView.accessibilityIdentifier = "UnsplashWebView"
+        presenter?.viewDidLoad()
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        addObserver()
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        webView.addObserver(
+            self,
+            forKeyPath: #keyPath(WKWebView.estimatedProgress),
+            options: .new,
+            context: nil)
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        webView.removeObserver(self, forKeyPath: #keyPath(WKWebView.estimatedProgress), context: nil)
+    }
+
+    override func observeValue(forKeyPath keyPath: String?, 
+                               of object: Any?,
+                               change: [NSKeyValueChangeKey : Any]?,
+                               context: UnsafeMutableRawPointer?) {
+        if keyPath == #keyPath(WKWebView.estimatedProgress) {
+            presenter?.didUpdateProgressValue(webView.estimatedProgress)
+        } else {
+            super.observeValue(forKeyPath: keyPath, of: object, change: change, context: context)
+        }
     }
     
     private func setupUI() {
-        [progressView, webView].forEach {
-            view.addSubview($0)
-        }
+        [progressView, webView].forEach { view.addSubview($0) }
         configureBackButton()
         setupConstraints()
     }
@@ -70,9 +95,7 @@ class WebViewViewController: UIViewController {
     }
     
     private func setupConstraints() {
-        [webView, progressView].forEach {
-            $0.translatesAutoresizingMaskIntoConstraints = false
-        }
+        [webView, progressView].forEach { $0.translatesAutoresizingMaskIntoConstraints = false }
         
         NSLayoutConstraint.activate([
             progressView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -87,35 +110,51 @@ class WebViewViewController: UIViewController {
     }
 }
 
-// MARK: - Update Progress
-private extension WebViewViewController {
-    
-    private func addObserver() {
-        estimatedProgressObservation = webView.observe(\.estimatedProgress, changeHandler: { [weak self] _, _ in
-            guard let self else { return }
-            
-            self.updateProgress()
-        })
-        authService?.loadAuthView()
+// MARK: - WebViewViewControllerProtocol
+extension WebViewViewController: WebViewViewControllerProtocol {
+    func loadAuthView(request: URLRequest) {
+        webView.load(request)
     }
     
-    private func updateProgress() {
-        progressView.progress = Float(webView.estimatedProgress)
-        progressView.isHidden = fabs(webView.estimatedProgress - 1.0) <= 0.0001
+    func setProgressValue(_ newValue: Float) {
+        progressView.progress = newValue
+    }
+
+    func setProgressHidden(_ isHidden: Bool) {
+        progressView.isHidden = isHidden
+    }
+
+    func didAuthenticateWithCode(_ code: String) {
+        delegate?.webViewViewController(self, didAuthenticateWithCode: code)
+    }
+
+    func didFailWithError(_ error: Error) {
+        let errorMessage = NetworkErrorHandler.errorMessage(from: error)
+        let alertModel = AlertModel(
+            title: "Что-то пошло не так(",
+            message: errorMessage,
+            buttons: [AlertButton(title: "OK", style: .cancel, identifier: nil, handler: nil)],
+            context: .error
+        )
+        AlertPresenter.showAlert(with: alertModel, delegate: self)
+    }
+
+    func didCancel() {
+        delegate?.webViewViewControllerDidCancel(self)
     }
 }
 
 // MARK: - Button Action
-private extension WebViewViewController {
-    
+extension WebViewViewController {
     @objc private func backButtonPressed() {
         let alertModel = AlertModel(
             title: "Выход из авторизации",
             message: "Вы уверены, что хотите покинуть страницу авторизации?",
             buttons: [
-                AlertButton(title: "Отмена", style: .cancel, handler: nil),
-                AlertButton(title: "Выход", style: .destructive, handler: { [weak self] in
+                AlertButton(title: "Отмена", style: .cancel, identifier: nil, handler: nil),
+                AlertButton(title: "Выход", style: .destructive, identifier: nil, handler: { [weak self] in
                     guard let self = self else { return }
+                    ProfileLogoutService.shared.logout()
                     self.delegate?.webViewViewControllerDidCancel(self)
                 })
             ],
@@ -125,29 +164,48 @@ private extension WebViewViewController {
     }
 }
 
-// MARK: - AuthServiceDelegate
-extension WebViewViewController: AuthServiceDelegate {
-    func authService(_ authService: AuthService, didAuthenticateWithCode code: String) {
-        delegate?.webViewViewController(self, didAuthenticateWithCode: code)
-    }
-
-    func authServiceDidCancel(_ authService: AuthService) {
-        delegate?.webViewViewControllerDidCancel(self)
-    }
-    
-    func authService(_ authService: AuthService, didFailWithError error: Error) {
-        let alertModel = AlertModel(
-            title: "Ошибка",
-            message: NetworkErrorHandler.errorMessage(from: error),
-            buttons: [AlertButton(title: "OK", style: .cancel, handler: nil)],
-            context: .error
-        )
-        AlertPresenter.showAlert(with: alertModel, delegate: self)
-    }
-}
 // MARK: - AlertPresenterDelegate
 extension WebViewViewController: AlertPresenterDelegate {
     func presentAlert(_ alert: UIAlertController) {
-        present(alert, animated: true, completion: nil)
+        present(alert, animated: true)
+    }
+}
+
+// MARK: - WKNavigationDelegate
+extension WebViewViewController: WKNavigationDelegate {
+    func webView(_ webView: WKWebView,
+                 decidePolicyFor navigationAction: WKNavigationAction,
+                 decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        
+        if let code = code(from: navigationAction) {
+            didAuthenticateWithCode(code)
+            decisionHandler(.cancel)
+        } else {
+            decisionHandler(.allow)
+        }
+    }
+    
+    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+        let errorMessage = NetworkErrorHandler.errorMessage(from: error)
+        
+        let error = NetworkError.emptyData
+        didFailWithError(error)
+        Logger.shared.log(.error,
+                          message: "AuthService: Ошибка при загрузке данных WebView",
+                          metadata: ["❌": errorMessage])
+    }
+    
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        Logger.shared.log(.debug,
+                          message: "AuthService: Загрузка завершена:",
+                          metadata: ["✅": ""])
+        presenter?.didUpdateProgressValue(1.0)
+    }
+    
+    private func code(from navigationAction: WKNavigationAction) -> String? {
+        if let url = navigationAction.request.url {
+            return presenter?.code(from: url)
+        }
+        return nil
     }
 }
