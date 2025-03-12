@@ -1,4 +1,4 @@
-# Image Feed
+# Image
 
 # Ссылки
 
